@@ -1,0 +1,9 @@
+Access mySQL:
+mysql -u root --password='root'
+
+user created for mysql database: admin
+password: admin
+
+CREATE DATABASE matcha_db;
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin';
+GRANT ALL ON matcha_db.* TO `admin`@`localhost`;

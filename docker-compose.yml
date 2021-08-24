@@ -1,0 +1,47 @@
+version: "2"
+services:
+  client:
+    # image: webapp-client
+    build:
+      context: ./client
+    restart: always
+    ports:
+      - "3000:3000"
+    working_dir: /client/src/app
+    volumes:
+      - ./client:/client/src/app
+    entrypoint: ["npm", "start"]
+    links:
+      - api
+    networks:
+      - webappnetwork
+  api:
+    # image: webapp-api
+    build:
+        context: ./api
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./api:/api
+      - /api/node_modules
+    depends_on:
+      - db
+    networks:
+      - webappnetwork
+  db:
+    image: mysql
+    restart: always
+    container_name: mysql
+    volumes:
+      - ./db:/var/lib/mysql
+    ports:
+      - 3306:33060
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - webappnetwork
+networks:
+  webappnetwork:
+    driver: bridge

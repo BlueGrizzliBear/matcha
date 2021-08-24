@@ -1,7 +1,6 @@
 version: "2"
 services:
   client:
-    # image: webapp-client
     build:
       context: ./client
     restart: always
@@ -16,7 +15,6 @@ services:
     networks:
       - webappnetwork
   api:
-    # image: webapp-api
     build:
         context: ./api
     restart: always

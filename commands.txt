@@ -1,0 +1,23 @@
+Download and install Nodejs and Npm
+
+mkdir api
+cd api
+
+npm init
+
+npm install express nodemon
+
+npx express-generator --view=ejs
+
+npm install
+
+-- change the start script of the api with nodemon --
+
+cd ..
+npx create-react-app client
+
+cd ..
+
+-- you can launch both programs with npm start in each directory --
+
+-- follow https://www.freecodecamp.org/news/create-a-react-frontend-a-node-express-backend-and-connect-them-together-c5798926047c/ to connect your api with yhe react front --

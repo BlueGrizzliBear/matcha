@@ -1,5 +1,5 @@
 # Use a lighter version of Node as a parent image
-FROM node:16
+FROM node:16-alpine
 
 # Set the working directory to /api
 WORKDIR /api
@@ -10,11 +10,13 @@ COPY package*.json /api/
 # install dependencies
 RUN npm install
 
+# install MySQL client package to test db connection
+RUN apk update && apk add mysql-client
+
 # Copy the current directory contents into the container at /api
 COPY . /api/
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
 
-# Run the app when the container launches
-CMD ["npm", "start"]
+# Entrypoint is defined in .yml file

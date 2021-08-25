@@ -1,0 +1,17 @@
+{
+    "dbcreate": {
+        "driver": "mysql",
+        "host"      : "db",
+        "user"      : "root",
+        "password"  : "root",
+        "multipleStatements": true
+    },
+    "dev": {
+        "driver": "mysql",
+        "host"      : "db",
+        "user"      : "root",
+        "password"  : "root",
+        "database"  : "matcha_db",
+        "multipleStatements": true
+    }
+}

@@ -16,5 +16,4 @@ COPY . /client/
 # Make port 3000 available to the world outside this container
 EXPOSE 3000
 
-# Run the app when the container launches
-CMD ["npm", "start"]
+# Entrypoint is defined in .yml file

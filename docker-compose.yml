@@ -1,9 +1,9 @@
 version: "2"
 services:
   client:
-    # image: webapp-client
     build:
       context: ./client
+    image: webapp-client
     restart: always
     ports:
       - "3000:3000"
@@ -16,9 +16,9 @@ services:
     networks:
       - webappnetwork
   api:
-    # image: webapp-api
     build:
-        context: ./api
+      context: ./api
+    image: webapp-api
     restart: always
     ports:
       - "9000:9000"
@@ -27,14 +27,15 @@ services:
       - /api/node_modules
     depends_on:
       - db
+    entrypoint: ["./wait-for-mysql.sh", "db", "npm", "start"]
     networks:
       - webappnetwork
   db:
     image: mysql
     restart: always
     container_name: mysql
-    volumes:
-      - ./db:/var/lib/mysql
+    # volumes:
+    #   - ./db:/var/lib/mysql
     ports:
       - 3306:33060
     command: --default-authentication-plugin=mysql_native_password

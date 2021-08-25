@@ -7,3 +7,5 @@ password: admin
 CREATE DATABASE matcha_db;
 CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin';
 GRANT ALL ON matcha_db.* TO `admin`@`localhost`;
+
+//mysql --host=db --user=root --password=root

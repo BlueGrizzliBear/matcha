@@ -26,25 +26,15 @@ div#root {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* align-items: stretch; */
-  /* align-content: flex-start; */
 }
 
 header {
   display: flex;
   align-items: center;
-  /* height: 20px; */
-  /* padding: 20px; */
 }
-/* header :child { */
-  /* justify-content: space-between; */
-/* } */
 
 h1 {
   font-size: 30px;
-  /* text-align: start; */
-  position: relative;
-  /* left: 0%; */
   padding-bottom: 10vh;
   margin: 20px;
 }
@@ -70,7 +60,7 @@ footer #notice {
   h1 {
     font-size: 40px;
     text-align: start;
-    left: 20%;
+    padding-left: 20%;
   }
 
   footer #notice {

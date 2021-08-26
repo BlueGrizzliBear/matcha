@@ -6,8 +6,8 @@ import Home from './Home';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { apiResponse: "", dbResponse: "" };
-    
+    this.state = { apiResponse: "", dbResponse: "", userHomeResponse: "" };
+
   }
 
   callAPI() {
@@ -21,11 +21,32 @@ class App extends Component {
         .then(res => res.text())
         .then(res => this.setState({ dbResponse: res }))
         .catch(err => err);
-}
+  }
+
+  callUserHome() {
+    // catch the username if exist or null
+    fetch("http://localhost:9000/")
+    .then(res => res.json())
+    .then(data => {
+      this.setState( {userHomeResponse: data.user} )
+    })
+    .catch(console.error);
+  }
+
+  callLogin() {
+    // catch the username if exist or null
+    fetch("http://localhost:9000/login")
+    .then(res => res.json())
+    .then(data => {
+      this.setState( {userHomeResponse: data.user} )
+    })
+    .catch(console.error);
+  }
 
   componentWillMount() {
       this.callAPI();
       this.callDB();
+      this.callUserHome();
   }
 
   render () {

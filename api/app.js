@@ -6,6 +6,10 @@ var logger = require('morgan');
 var cors = require("cors");
 
 var indexRouter = require('./routes/index');
+var loginRouter = require('./routes/login');
+var logoutRouter = require('./routes/logout');
+var processLoginRouter = require('./routes/process_login');
+var welcomeRouter = require('./routes/welcome');
 var testAPIRouter = require('./routes/testAPI');
 var testDBRouter = require('./routes/testDB');
 var usersRouter = require('./routes/users');
@@ -24,6 +28,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/login', loginRouter);
+app.use('/logout', logoutRouter);
+app.use('/welcome', welcomeRouter);
+app.use('/process_login', processLoginRouter);
 app.use('/testAPI', testAPIRouter);
 app.use('/testDB', testDBRouter);
 app.use('/users', usersRouter);

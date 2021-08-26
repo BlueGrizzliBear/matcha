@@ -1,6 +1,6 @@
 import { Component } from 'react';
-import NavBar from '../components/NavBar';
 import Button from '@material-ui/core/Button';
+import { Link } from "react-router-dom";
 
 class Homepage extends Component {
 	// constructor(props) {
@@ -11,18 +11,12 @@ class Homepage extends Component {
 	render () {
 		return (
 			<>
-				<header>
-					<NavBar />
-				</header>
-				<main>
-					<Button id="createAccount" variant="contained" color="primary">Create account</Button>
-				</main>
-				<footer>
-					<p id="notice">All photos are of professional models and used for illustrative purposes only</p>
-				</footer>
+				<h1 id="catchphrase">For people searching for love</h1>
+				<Button variant="contained" color="primary" component={Link} to="/register">Create account</Button>
 			</>
 		);
 	}
+
 }
 
 export default Homepage;

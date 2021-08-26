@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import '../assets/stylesheets/Components.css';
+import { Redirect, Switch, Route } from "react-router-dom";
+
 import Homepage from './Homepage';
-import UserHome from './UserHome';
+import Login from './Login';
+import Register from './Register';
+import NavBar from '../components/NavBar';
 
 class App extends Component {
   constructor(props) {
@@ -52,15 +56,38 @@ class App extends Component {
   render () {
     return (
       <>
-      	<div className="App">
+      	{/* <div className="App">
           {this.userHomeResponse ? <UserHome /> : <Homepage />}
-        </div>
+        </div> */}
+        <header>
+					<NavBar />
+				</header>
+				<main>
+          <Switch>
+            <Route exact path="/">
+              {this.userHomeResponse ? <Redirect to="/userhome" /> : <Homepage />}
+            </Route>
+            <Route path="/login">
+              <Login />
+            </Route>
+            <Route path="/register">
+              <Register />
+            </Route>
+            {/* <Route path="/userhome">
+              <UserHome />
+            </Route> */}
+          </Switch>
+      	</main>
+				<footer>
+					<p id="notice">All photos are of professional models and used for illustrative purposes only</p>
+          <div className="App-intro">{this.state.apiResponse}</div>
+          <div className="App-intro">{this.state.dbResponse}</div>
+				</footer>
       </>
     );
   }
 }
 
-/* <div className="App-intro">{this.state.apiResponse}</div>
-<div className="App-intro">{this.state.dbResponse}</div> */
+
 
 export default App;

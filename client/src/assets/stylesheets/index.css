@@ -1,0 +1,49 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* background rendering */
+  background-image:
+    linear-gradient(to bottom, rgba(171, 0, 144, .25), rgba(171, 0, 144, .25)),
+    url('../images/mobile_bkg.jpg');
+  background-position: bottom center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+div.App {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* align-items: stretch; */
+  /* align-content: flex-start; */
+}
+
+/* Button #createAccount { */
+button#createAccount {
+  position: 50%;
+}
+
+footer #notice {
+  font-size: 60%;
+}
+
+/* At the top level of your code */
+@media screen and (min-width: 768px) {
+  body {
+    background-image:
+      linear-gradient(to bottom, rgba(171, 0, 144, .25), rgba(171, 0, 144, .25)),
+      url('../images/web_bkg.jpg');
+    background-position: center center;
+  }
+
+  footer #notice {
+    font-size: 100%;
+  }
+}

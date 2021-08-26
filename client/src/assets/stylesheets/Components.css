@@ -1,0 +1,13 @@
+.App {
+  text-align: center;
+  color: white;
+}
+
+#NavBar {
+  display: flex;
+
+  justify-content: space-between;
+  flex-flow: row wrap;
+  align-items: center;
+  margin: 20px;
+}

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-// import logo from './logo.svg';
-import './App.css';
-import Home from './Home';
+import '../assets/stylesheets/Components.css';
+import Homepage from './Homepage';
 
 class App extends Component {
   constructor(props) {
@@ -30,13 +29,16 @@ class App extends Component {
 
   render () {
     return (
-      <div className="App">
-        <Home />
-        <p className="App-intro">{this.state.apiResponse}</p>
-        <p className="App-intro">{this.state.dbResponse}</p>
-      </div>
+      <>
+      	<div className="App">
+          <Homepage />
+        </div>
+      </>
     );
   }
 }
+
+/* <div className="App-intro">{this.state.apiResponse}</div>
+<div className="App-intro">{this.state.dbResponse}</div> */
 
 export default App;

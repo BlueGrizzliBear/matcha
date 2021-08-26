@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import '../assets/stylesheets/Components.css';
 import Homepage from './Homepage';
+import UserHome from './UserHome';
 
 class App extends Component {
   constructor(props) {
@@ -52,7 +53,7 @@ class App extends Component {
     return (
       <>
       	<div className="App">
-          <Homepage />
+          {this.userHomeResponse ? <UserHome /> : <Homepage />}
         </div>
       </>
     );

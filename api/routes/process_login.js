@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   // get the data
   let { username, password } = req.body;
 
@@ -13,7 +13,7 @@ router.get('/', function(req, res, next) {
   };
 
   // check user and password are in database
-  if ( username === userdetails["username"] && password === userdetails["password"] ) {
+  if (username === userdetails["username"] && password === userdetails["password"]) {
     // saving the data to the cookies and redirect
     res.cookie("username", username).status(200).end();
   }

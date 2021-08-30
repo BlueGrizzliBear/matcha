@@ -1,28 +1,9 @@
 import { useState } from 'react';
-import { Button, TextField, InputLabel, FilledInput, InputAdornment, Box, IconButton, FormControl } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Button, Box } from '@material-ui/core';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
-
-const formStyle = makeStyles((theme) => ({
-	root: {
-		border: '1px solid #e2e2e1',
-		overflow: 'hidden',
-		borderRadius: 10,
-		backgroundColor: '#fff',
-		'&:hover': {
-			backgroundColor: '#fff',
-		},
-		'&$focused': {
-			backgroundColor: '#fff',
-			borderColor: theme.palette.primary.main,
-		},
-	},
-	focused: {},
-}));
+import InputForm, { PasswordInputForm } from '../components/InputForm';
 
 function Login() {
-
-	const classes = formStyle();
 
 	const [values, setValues] = useState({
 		username: '',
@@ -56,42 +37,16 @@ function Login() {
 		<>
 			<Box className="formBox" style={{ borderRadius: 10 }}>
 				<form onSubmit={handleLogin} noValidate autoComplete="off">
-					<TextField id="filled-required"
-						required
-						label="Username"
-						autoComplete="username"
-						autoFocus={true}
-						value={values.username}
-						onChange={handleChange('username')}
-						variant="filled"
-						InputProps={{ classes, disableUnderline: true }}
-						style={{ width: '90%', margin: "8px" }} />
-					<FormControl
-						variant="filled"
-						style={{ width: '90%', margin: "8px" }}>
-						<InputLabel htmlFor="filled-adornment-password">Password</InputLabel>
-						<FilledInput
-							classes={classes}
-							disableUnderline={true}
-							id="filled-adornment-password"
-							autoComplete="current-password"
-							type={values.showPassword ? 'text' : 'password'}
-							value={values.password}
-							onChange={handleChange('password')}
-							endAdornment={
-								<InputAdornment position="end">
-									<IconButton
-										aria-label="toggle password visibility"
-										onClick={handleClickShowPassword}
-										onMouseDown={handleMouseDownPassword}
-										edge="end"
-									>
-										{values.showPassword ? <Visibility /> : <VisibilityOff />}
-									</IconButton>
-								</InputAdornment>
-							}
-						/>
-					</FormControl>
+					<InputForm label="Username" value={values.username} autoFocus={true} onChange={handleChange('username')} />
+					<PasswordInputForm
+						label="Password"
+						value={values.password}
+						type={values.showPassword ? 'text' : 'password'}
+						onChange={handleChange('password')}
+						onClick={handleClickShowPassword}
+						onMouseDown={handleMouseDownPassword}
+						visibility={values.showPassword ? <Visibility /> : <VisibilityOff />}
+					/>
 					<Button id="createAccount"
 						variant="contained"
 						color="primary"

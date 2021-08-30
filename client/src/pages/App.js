@@ -38,7 +38,7 @@ class App extends Component {
       .catch(console.error);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.callAPI();
     this.callDB();
     this.callUserHome();

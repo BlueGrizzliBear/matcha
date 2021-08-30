@@ -1,46 +1,72 @@
-import { Component } from 'react';
-
-import { TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { TextField, InputLabel, FilledInput, InputAdornment, IconButton, FormControl } from '@material-ui/core';
 
 const formStyle = makeStyles((theme) => ({
 	root: {
-	  border: '1px solid #e2e2e1',
-	  overflow: 'hidden',
-	  borderRadius: 10,
-	  backgroundColor: '#fff',
-	  '&:hover': {
+		border: '1px solid #e2e2e1',
+		overflow: 'hidden',
+		borderRadius: 10,
 		backgroundColor: '#fff',
-	  },
-	  '&$focused': {
-		backgroundColor: '#fff',
-		borderColor: theme.palette.primary.main,
-	  },
+		'&:hover': {
+			backgroundColor: '#fff',
+		},
+		'&$focused': {
+			backgroundColor: '#fff',
+			borderColor: theme.palette.primary.main,
+		},
 	},
 	focused: {},
 }));
 
-// function InputForm(props) {
-class InputForm extends Component {
-
-    constructor(props) {
-    super(props);
-  }
-  
-  
-  render () {
-  const classes = formStyle();
-  return (
-    <>
-      <TextField	id="filled-required"
-      required
-      label={this.props.label}
-      variant="filled"
-      InputProps={{ classes, disableUnderline: true }}
-      style={{ width: '90%', margin: "8px" }}/>
-    </>
-  );
-}
+export default function InputForm(props) {
+	const classes = formStyle();
+	return (
+		<>
+			<TextField id={props.label}
+				required
+				label={props.label}
+				value={props.values}
+				onChange={props.onChange}
+				autoFocus={props.autoFocus}
+				autoComplete={props.label}
+				type={props.type ? props.type : "text"}
+				variant="filled"
+				InputProps={{ classes, disableUnderline: true }}
+				style={{ width: '90%', margin: props.margin ? props.margin : "8px" }} />
+		</>
+	);
 }
 
-export default InputForm;
+export function PasswordInputForm(props) {
+	const classes = formStyle();
+	return (
+		<>
+			<FormControl
+				variant="filled"
+				style={{ width: '90%', margin: "8px" }}>
+				<InputLabel htmlFor="filled-adornment-password" required>Password</InputLabel>
+				<FilledInput
+					classes={classes}
+					disableUnderline={true}
+					id="filled-adornment-password"
+					autoComplete="current-password"
+					type={props.type}
+					value={props.value}
+					onChange={props.onChange}
+					endAdornment={
+						<InputAdornment position="end">
+							<IconButton
+								aria-label="toggle password visibility"
+								onClick={props.onClick}
+								onMouseDown={props.onMouseDown}
+								edge="end"
+							>
+								{props.visibility}
+							</IconButton>
+						</InputAdornment>
+					}
+				/>
+			</FormControl>
+		</>
+	);
+}

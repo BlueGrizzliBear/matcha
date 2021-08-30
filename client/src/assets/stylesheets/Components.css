@@ -5,10 +5,12 @@
 .formBox {
   display: flex;
   width: 75%;
+  min-width: 300px;
+  max-width: 400px;
   margin: 0 auto;
   background-color: rgba(252, 221, 236, 0.7);
   flex-direction: column;
-  padding: 20px 5px;
+  padding: 15px 3px;
 }
 
 #NavBar {
@@ -22,8 +24,4 @@
 
 /* At the top level of your code */
 @media screen and (min-width: 768px) {
-  .formBox {
-    width: 30%;
-    /* margin: 0 auto; */
-  }
 }

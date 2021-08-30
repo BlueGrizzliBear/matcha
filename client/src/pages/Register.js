@@ -1,65 +1,17 @@
-import { Button, TextField, Box } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Button, Box } from '@material-ui/core';
 import InputForm from '../components/InputForm';
-
-const formStyle = makeStyles((theme) => ({
-	root: {
-	  border: '1px solid #e2e2e1',
-	  overflow: 'hidden',
-	  borderRadius: 10,
-	  backgroundColor: '#fff',
-	  '&:hover': {
-		backgroundColor: '#fff',
-	  },
-	  '&$focused': {
-		backgroundColor: '#fff',
-		borderColor: theme.palette.primary.main,
-	  },
-	},
-	focused: {},
-}));
 
 function Register() {
 	
-	const classes = formStyle();
-
 	return (
 		<>
 			<Box className="formBox" style={{borderRadius: 10}}>
 				<form noValidate autoComplete="off">
-						{/* <InputForm label="Email"/> */}
-						<TextField	id="filled-required"
-									required
-									label="Email"
-									variant="filled"
-									InputProps={{ classes, disableUnderline: true }}
-									style={{ width: '90%', margin: "8px" }}/>
-						<TextField	id="filled-required"
-									required
-									label="Lastname"
-									variant="filled"
-									InputProps={{ classes, disableUnderline: true }}
-									style={{ width: '90%', margin: "8px" }}/>
-						<TextField	id="filled-required"
-									required
-									label="Firstname"
-									variant="filled"
-									InputProps={{ classes, disableUnderline: true }}
-									style={{ width: '90%', margin: "8px 8px 40px 8px" }}/>
-
-						<TextField	id="filled-required"
-									required
-									label="Username"
-									variant="filled"
-									InputProps={{ classes, disableUnderline: true }}
-									style={{ width: '90%', margin: "8px" }}/>
-						<TextField	id="filled-required"
-									required
-									label="Password"
-									variant="filled"
-									type="password"
-									InputProps={{ classes, disableUnderline: true }}
-									style={{ width: '90%', margin: "8px" }}/>
+						<InputForm label="Email"/>
+						<InputForm label="Lastname"/>
+						<InputForm label="Firstname" margin="8px 8px 40px 8px"/>
+						<InputForm label="Username"/>
+						<InputForm label="Password" type="password"/>
 						<Button	id="createAccount"
 								variant="contained"
 								color="primary"

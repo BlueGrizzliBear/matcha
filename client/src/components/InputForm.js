@@ -1,5 +1,3 @@
-import { Component } from 'react';
-
 import { TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -10,37 +8,30 @@ const formStyle = makeStyles((theme) => ({
 	  borderRadius: 10,
 	  backgroundColor: '#fff',
 	  '&:hover': {
-		backgroundColor: '#fff',
+		  backgroundColor: '#fff',
 	  },
 	  '&$focused': {
-		backgroundColor: '#fff',
-		borderColor: theme.palette.primary.main,
+		  backgroundColor: '#fff',
+		  borderColor: theme.palette.primary.main,
 	  },
 	},
 	focused: {},
+  disableUnderline: true
 }));
 
-// function InputForm(props) {
-class InputForm extends Component {
-
-    constructor(props) {
-    super(props);
-  }
-  
-  
-  render () {
+function InputForm(props) {
   const classes = formStyle();
   return (
     <>
       <TextField	id="filled-required"
-      required
-      label={this.props.label}
-      variant="filled"
-      InputProps={{ classes, disableUnderline: true }}
-      style={{ width: '90%', margin: "8px" }}/>
+                  required
+                  label={ props.label}
+                  type={ props.type ? props.type : "string"  }
+                  variant="filled"
+                  InputProps={{ classes, disableUnderline: true}}
+                  style={{ width: '90%', margin: props.margin ? props.margin : "8px" }}/>
     </>
   );
-}
 }
 
 export default InputForm;

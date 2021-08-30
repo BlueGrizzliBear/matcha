@@ -1,18 +1,30 @@
-// import { Component } from 'react';
-import React from 'react';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputLabel from '@material-ui/core/InputLabel';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import IconButton from '@material-ui/core/IconButton';
-import FormControl from '@material-ui/core/FormControl';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import { useState } from 'react';
+import { Button, TextField, InputLabel, FilledInput, InputAdornment, Box, IconButton, FormControl } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
+
+const formStyle = makeStyles((theme) => ({
+	root: {
+		border: '1px solid #e2e2e1',
+		overflow: 'hidden',
+		borderRadius: 10,
+		backgroundColor: '#fff',
+		'&:hover': {
+			backgroundColor: '#fff',
+		},
+		'&$focused': {
+			backgroundColor: '#fff',
+			borderColor: theme.palette.primary.main,
+		},
+	},
+	focused: {},
+}));
 
 function Login() {
 
-	const [values, setValues] = React.useState({
+	const classes = formStyle();
+
+	const [values, setValues] = useState({
 		username: '',
 		password: '',
 		showPassword: false,
@@ -42,14 +54,26 @@ function Login() {
 
 	return (
 		<>
-			<form className="sign-in form" noValidate autoComplete="off">
-				<fieldset id="sign-in">
-					<legend>Sign in to Matcha</legend>
-					<TextField value={values.username} onChange={handleChange('username')} id="outlined-basic" autoComplete="username" autoFocus={true} label="Username or email adress" variant="outlined" />
-					<FormControl variant="outlined">
-						<InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-						<OutlinedInput
-							id="outlined-adornment-password"
+			<Box className="formBox" style={{ borderRadius: 10 }}>
+				<form onSubmit={handleLogin} noValidate autoComplete="off">
+					<TextField id="filled-required"
+						required
+						label="Username"
+						autoComplete="username"
+						autoFocus={true}
+						value={values.username}
+						onChange={handleChange('username')}
+						variant="filled"
+						InputProps={{ classes, disableUnderline: true }}
+						style={{ width: '90%', margin: "8px" }} />
+					<FormControl
+						variant="filled"
+						style={{ width: '90%', margin: "8px" }}>
+						<InputLabel htmlFor="filled-adornment-password">Password</InputLabel>
+						<FilledInput
+							classes={classes}
+							disableUnderline={true}
+							id="filled-adornment-password"
 							autoComplete="current-password"
 							type={values.showPassword ? 'text' : 'password'}
 							value={values.password}
@@ -68,9 +92,16 @@ function Login() {
 							}
 						/>
 					</FormControl>
-					<Button onClick={handleLogin} id="createAccount" variant="contained" color="primary">Sign in</Button>
-				</fieldset>
-			</form>
+					<Button id="createAccount"
+						variant="contained"
+						color="primary"
+						type="submit"
+						value="submit"
+						style={{ margin: "16px 0px 4px 0px" }}>
+						Sign in
+					</Button>
+				</form>
+			</Box>
 		</>
 	);
 }

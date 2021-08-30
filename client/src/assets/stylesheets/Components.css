@@ -2,14 +2,17 @@
   height: 36px;
 }
 
-.MuiFormControl-root {
-  margin-top: 50px;
-  margin-bottom: 50px;
+.formBox {
+  display: flex;
+  width: 75%;
+  margin: 0 auto;
+  background-color: rgba(252, 221, 236, 0.7);
+  flex-direction: column;
+  padding: 20px 5px;
 }
 
 #NavBar {
   display: flex;
-
   width: 100%;
   justify-content: space-between;
   flex-flow: row wrap;
@@ -17,15 +20,10 @@
   margin: 20px;
 }
 
-.form {
-  background-color:rgba(255,221,236,0.7);
-  border-radius: 3px;
-  width: 300px;
-  margin: auto;
-}
-
-#sign-in {
-  display: flex;
-  flex-flow: column;
-  border: none;
+/* At the top level of your code */
+@media screen and (min-width: 768px) {
+  .formBox {
+    width: 30%;
+    /* margin: 0 auto; */
+  }
 }

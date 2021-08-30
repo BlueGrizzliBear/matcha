@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-import { Component } from 'react';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-=======
 import { Button, TextField, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
->>>>>>> e05bbbf (Worked on Login and Register pages)
 
 const formStyle = makeStyles((theme) => ({
 	root: {

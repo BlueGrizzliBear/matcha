@@ -2,7 +2,7 @@ import { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import { Link } from "react-router-dom";
 
-class Homepage extends Component {
+class PublicHomepage extends Component {
 	// constructor(props) {
 	// 	super(props);
 	// 	// this.state = { apiResponse: "", dbResponse: "" };		
@@ -18,7 +18,6 @@ class Homepage extends Component {
 			</>
 		);
 	}
-
 }
 
-export default Homepage;
+export default PublicHomepage;

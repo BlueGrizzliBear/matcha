@@ -3,7 +3,11 @@ import { Button, Box } from '@material-ui/core';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import InputForm, { PasswordInputForm } from '../components/InputForm';
 
-function Login() {
+import { useHistory } from "react-router-dom";
+
+function Login(props) {
+
+	const history = useHistory();
 
 	const [values, setValues] = useState({
 		username: '',
@@ -19,6 +23,9 @@ function Login() {
 		})
 			.then(res => res.json())
 			.then(json => json.values)
+		props.login();
+		let path = `/`; 
+		history.push(path);
 	}
 
 	const handleChange = (prop) => (event) => {

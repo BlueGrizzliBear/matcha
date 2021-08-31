@@ -28,7 +28,7 @@ function Register() {
 
 	return (
 		<>
-			<Box className="formBox" style={{ borderRadius: 10 }}>
+			<Box className="FormBox">
 				<form noValidate autoComplete="off">
 					<InputForm label="Email" value={values.email} autoFocus={true} onChange={handleChange('email')} />
 					<InputForm label="Lastname" value={values.lastname} onChange={handleChange('lastname')} />

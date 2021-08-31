@@ -42,11 +42,6 @@ h1 {
   margin: 20px;
 }
 
-/* Button #createAccount { */
-button#createAccount {
-  position: 50%;
-}
-
 footer #notice {
   font-size: 60%;
 }

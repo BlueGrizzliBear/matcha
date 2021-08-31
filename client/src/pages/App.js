@@ -8,6 +8,25 @@ import Register from './Register';
 import UserHome from './UserHome';
 import NavBar from '../components/NavBar';
 
+function Status({ code, children }) {
+  return (
+    <Route
+      render={({ staticContext }) => {
+        if (staticContext) staticContext.status = code;
+        return children;
+      }}
+    />
+  );
+}
+
+function NotFound() {
+  return (
+    <Status code={404}>
+      <h1>Sorry, can’t find that.</h1>
+    </Status>
+  );
+}
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -64,6 +83,9 @@ class App extends Component {
             <Route path="/userhome">
               <UserHome />
             </Route>
+            <Route component={NotFound} />
+              {/* <UserHome /> */}
+            {/* </Route> */}
           </Switch>
         </main>
         <footer>

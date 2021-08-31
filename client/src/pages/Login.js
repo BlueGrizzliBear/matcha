@@ -35,7 +35,7 @@ function Login() {
 
 	return (
 		<>
-			<Box className="formBox" style={{ borderRadius: 10 }}>
+			<Box className="FormBox">
 				<form onSubmit={handleLogin} noValidate autoComplete="off">
 					<InputForm label="Username" value={values.username} autoFocus={true} onChange={handleChange('username')} />
 					<PasswordInputForm

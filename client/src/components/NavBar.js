@@ -1,17 +1,26 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
-import { ReactComponent as MatchaIcon } from "../assets/images/logo.svg";
-import '../assets/stylesheets/Components.css';
+import { IconButton, Button, Box, Badge } from '@material-ui/core';
 import { Switch, Route, Link } from "react-router-dom";
+import '../assets/stylesheets/Components.css';
+
+import { ReactComponent as MatchaIcon } from "../assets/images/logo.svg";
+import { ReactComponent as ProfileIcon } from "../assets/images/profile.svg";
+import { ReactComponent as LogoutIcon } from "../assets/images/logout.svg";
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import ChatIcon from '@material-ui/icons/Chat';
 
 function NavBar(props) {
 
   return (
-    <div id="NavBar">
-      <Button edge="start" color="inherit" aria-label="menu" component={Link} to="/"><MatchaIcon/></Button>
+    <Box id="NavBar">
+      <Button color="inherit" aria-label="search with Matcha" component={Link} to="/">
+        <MatchaIcon />
+      </Button>
       <Switch>
         <Route exact path="/">
-          <Button variant="contained" color="primary" component={Link} to="/login">Sign in</Button>
+          <Button variant="contained" color="primary" component={Link} to="/login" style={{ margin: "6px 8px" }}>
+            Sign in
+          </Button>
         </Route>
         <Route path="/login">
           <></>
@@ -20,10 +29,27 @@ function NavBar(props) {
           <></>
         </Route>
         <Route path="/">
-          <p>You are logged in</p>
+          <Box style={{ display: "flex", alignItems: "center" }}>
+            <IconButton aria-label="show 11 new notifications" color="inherit" style={{ height: "48px" }}>
+              <Badge badgeContent={11} color="primary">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <IconButton aria-label="show chat" color="inherit" style={{ height: "48px" }}>
+              <Badge badgeContent={3} color="primary">
+                <ChatIcon />
+              </Badge>
+            </IconButton>
+            <IconButton aria-label="show profile" color="inherit" component={Link} to="/profile" style={{ height: "24px" }}>
+              <ProfileIcon />
+            </IconButton>
+            <IconButton aria-label="log out" color="inherit" component={Link} to="/logout" style={{ height: "24px" }}>
+              <LogoutIcon />
+            </IconButton>
+          </Box>
         </Route>
       </Switch>
-    </div>
+    </Box>
   );
 }
 

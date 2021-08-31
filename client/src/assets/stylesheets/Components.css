@@ -1,8 +1,8 @@
-.MuiButtonBase-root {
+.MuiButton-contained {
   height: 36px;
 }
 
-.formBox {
+.FormBox {
   display: flex;
   width: 75%;
   min-width: 300px;
@@ -11,6 +11,7 @@
   background-color: rgba(252, 221, 236, 0.7);
   flex-direction: column;
   padding: 15px 3px;
+  border-radius: 10px;
 }
 
 #NavBar {
@@ -19,9 +20,14 @@
   justify-content: space-between;
   flex-flow: row wrap;
   align-items: center;
-  margin: 20px;
+  align-content: center;
+  height: 48px;
+  margin: 10px 15px;
 }
 
 /* At the top level of your code */
 @media screen and (min-width: 768px) {
+  #NavBar {
+    margin: 5px 10px;
+  }
 }

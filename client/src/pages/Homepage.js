@@ -12,9 +12,7 @@ class Homepage extends Component {
 		return (
 			<>
 				<h1 id="catchphrase">For people searching for love</h1>
-				<Button	variant="contained"
-						color="primary"
-						component={Link} to="/register">
+				<Button	variant="contained" color="primary" component={Link} to="/register">
 					Create account
 				</Button>
 			</>

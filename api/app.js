@@ -5,11 +5,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require("cors");
 
-var checkTokenouter = require('./routes/check_token');
+var checkTokenRouter = require('./routes/check_token');
+// var tokenRouter = require('./routes/token');
 var loginRouter = require('./routes/login');
 var registerRouter = require('./routes/register');
 var logoutRouter = require('./routes/logout');
-var welcomeRouter = require('./routes/welcome');
 var testAPIRouter = require('./routes/testAPI');
 var testDBRouter = require('./routes/testDB');
 var usersRouter = require('./routes/users');
@@ -27,11 +27,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/check_token', checkTokenouter);
+app.use('/check_token', checkTokenRouter);
+// app.use('/token', tokenRouter);
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/logout', logoutRouter);
-app.use('/welcome', welcomeRouter);
 app.use('/testAPI', testAPIRouter);
 app.use('/testDB', testDBRouter);
 app.use('/users', usersRouter);

@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import '../assets/stylesheets/Components.css';
-import { Redirect, Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 
-import Homepage from './Homepage';
+import UserHomepage from './UserHomepage';
+import Notifications from './Notifications';
+import Chat from './Chat';
+import Profile from './Profile';
+
+import PublicHomepage from './PublicHomepage';
 import Login from './Login';
 import Register from './Register';
-import UserHome from './UserHome';
 import NavBar from '../components/NavBar';
 
 function Status({ code, children }) {
@@ -30,8 +34,30 @@ function NotFound() {
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { apiResponse: "", dbResponse: "", userHomeResponse: "" };
+    this.state = { apiResponse: "", dbResponse: "", userAuth: false };
+    this.logout = this.logout.bind(this);
+    this.login = this.login.bind(this);
+  }
 
+  login() {
+    // console.log(this.state.userAuth);
+    this.setState({ userAuth: true }, () => {
+      // console.log(this.state.userAuth);
+      return (
+        <Redirect to="/" />
+      );
+    });
+  }
+
+  logout() {
+    // console.log(this.state.userAuth);
+    localStorage.removeItem("token");
+    this.setState({ userAuth: false }, () => {
+      // console.log(this.state.userAuth);
+      return (
+        <Redirect to="/" />
+      );
+    });
   }
 
   callAPI() {
@@ -49,12 +75,20 @@ class App extends Component {
 
   callUserIsAuth() {
     // catch the username if exist or null
-    fetch("http://localhost:9000/check_token")
-      .then(res => res.json())
-      .then(data => {
-        this.setState({ userHomeResponse: data.user })
+    fetch("http://localhost:9000/check_token", {
+      method: 'POST',
+      headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+    })
+      .then(res => {
+        if (res.ok) {
+          console.log("Token is valid");
+          this.setState({ userAuth: true })
+        }
+        else {
+          console.log("Invalid token");
+          this.setState({ userAuth: false })
+        }
       })
-      .catch(console.error);
   }
 
   componentDidMount() {
@@ -67,26 +101,29 @@ class App extends Component {
     return (
       <>
         <header>
-          <NavBar />
+          <NavBar auth={this.state.userAuth} logout={this.logout} />
         </header>
         <main>
-          <Switch>
-            <Route exact path="/">
-              {this.userHomeResponse ? <Redirect to="/userhome" /> : <Homepage />}
-            </Route>
-            <Route path="/login">
-              <Login />
-            </Route>
-            <Route path="/register">
-              <Register />
-            </Route>
-            <Route path="/userhome">
-              <UserHome />
-            </Route>
-            <Route component={NotFound} />
-            {/* <UserHome /> */}
-            {/* </Route> */}
-          </Switch>
+          {this.state.userAuth ?
+            <>
+              <Switch>
+                <Route exact path="/"><UserHomepage /></Route>
+                <Route exact path="/notifications"><Notifications /></Route>
+                <Route exact path="/chat"><Chat /></Route>
+                <Route exact path="/profile"><Profile /></Route>
+                <Route path="/"><NotFound /></Route>
+              </Switch>
+            </>
+            :
+            <>
+              <Switch>
+                <Route exact path="/"><PublicHomepage /></Route>
+                <Route exact push path="/login"><Login auth={this.state.userAuth} login={this.login} /></Route>
+                <Route exact push path="/register"><Register /></Route>
+                <Route path="/"><NotFound /></Route>
+              </Switch>
+            </>
+          }
         </main>
         <footer>
           <p id="notice">All photos are of professional models and used for illustrative purposes only</p>
@@ -97,7 +134,5 @@ class App extends Component {
     );
   }
 }
-
-
 
 export default App;

@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { Button, Box } from '@material-ui/core';
-import { Visibility, VisibilityOff } from '@material-ui/icons';
+import { SettingsInputAntennaTwoTone, Visibility, VisibilityOff } from '@material-ui/icons';
 import InputForm, { PasswordInputForm } from '../components/InputForm';
 
-function Login() {
+import { useHistory } from "react-router-dom";
+
+function Login(props) {
+
+	const history = useHistory();
 
 	const [values, setValues] = useState({
 		username: '',
@@ -22,18 +26,19 @@ function Login() {
 				password: values.password
 			}),
 		})
-			.then(res => {
-				if (res.ok) {
-					console.log("code: " + res.status + ", status: " + res.statusText);
-
-					// const jwtToken = res.headers.get('Authorization');
-					// sessionStorage.setItem("jwt", jwtToken);
-					// this.setState({ isAuthenticated: true });
+			.then(res => res.json())
+			.then(data => {
+				console.log(data);
+				if (data.status === "200") {
+					console.log("code: " + data.status + ", status: " + data.success);
+					localStorage.setItem("token", data.token);
+					props.login();
+					let path = `/`;
+					history.push(path);
 				}
 				else {
-					console.log("code: " + res.status + ", status: " + res.statusText);
+					console.log("code: " + data.status + ", status: " + data.error);
 				}
-				console.log(res.json());
 			})
 	}
 

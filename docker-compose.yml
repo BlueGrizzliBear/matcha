@@ -22,6 +22,7 @@ services:
       context: ./api
     env_file:
       - .default.env
+      - .secret.env
     image: webapp-api
     restart: always
     ports:

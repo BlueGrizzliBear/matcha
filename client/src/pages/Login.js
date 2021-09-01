@@ -11,14 +11,30 @@ function Login() {
 		showPassword: false,
 	});
 
-	const handleLogin = () => {
-		fetch('http://localhost:9000/process_login', {
+	const handleLogin = (e) => {
+		e.preventDefault();
+		fetch('http://localhost:9000/login', {
 			method: 'POST',
-			body: JSON.stringify({ values }),
 			headers: { 'Content-Type': 'application/json' },
+			credentials: 'same-origin',
+			body: JSON.stringify({
+				username: values.username,
+				password: values.password
+			}),
 		})
-			.then(res => res.json())
-			.then(json => json.values)
+			.then(res => {
+				if (res.ok) {
+					console.log("code: " + res.status + ", status: " + res.statusText);
+
+					// const jwtToken = res.headers.get('Authorization');
+					// sessionStorage.setItem("jwt", jwtToken);
+					// this.setState({ isAuthenticated: true });
+				}
+				else {
+					console.log("code: " + res.status + ", status: " + res.statusText);
+				}
+				console.log(res.json());
+			})
 	}
 
 	const handleChange = (prop) => (event) => {
@@ -36,7 +52,7 @@ function Login() {
 	return (
 		<>
 			<Box className="FormBox">
-				<form onSubmit={handleLogin} noValidate autoComplete="off">
+				<form onSubmit={handleLogin} noValidate>
 					<InputForm label="Username" value={values.username} autoFocus={true} onChange={handleChange('username')} />
 					<PasswordInputForm
 						label="Password"

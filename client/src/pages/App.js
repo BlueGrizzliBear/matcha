@@ -47,9 +47,9 @@ class App extends Component {
       .catch(err => err);
   }
 
-  callUserHome() {
+  callUserIsAuth() {
     // catch the username if exist or null
-    fetch("http://localhost:9000/")
+    fetch("http://localhost:9000/check_token")
       .then(res => res.json())
       .then(data => {
         this.setState({ userHomeResponse: data.user })
@@ -60,7 +60,7 @@ class App extends Component {
   componentDidMount() {
     this.callAPI();
     this.callDB();
-    this.callUserHome();
+    this.callUserIsAuth();
   }
 
   render() {
@@ -84,7 +84,7 @@ class App extends Component {
               <UserHome />
             </Route>
             <Route component={NotFound} />
-              {/* <UserHome /> */}
+            {/* <UserHome /> */}
             {/* </Route> */}
           </Switch>
         </main>

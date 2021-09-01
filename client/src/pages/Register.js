@@ -5,6 +5,8 @@ import InputForm, { PasswordInputForm } from '../components/InputForm';
 
 function Register() {
 
+	// const [register, setRegister] = useState('');
+
 	const [values, setValues] = useState({
 		email: '',
 		lastname: '',
@@ -13,6 +15,30 @@ function Register() {
 		password: '',
 		showPassword: false,
 	});
+
+	const handleRegister = (e) => {
+		e.preventDefault();
+		fetch('http://localhost:9000/register', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				email: values.email,
+				lastname: values.lastname,
+				firstname: values.firstname,
+				username: values.username,
+				password: values.password
+			})
+		})
+			.then(res => {
+				if (res.ok) {
+					console.log("code: " + res.status + ", status: " + res.statusText);
+				}
+				else {
+					console.log("code: " + res.status + ", status: " + res.statusText);
+				}
+				console.log(res.json());
+			})
+	}
 
 	const handleChange = (prop) => (event) => {
 		setValues({ ...values, [prop]: event.target.value });
@@ -29,7 +55,7 @@ function Register() {
 	return (
 		<>
 			<Box className="FormBox">
-				<form noValidate autoComplete="off">
+				<form noValidate autoComplete="off" onSubmit={handleRegister}>
 					<InputForm label="Email" value={values.email} autoFocus={true} onChange={handleChange('email')} />
 					<InputForm label="Lastname" value={values.lastname} onChange={handleChange('lastname')} />
 					<InputForm label="Firstname" margin="8px 8px 40px 8px" value={values.firstname} onChange={handleChange('firstname')} />

@@ -44,10 +44,9 @@ exports.up = function (db) {
       notNull: true
     },
     activated: {
-      type: 'bool',
-      notNull: true,
-      default: false
-
+      type: 'boolean',
+      defaultValue: false,
+      notNull: true
     },
     gender: 'string',
     preference: 'string',

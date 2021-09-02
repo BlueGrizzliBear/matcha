@@ -1,19 +1,14 @@
 var express = require('express');
 var router = express.Router();
-var mysql = require('mysql');
+// var mysql = require('mysql');
 var bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
+const connection = require('./connection');
 
 const login = async function (req, res) {
   var username = req.body.username;
   var password = req.body.password;
-  var connection = mysql.createConnection({
-    host: 'db',
-    user: 'root',
-    password: 'root',
-    database: 'matcha_db'
-  });
-  connection.query('SELECT * FROM users WHERE username = ?', [username], async function (error, results, fields) {
+  connection.connection.query('SELECT * FROM users WHERE username = ?', [username], async function (error, results, fields) {
     if (error) {
       console.log(error);
       res.status(400).json({
@@ -21,13 +16,13 @@ const login = async function (req, res) {
         failed: "error occurred",
         error: error
       })
-    } else {
+    }
+    else {
       if (results.length > 0) {
         const comparison = await bcrypt.compare(password, results[0].password)
         if (comparison) {
           // Issue token
-          const id = results[0].id
-          const token = jwt.sign({ id }, process.env.SECRET, {
+          const token = jwt.sign({ id: results[0].id }, process.env.SECRET, {
             expiresIn: '1h'
           });
           console.log("login successfull");

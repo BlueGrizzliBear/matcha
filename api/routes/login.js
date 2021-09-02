@@ -8,7 +8,7 @@ const connection = require('./connection');
 const login = async function (req, res) {
   var username = req.body.username;
   var password = req.body.password;
-  connection.connection.query('SELECT * FROM users WHERE username = ?', [username], async function (error, results, fields) {
+  connection.query('SELECT * FROM users WHERE username = ?', [username], async function (error, results, fields) {
     if (error) {
       console.log(error);
       res.status(400).json({

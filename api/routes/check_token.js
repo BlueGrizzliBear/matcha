@@ -24,7 +24,7 @@ const withAuth = function (req, res, next) {
         }
         else {
           req.id = decoded.id;
-          connection.connection.query('SELECT * FROM users WHERE id = ?', [decoded.id], async function (error, results, fields) {
+          connection.query('SELECT * FROM users WHERE id = ?', [decoded.id], async function (error, results, fields) {
             if (error) {
               console.log(error);
               res.status(400).json({

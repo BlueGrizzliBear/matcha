@@ -69,11 +69,11 @@ function Register() {
 						onMouseDown={handleMouseDownPassword}
 						visibility={values.showPassword ? <Visibility /> : <VisibilityOff />}
 					/>
-					<Button	variant="contained"
-							color="primary"
-							type="submit"
-							value="submit"
-							style={{ margin: "16px 0px 4px 0px" }}>
+					<Button variant="contained"
+						color="primary"
+						type="submit"
+						value="submit"
+						style={{ margin: "16px 0px 4px 0px" }}>
 						Register
 					</Button>
 				</form>

@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-// var mysql = require('mysql');
 var bcrypt = require('bcrypt');
 var nodemailer = require("nodemailer");
 var jwt = require('jsonwebtoken');
@@ -16,7 +15,7 @@ var smtpTransport = nodemailer.createTransport({
 	secure: false,
 	requireTLS: true,
 	auth: {
-		user: "tsanuta@gmail.com",
+		user: "matcha.project.noreply@gmail.com",
 		pass: process.env.GMAIL_APP_PASS
 	}
 });
@@ -58,7 +57,7 @@ const verifyLink = function (req, res) {
 				res.end("<h1>Bad Request</h1>");
 			}
 			else {
-				connection.connection.query('UPDATE users SET activated = 1 WHERE id = ? AND email = ?', [decoded.id, decoded.email], async function (error, results, fields) {
+				connection.query('UPDATE users SET activated = 1 WHERE id = ? AND email = ?', [decoded.id, decoded.email], async function (error, results, fields) {
 					if (error) {
 						console.log("error updating database");
 						res.end("<h1>Bad Request</h1>");
@@ -89,7 +88,7 @@ const register = async function (req, res) {
 		"password": encryptedPassword
 	}
 	console.log(users);
-	connection.connection.query('INSERT INTO users SET ?', users, function (error, results, fields) {
+	connection.query('INSERT INTO users SET ?', users, function (error, results, fields) {
 		if (error) {
 			console.log("error occured");
 			res.status(400).json({

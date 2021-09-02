@@ -76,6 +76,7 @@ function Login(props) {
 						style={{ margin: "16px 0px 4px 0px" }}>
 						Sign in
 					</Button>
+					{/* Ajouter etat pour mettre texte "Email not verified" et bouton pour renvoyer un mail de verification */}
 				</form>
 			</Box>
 		</>

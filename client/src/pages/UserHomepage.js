@@ -1,14 +1,10 @@
-import { Component } from 'react';
+function UserHomepage() {
 
-class UserHomepage extends Component {
-
-	render () {
-		return (
-			<>
-				<p>You're are at your homepage</p>
-			</>
-		);
-	}
+	return (
+		<>
+			<p>You're are at your homepage</p>
+		</>
+	);
 }
 
 export default UserHomepage;

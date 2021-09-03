@@ -31,33 +31,36 @@ function NotFound() {
   );
 }
 
+class ProtectedRoute extends Component {
+  render() {
+    const { component: Component, ...props } = this.props
+
+    return (
+      <Route
+        {...props}
+        render={props => (
+          this.props.condition ? <Redirect to={this.props.toRedirect} /> : <Component {...props} />
+        )}
+      />
+    )
+  }
+}
+
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { apiResponse: "", dbResponse: "", userAuth: false };
+    this.state = { apiResponse: "", dbResponse: "", userAuth: "", profileIncomplete: true };
     this.logout = this.logout.bind(this);
     this.login = this.login.bind(this);
   }
 
   login() {
-    // console.log(this.state.userAuth);
-    this.setState({ userAuth: true }, () => {
-      // console.log(this.state.userAuth);
-      return (
-        <Redirect to="/" />
-      );
-    });
+    this.setState({ userAuth: true });
   }
 
   logout() {
-    // console.log(this.state.userAuth);
     localStorage.removeItem("token");
-    this.setState({ userAuth: false }, () => {
-      // console.log(this.state.userAuth);
-      return (
-        <Redirect to="/" />
-      );
-    });
+    this.setState({ userAuth: false });
   }
 
   callAPI() {
@@ -79,16 +82,34 @@ class App extends Component {
       method: 'POST',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })
-      .then(res => {
-        if (res.ok) {
-          console.log("Token is valid");
-          this.setState({ userAuth: true })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        if (data.status === "200") {
+          if (data.success === "Account not activated") {
+            console.log("Token is valid but account not activated");
+            // changer d'etat pour le rendu (sendlink)
+          }
+          else {
+            console.log("Token is valid");
+            this.login();
+          }
         }
         else {
           console.log("Invalid token");
-          this.setState({ userAuth: false })
+          this.logout();
         }
       })
+    // .then(res => {
+    //   if (res.ok) {
+    //     console.log("Token is valid");
+    //     this.login();
+    //   }
+    //   else {
+    //     console.log("Invalid token");
+    //     this.logout();
+    //   }
+    // })
   }
 
   componentDidMount() {
@@ -107,20 +128,20 @@ class App extends Component {
           {this.state.userAuth ?
             <>
               <Switch>
-                <Route exact path="/"><UserHomepage /></Route>
-                <Route exact path="/notifications"><Notifications /></Route>
-                <Route exact path="/chat"><Chat /></Route>
-                <Route exact path="/profile"><Profile /></Route>
-                <Route path="/"><NotFound /></Route>
+                <ProtectedRoute exact path='/' component={UserHomepage} toRedirect="/profile" condition={this.state.profileIncomplete === true} />
+                <ProtectedRoute exact path='/notifications' component={Notifications} toRedirect="/profile" condition={this.state.profileIncomplete === true} />
+                <ProtectedRoute exact path='/chat' component={Chat} toRedirect="/profile" condition={this.state.profileIncomplete === true} />
+                <ProtectedRoute exact path='/profile' component={Profile} />
+                <ProtectedRoute path='/' component={NotFound} toRedirect="/profile" condition={this.state.profileIncomplete === true} />
               </Switch>
             </>
             :
             <>
               <Switch>
-                <Route exact path="/"><PublicHomepage /></Route>
+                <Route exact path="/" component={PublicHomepage} />
                 <Route exact push path="/login"><Login auth={this.state.userAuth} login={this.login} /></Route>
-                <Route exact push path="/register"><Register /></Route>
-                <Route path="/"><NotFound /></Route>
+                <Route exact push path="/register" component={Register} />
+                <ProtectedRoute path='/' component={NotFound} toRedirect="/" condition={!this.state.userAuth} />
               </Switch>
             </>
           }

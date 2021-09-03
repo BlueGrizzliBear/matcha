@@ -10,21 +10,27 @@ const withAuth = function (req, res, next) {
   console.log("bearer token:" + bearerToken);
   if (!bearerToken) {
     console.log("Unauthorized: No token provided");
-    res.status(401).send('Unauthorized: No token provided');
+    res.status(401).json({
+      status: "401",
+      success: 'Unauthorized: No token provided'
+    });
   }
   else {
     const token = bearerToken.split(' ')[1]
     console.log("token:" + token);
     if (token) {
-      // console.log("split token:" + token);
       jwt.verify(token, process.env.SECRET, function (err, decoded) {
         if (err) {
           console.log("Unauthorized: Invalid token");
-          res.status(401).send('Unauthorized: Invalid token');
+          res.status(401).json({
+            status: "401",
+            success: 'Unauthorized: Invalid token'
+          });
         }
         else {
           req.id = decoded.id;
-          connection.query('SELECT * FROM users WHERE id = ?', [decoded.id], async function (error, results, fields) {
+          // verifier le format des elements decodés
+          connection.query('SELECT * FROM users WHERE id = ? AND email = ? ', [decoded.id, decoded.email], async function (error, results, fields) {
             if (error) {
               console.log(error);
               res.status(400).json({
@@ -34,9 +40,19 @@ const withAuth = function (req, res, next) {
               })
             }
             else {
-              if (!results[0].activated) {
+              if (!results[0]) {
+                console.log("Unauthorized: Invalid token");
+                res.status(401).json({
+                  status: "401",
+                  success: 'Unauthorized: Invalid token'
+                });
+              }
+              else if (!results[0].activated) {
                 console.log("Account not activated");
-                res.status(200).send('Account not activated');
+                res.status(200).json({
+                  status: "200",
+                  success: 'Account not activated'
+                });
               }
               else {
                 console.log("account email verified next");

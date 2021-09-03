@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Box } from '@material-ui/core';
-import { SettingsInputAntennaTwoTone, Visibility, VisibilityOff } from '@material-ui/icons';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
 import InputForm, { PasswordInputForm } from '../components/InputForm';
 
 import { useHistory } from "react-router-dom";

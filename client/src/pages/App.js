@@ -31,31 +31,36 @@ function NotFound() {
   );
 }
 
+class ProtectedRoute extends Component {
+  render() {
+    const { component: Component, ...props } = this.props
+
+    return (
+      <Route 
+        {...props} 
+        render={props => (
+          this.props.condition ? <Redirect to={this.props.toRedirect} /> : <Component {...props} />
+        )}
+      />
+    )
+  }
+}
+
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { apiResponse: "", dbResponse: "", userAuth: "" };
+    this.state = { apiResponse: "", dbResponse: "", userAuth: "", profileIncomplete: true };
     this.logout = this.logout.bind(this);
     this.login = this.login.bind(this);
   }
 
   login() {
-    // console.log(this.state.userAuth);
     this.setState({ userAuth: "cb" }, () => {
-      // console.log(this.state.userAuth);
-      return (
-        <Redirect to="/" />
-      );
     });
   }
 
   logout() {
-    // console.log(this.state.userAuth);
     this.setState({ userAuth: "" }, () => {
-      // console.log(this.state.userAuth);
-      return (
-        <Redirect to="/" />
-      );
     });
   }
 
@@ -72,20 +77,10 @@ class App extends Component {
       .catch(err => err);
   }
 
-  // callUserHome() {
-    // catch the username if exist or null
-    // fetch("http://localhost:9000/")
-    //   .then(res => res.json())
-    //   .then(data => {
-    //     this.setState({ userAuth: data.user })
-    //   })
-    //   .catch(console.error);
-  // }
-
   componentDidMount() {
     this.callAPI();
     this.callDB();
-    // this.callUserHome();
+    // this.setState({ profileIncomplete: false });
   }
 
   render() {
@@ -97,21 +92,21 @@ class App extends Component {
         <main>
           { this.state.userAuth ?
             <>
-              <Switch> 
-                <Route exact path="/"><UserHomepage /></Route>
-                <Route exact path="/notifications"><Notifications /></Route>
-                <Route exact path="/chat"><Chat /></Route>
-                <Route exact path="/profile"><Profile /></Route>
-                <Route path="/"><NotFound /></Route>
+              <Switch>
+                <ProtectedRoute exact path='/' component={UserHomepage} toRedirect="/profile" condition={ this.state.profileIncomplete === true } />
+                <ProtectedRoute exact path='/notifications' component={Notifications} toRedirect="/profile" condition={ this.state.profileIncomplete === true } />
+                <ProtectedRoute exact path='/chat' component={Chat} toRedirect="/profile" condition={ this.state.profileIncomplete === true } />
+                <ProtectedRoute exact path='/profile' component={Profile} />
+                <ProtectedRoute path='/' component={NotFound} toRedirect="/profile" condition={ this.state.profileIncomplete === true } />
               </Switch>
             </>
             :
             <>
               <Switch> 
-                <Route exact path="/"><PublicHomepage /></Route>
+                <Route exact path="/" component={PublicHomepage} />
                 <Route exact push path="/login"><Login auth={this.state.userAuth} login={this.login} /></Route>
-                <Route exact push path="/register"><Register /></Route>
-                <Route path="/"><NotFound /></Route>
+                <Route exact push path="/register" component={Register} />
+                <ProtectedRoute path='/' component={NotFound} toRedirect="/" condition={!this.state.userAuth} />
               </Switch>
             </>
           }

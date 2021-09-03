@@ -1,14 +1,10 @@
-import { Component } from 'react';
+function Chat() {
 
-class Chat extends Component {
-
-	render () {
-		return (
-			<>
-				<p>THIS IS YOUR CHAT</p>
-			</>
-		);
-	}
+	return (
+		<>
+			<p>THIS IS YOUR CHAT</p>
+		</>
+	);
 }
 
 export default Chat;

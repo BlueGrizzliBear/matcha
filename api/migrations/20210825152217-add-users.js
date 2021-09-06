@@ -15,72 +15,95 @@ exports.setup = function (options, seedLink) {
 };
 
 exports.up = function (db) {
-  return db.createTable('users', {
+  return db.createTable('tokens', {
     id: {
       type: 'int',
       primaryKey: true,
       autoIncrement: true
     },
-    username: {
+    token: {
       type: 'string',
       notNull: true,
       unique: true
     },
-    email: {
-      type: 'string',
-      notNull: true,
-      unique: true
-    },
-    password: {
-      type: 'string',
-      notNull: true
-    },
-    firstname: {
-      type: 'string',
-      notNull: true
-    },
-    lastname: {
-      type: 'string',
-      notNull: true
-    },
-    activated: {
-      type: 'boolean',
-      defaultValue: false,
-      notNull: true
-    },
-    gender: 'string',
-    preference: 'string',
-    bio: 'string'
-    // interests: {
-    //   type: 'int',
-    //   foreignKey: {
-    //     name: 'interests_id',
-    //     table: 'interests',
-    //     // rules: {
-    //       // onDelete: 'CASCADE',
-    //       // onUpdate: 'RESTRICT'
-    //     // },
-    //     mapping: 'id'
-    //     }
-    //   }
-    // pictures:{
-    //   type: 'int',
-    //   foreignKey: {
-    //     name: 'pictures_id',
-    //     table: 'puctures',
-    //     // rules: {
-    //       // onDelete: 'CASCADE',
-    //       // onUpdate: 'RESTRICT'
-    //     // },
-    //     mapping: 'id'
-    //     }
-    //   }
-  });
+  }).then(
+    function (result) {
+      db.createTable('users', {
+        id: {
+          type: 'int',
+          primaryKey: true,
+          autoIncrement: true
+        },
+        username: {
+          type: 'string',
+          notNull: true,
+          unique: true
+        },
+        email: {
+          type: 'string',
+          notNull: true,
+          unique: true
+        },
+        password: {
+          type: 'string',
+          notNull: true
+        },
+        firstname: {
+          type: 'string',
+          notNull: true
+        },
+        lastname: {
+          type: 'string',
+          notNull: true
+        },
+        activated: {
+          type: 'boolean',
+          defaultValue: false,
+          notNull: true
+        },
+        gender: 'string',
+        preference: 'string',
+        bio: 'string',
+        // token: {
+        //   type: 'int',
+        //   foreignKey: {
+        //     name: 'token_id',
+        //     table: 'token',
+        //     // rules: {
+        //     // onDelete: 'CASCADE',
+        //     // onUpdate: 'RESTRICT'
+        //     // },
+        //     mapping: 'id'
+        //   }
+        // }
+        // pictures:{
+        //   type: 'int',
+        //   foreignKey: {
+        //     name: 'pictures_id',
+        //     table: 'puctures',
+        //     // rules: {
+        //       // onDelete: 'CASCADE',
+        //       // onUpdate: 'RESTRICT'
+        //     // },
+        //     mapping: 'id'
+        //     }
+        //   }
+      })/*.then()*/;
+    }),
+    function (err) {
+      return;
+    }
 };
 
 exports.down = function (db) {
-  return db.dropTable('users');
-};
+  return db.dropTable('users').then(
+    function (result) {
+      db.dropTable('token');
+    },
+    function (err) {
+      return;
+    });
+}
 
 exports._meta = {
   "version": 1

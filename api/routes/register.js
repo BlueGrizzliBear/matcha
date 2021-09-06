@@ -24,7 +24,7 @@ var smtpTransport = nodemailer.createTransport({
 
 /* sending mail */
 const sendLinkVerification = function (req, res) {
-	const token = jwt.sign({ id: req.body.id, email: req.body.email, host: req.get('host') }, process.env.SECRET, {
+	const token = jwt.sign({ id: req.body.id, email: req.body.email, host: req.get('host') }, process.env.SECRET_LINK, {
 		expiresIn: '10m'
 	});
 	console.log("Get Host: " + req.get('host'));
@@ -63,8 +63,14 @@ const verifyLink = function (req, res) {
 						res.end("<h1>Bad Request</h1>");
 					}
 					else {
-						console.log("email is verified, id:" + decoded.id);
-						res.end("<h1>Email " + decoded.email + " is been Successfully verified");
+						if (results.changedRows === 1) {
+							console.log("email is verified, id:" + decoded.id);
+							res.end("<h1>Email " + decoded.email + " is been Successfully verified");
+						}
+						else {
+							console.log("email already verified, id:" + decoded.id);
+							res.end("<h1>Email " + decoded.email + " is already verified");
+						}
 					}
 				});
 			}

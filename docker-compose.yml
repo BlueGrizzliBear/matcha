@@ -9,9 +9,9 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    working_dir: /client/src/app
     volumes:
-      - ./client:/client/src/app
+      - ./client:/client
+      - /client/node_modules
     entrypoint: ["./start.sh"]
     links:
       - api

@@ -10,22 +10,17 @@ const withAuth = function (req, res, next) {
   console.log("bearer token:" + bearerToken);
   if (!bearerToken) {
     console.log("Unauthorized: No token provided");
-    res.status(401).json({
-      status: "401",
-      success: 'Unauthorized: No token provided'
-    });
+    res.status(401);
   }
   else {
     const token = bearerToken.split(' ')[1]
     console.log("token:" + token);
     if (token) {
       jwt.verify(token, process.env.SECRET, function (err, decoded) {
+        console.log(err);
         if (err) {
           console.log("Unauthorized: Invalid token");
-          res.status(401).json({
-            status: "401",
-            success: 'Unauthorized: Invalid token'
-          });
+          res.status(401);
         }
         else {
           req.id = decoded.id;
@@ -33,30 +28,21 @@ const withAuth = function (req, res, next) {
           connection.query('SELECT * FROM users WHERE id = ? AND email = ? ', [decoded.id, decoded.email], async function (error, results, fields) {
             if (error) {
               console.log(error);
-              res.status(400).json({
-                status: "400",
-                failed: "error occurred",
-                error: error
-              })
+              res.status(400);
             }
             else {
+              console.log(results)
               if (!results[0]) {
                 console.log("Unauthorized: Invalid token");
-                res.status(401).json({
-                  status: "401",
-                  success: 'Unauthorized: Invalid token'
-                });
-              }
-              else if (!results[0].activated) {
-                console.log("Account not activated");
-                res.status(200).json({
-                  status: "200",
-                  success: 'Account not activated'
-                });
+                res.status(401);
               }
               else {
-                console.log("account email verified next");
-                next();
+                res.status(200).json({
+                  status: "200",
+                  isAuth: true,
+                  isActivated: (results[0].activated ? true : false),
+                  isProfileComplete: (isProfileComplete(results[0]))
+                });
               }
             }
           });
@@ -65,14 +51,21 @@ const withAuth = function (req, res, next) {
     }
     else {
       console.log("null token");
-      res.status(401).send('Unauthorized: No token provided');
+      res.status(401);
     }
   }
 }
 
+// Profile function to return true or false if profile is complete or not
+function isProfileComplete(user) {
+  if (user.firstname === 'admin')
+    return (true);
+  return (false);
+}
+
 /* GET home page. */
 router.post('/', withAuth, function (req, res, next) {
-  res.status(200).send("ok");
+  // res.status(200).send("ok");
 });
 
 module.exports = router;

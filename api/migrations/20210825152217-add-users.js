@@ -64,18 +64,18 @@ exports.up = function (db) {
         gender: 'string',
         preference: 'string',
         bio: 'string',
-        // token: {
-        //   type: 'int',
-        //   foreignKey: {
-        //     name: 'token_id',
-        //     table: 'token',
-        //     // rules: {
-        //     // onDelete: 'CASCADE',
-        //     // onUpdate: 'RESTRICT'
-        //     // },
-        //     mapping: 'id'
-        //   }
-        // }
+        tokens: {
+          type: 'int',
+          foreignKey: {
+            name: 'tokens_id',
+            table: 'tokens',
+            rules: {
+              onDelete: 'CASCADE',
+              onUpdate: 'CASCADE'
+            },
+            mapping: 'id'
+          }
+        }
         // pictures:{
         //   type: 'int',
         //   foreignKey: {
@@ -89,21 +89,23 @@ exports.up = function (db) {
         //     }
         //   }
       })/*.then()*/;
-    }),
+    },
     function (err) {
       return;
     }
+  );
 };
 
 exports.down = function (db) {
   return db.dropTable('users').then(
     function (result) {
-      db.dropTable('token');
+      db.dropTable('tokens');
     },
     function (err) {
       return;
-    });
-}
+    }
+  );
+};
 
 exports._meta = {
   "version": 1

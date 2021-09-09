@@ -69,18 +69,18 @@ class App extends Component {
       method: 'POST',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })
-      .catch(res => {
-        console.log("ICI");
-      })
-      .then(res => res.json())
-      .then(data => {
-        // console.log(data);
-        if (data.status === "200") {
-          this.setState({ isAuth: data.isAuth });
-          this.setState({ isActivated: data.isActivated });
-          this.setState({ isProfileComplete: data.isProfileComplete });
-        }
-      });
+    .then(res => res.json())
+    .then(data => {
+      // console.log(data);
+      if (data.status === "200") {
+        this.setState({ isAuth: data.isAuth });
+        this.setState({ isActivated: data.isActivated });
+        this.setState({ isProfileComplete: data.isProfileComplete });
+      }
+    })
+    .catch(res => {
+      console.log("ICI");
+    });
   }
 
   componentDidMount() {

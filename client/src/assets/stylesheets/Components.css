@@ -22,12 +22,32 @@
   align-items: center;
   align-content: center;
   height: 48px;
-  margin: 10px 15px;
+  margin: 0.8%;
+
+}
+
+#ImageList {
+  /* width: 640px; */
+  width: 100%;
+}
+
+#Logo {
+  content:url(../images/short_logo.svg);
 }
 
 /* At the top level of your code */
 @media screen and (min-width: 768px) {
   #NavBar {
     margin: 5px 10px;
+  }
+  #Logo {
+    content:url(../images/logo.svg);
+  }
+}
+
+@media screen and (min-width: 1350px) {
+  #ImageList {
+    width: 100%;
+    max-width: 1600px;
   }
 }

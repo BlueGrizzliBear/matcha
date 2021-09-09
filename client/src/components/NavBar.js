@@ -5,7 +5,6 @@ import '../assets/stylesheets/Components.css';
 
 import { useHistory } from "react-router-dom";
 
-import { ReactComponent as MatchaIcon } from "../assets/images/logo.svg";
 import { ReactComponent as ProfileIcon } from "../assets/images/profile.svg";
 import { ReactComponent as LogoutIcon } from "../assets/images/logout.svg";
 import NotificationsIcon from '@material-ui/icons/Notifications';
@@ -23,9 +22,11 @@ function NavBar(props) {
 
   return (
     <Box id="NavBar">
-      <Button color="inherit" aria-label="search with Matcha" component={Link} to="/">
-        <MatchaIcon />
-      </Button>
+      <IconButton aria-label="search with Matcha" color="inherit" component={Link} to="/" style={{ height: "48px" }}>
+      {/* <Button color="inherit" aria-label="search with Matcha" component={Link} to="/"> */}
+        <img id="Logo" alt="logo" />
+      {/* </Button> */}
+      </IconButton>
       <Switch>
         <Route path="/">
           { props.auth ? 

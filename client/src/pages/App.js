@@ -69,9 +69,6 @@ class App extends Component {
       method: 'POST',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })
-      .catch(res => {
-        console.log("ICI");
-      })
       .then(res => res.json())
       .then(data => {
         // console.log(data);
@@ -80,7 +77,10 @@ class App extends Component {
           this.setState({ isActivated: data.isActivated });
           this.setState({ isProfileComplete: data.isProfileComplete });
         }
-      });
+      })
+      .catch(res => {
+        console.log("Fail to fetch");
+      })
   }
 
   componentDidMount() {

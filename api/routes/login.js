@@ -10,58 +10,35 @@ const login = async function (req, res) {
   connection.query('SELECT * FROM users WHERE username = ?', [username], async function (error, results, fields) {
     if (error) {
       console.log(error);
-      res.status(400).json({
-        status: "400",
-        failed: "error occurred",
-        error: error
-      })
+      res.status(400).end();
     }
     else {
       if (results.length > 0) {
         const comparison = await bcrypt.compare(password, results[0].password)
         if (comparison) {
           // Issue token
-          const token = jwt.sign({ id: results[0].id, email: results[0].email }, process.env.SECRET, {
+          var user = {
+            id: results[0].id,
+            username: results[0].username,
+            firstname: results[0].firstname,
+            lastname: results[0].lastname,
+            email: results[0].email,
+            activated: results[0].activated,
+          };
+          const token = jwt.sign(user, process.env.SECRET, {
             expiresIn: '1h'
           });
-          if (results[0].activated) {
-            console.log("login successfull");
-            res.status(200)
-              // Provide a valid token to the user
-              // .header('Authorization', 'Bearer ' + token)
-              .json({
-                status: "200",
-                success: "login successful",
-                token: token,
-                id: results[0].id,
-                username: results[0].username,
-                email: results[0].email,
-                // "score": results[0].score,
-                // "gamesPlayed": results[0].gamesPlayed,
-                // "boardPref": results[0].boardPref
-              })
-          }
-          else {
-            console.log("login successfull");
-            res.status(200)
-              // Provide a valid token to the user
-              // .header('Authorization', 'Bearer ' + token)
-              .json({
-                status: "200",
-                success: "Account not activated",
-                token: token,
-                id: results[0].id,
-                username: results[0].username,
-                email: results[0].email,
-              })
-          }
+          user.token = token;
+          user.status = "200";
+          console.log("User login successfull");
+          res.status(200).json(user).end();
         }
         else {
           console.log("Username and password does not match");
           res.status(204).json({
             status: "204",
             error: "Username and password does not match",
-          })
+          }).end()
         }
       }
       else {
@@ -69,7 +46,7 @@ const login = async function (req, res) {
         res.status(206).json({
           status: "206",
           error: "Username does not exist",
-        });
+        }).end();
       }
     }
   });

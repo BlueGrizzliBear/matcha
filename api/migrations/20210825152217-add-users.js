@@ -75,19 +75,22 @@ exports.up = function (db) {
             },
             mapping: 'id'
           }
-        }
-        // pictures:{
-        //   type: 'int',
-        //   foreignKey: {
-        //     name: 'pictures_id',
-        //     table: 'puctures',
-        //     // rules: {
-        //       // onDelete: 'CASCADE',
-        //       // onUpdate: 'RESTRICT'
-        //     // },
-        //     mapping: 'id'
-        //     }
-        //   }
+        },
+        profile_path: {
+          type: 'string'
+        },
+        img1_path: {
+          type: 'string'
+        },
+        img2_path: {
+          type: 'string'
+        },
+        img3_path: {
+          type: 'string'
+        },
+        img4_path: {
+          type: 'string'
+        },
       })/*.then()*/;
     },
     function (err) {

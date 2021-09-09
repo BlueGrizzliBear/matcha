@@ -31,12 +31,16 @@ function Register() {
 		})
 			.then(res => {
 				if (res.ok) {
+					console.log("User successfully registered");
 					console.log("code: " + res.status + ", status: " + res.statusText);
 				}
 				else {
+					console.log("Username or email already exists");
 					console.log("code: " + res.status + ", status: " + res.statusText);
 				}
-				console.log(res.json());
+			})
+			.catch(res => {
+				console.log("Fail to fetch");
 			})
 	}
 

@@ -97,20 +97,13 @@ const register = async function (req, res) {
 	connection.query('INSERT INTO users SET ?', users, function (error, results, fields) {
 		if (error) {
 			console.log("error occured");
-			res.status(400).json({
-				status: "400",
-				failed: "error occurred",
-				error: error
-			})
+			res.status(400).end();
 		}
 		else {
 			req.body.id = results.insertId;
 			console.log("user registered sucessfully");
 			sendLinkVerification(req, res);
-			res.status(200).json({
-				status: "200",
-				success: "user registered sucessfully"
-			})
+			res.status(200).end();
 		}
 	});
 }

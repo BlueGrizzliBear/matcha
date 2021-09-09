@@ -53,13 +53,7 @@ router.post('/', checkToken, function (req, res, next) {
         req.results = res.locals.results
         const upload = uploads.single('uploadedImage');
         upload(req, res, function (err) {
-            if (err instanceof multer.MulterError) {
-                console.log("A Multer error occurred when uploading.");
-                console.error(err);
-                res.status(400).end();
-            }
-            else if (err) {
-                console.log("An unknown error occurred when uploading.");
+            if (err) {
                 console.error(err);
                 res.status(400).end();
             }

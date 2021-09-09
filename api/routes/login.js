@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
-var jwt = require('jsonwebtoken');
+// var jwt = require('jsonwebtoken');
+var issueUserToken = require('./token');
 const connection = require('./connection');
 
 const login = async function (req, res) {
@@ -17,19 +18,7 @@ const login = async function (req, res) {
         const comparison = await bcrypt.compare(password, results[0].password)
         if (comparison) {
           // Issue token
-          var user = {
-            id: results[0].id,
-            username: results[0].username,
-            firstname: results[0].firstname,
-            lastname: results[0].lastname,
-            email: results[0].email,
-            activated: results[0].activated,
-          };
-          const token = jwt.sign(user, process.env.SECRET, {
-            expiresIn: '1h'
-          });
-          user.token = token;
-          user.status = "200";
+          var user = issueUserToken(results[0]);
           console.log("User login successfull");
           res.status(200).json(user).end();
         }

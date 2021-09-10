@@ -4,7 +4,7 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', function (req, res, next) {
   // clear the cookie
-  res.clearCookie("username");
+  // res.clearCookie("username");
   // redirect to login
   res.status(200).end();
 });

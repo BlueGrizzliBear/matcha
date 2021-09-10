@@ -4,6 +4,7 @@ var bcrypt = require('bcrypt');
 var nodemailer = require("nodemailer");
 var jwt = require('jsonwebtoken');
 const connection = require('./connection');
+var insertTokenDB = require('./query');
 
 /*
 	Here we are configuring our SMTP Server details.
@@ -27,24 +28,29 @@ const sendLinkVerification = function (req, res) {
 	const token = jwt.sign({ id: req.body.id, email: req.body.email, host: req.get('host') }, process.env.SECRET_LINK, {
 		expiresIn: '10m'
 	});
-	console.log("Get Host: " + req.get('host'));
-	console.log("token: " + token);
-	link = "http://" + req.get('host') + "/register/verify?id=" + token;
-	var mailOptions = {
-		to: req.body.email,
-		subject: "Please confirm your Email account",
-		html: "Hello " + req.body.username + ",<br> Please Click on the link to verify your email.<br><a href=" + link + ">Click here to verify</a>"
+	if (insertTokenDB(req.body.id, token)) {
+		console.log("error occured inserting token in tokens table");
 	}
-	console.log(mailOptions);
-	smtpTransport.sendMail(mailOptions, function (error, response) {
-		if (error) {
-			console.log(error);
-			res.end("error");
-		} else {
-			console.log("Message sent: " + response.message);
-			res.end("sent");
+	else {
+		console.log("Get Host: " + req.get('host'));
+		console.log("token: " + token);
+		link = "http://" + req.get('host') + "/register/verify?id=" + token;
+		var mailOptions = {
+			to: req.body.email,
+			subject: "Please confirm your Email account",
+			html: "Hello " + req.body.username + ",<br> Please Click on the link to verify your email.<br><a href=" + link + ">Click here to verify</a>"
 		}
-	});
+		console.log(mailOptions);
+		smtpTransport.sendMail(mailOptions, function (error, response) {
+			if (error) {
+				console.log(error);
+				res.end("error");
+			} else {
+				console.log("Message sent: " + response.message);
+				res.end("sent");
+			}
+		});
+	}
 }
 
 /* verify link */

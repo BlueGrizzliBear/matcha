@@ -1,9 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
-// var jwt = require('jsonwebtoken');
+var insertTokenDB = require('./query');
 var issueUserToken = require('./token');
 const connection = require('./connection');
+
 
 const login = async function (req, res) {
   var username = req.body.username;
@@ -19,6 +20,11 @@ const login = async function (req, res) {
         if (comparison) {
           // Issue token
           var user = issueUserToken(results[0]);
+          /* insert token in tokens and relation table user_token */
+          if (insertTokenDB(user.id, user.token)) {
+            console.log("error occured inserting token in tokens table");
+            res.status(400).end();
+          }
           console.log("User login successfull");
           res.status(200).json(user).end();
         }

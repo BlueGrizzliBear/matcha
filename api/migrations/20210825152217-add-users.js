@@ -71,6 +71,11 @@ exports.up = function (db) {
       defaultValue: false,
       notNull: true
     },
+    complete: {
+      type: 'boolean',
+      defaultValue: false,
+      notNull: true
+    },
   });
 };
 

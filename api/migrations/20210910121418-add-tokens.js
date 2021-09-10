@@ -22,9 +22,9 @@ exports.up = function (db) {
       autoIncrement: true
     },
     token: {
-      type: 'string',
+      type: 'text',
+      lenght: 10000,
       notNull: true,
-      unique: true
     },
   });
 };

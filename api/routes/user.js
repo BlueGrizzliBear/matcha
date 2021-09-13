@@ -1,13 +1,41 @@
 var express = require('express');
 var router = express.Router();
 var checkToken = require('./middleware');
+const connection = require('./connection');
 
 // Profile function to return true or false if profile is complete or not
-// function isProfileComplete(user) {
-//   if (user.firstname === 'admin')
-//     return (true);
-//   return (false);
-// }
+function profileIsComplete(id, username) {
+  connection.query('SELECT * FROM users WHERE id = ? AND username = ?', [id, username], async function (error, results, fields) {
+    if (error) {
+      console.log(error);
+      return false;;
+    }
+    else {
+      if (results.length > 0) {
+        if (results[0].birth_date && results[0].gender && results[0].bio && results[0].profile) {
+          if (results[0].complete == false) {
+            connection.query('UPDATE users SET complete = true WHERE id = ? AND username = ?', [id, username], async function (error, results, fields) {
+              if (error) {
+                console.log(error);
+                return false;;
+              }
+            })
+          }
+          return true;
+        }
+        else {
+          if (results[0].complete == true) {
+            connection.query('UPDATE users SET complete = false WHERE id = ? AND username = ?', [id, username], async function (error, results, fields) {
+              if (error)
+                console.log(error);
+            })
+          }
+        }
+      }
+      return false;
+    }
+  });
+}
 
 /* GET user profile. */
 router.get('/', checkToken, function (req, res, next) {
@@ -75,7 +103,7 @@ router.get('/', checkToken, function (req, res, next) {
 //   });
 // });
 
-module.exports = router;
+module.exports = { router, profileIsComplete };
 
 
 

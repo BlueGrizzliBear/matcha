@@ -3,15 +3,17 @@ var router = express.Router();
 var checkToken = require('./middleware');
 const multer = require('multer');
 const connection = require('./connection');
-const fs = require('fs')
-var path = require('path')
+const fs = require('fs');
+var path = require('path');
+var user = require('./user');
+
 // var issueUserToken = require('./token');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // console.log("req.results.username");
         // console.log(req.results.username);
-        cb(null, 'uploads/');
+        cb(null, 'user_images/');
     },
     filename: (req, file, cb) => {
         // console.log("req.results.id");
@@ -67,7 +69,7 @@ router.post('/', checkToken, function (req, res, next) {
 
                 connection.query('SELECT ?? FROM users WHERE id = ? AND email = ?', [req.query.img + '_path', res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
                     if (error) {
-                        fs.unlink("uploads/" + req.file.filename, (err => {
+                        fs.unlink("user_images/" + req.file.filename, (err => {
                             if (err) console.log(err);
                             else {
                                 console.log("\nDeleted file: " + req.file.filename);
@@ -79,7 +81,7 @@ router.post('/', checkToken, function (req, res, next) {
                     }
                     else {
                         if (results[0][Object.keys(results[0])[0]]) {
-                            fs.unlink("uploads/" + results[0][Object.keys(results[0])[0]], (err => {
+                            fs.unlink("user_images/" + results[0][Object.keys(results[0])[0]], (err => {
                                 if (err) console.log(err);
                                 else {
                                     console.log("\nDeleted file: " + results[0][Object.keys(results[0])[0]]);
@@ -88,7 +90,7 @@ router.post('/', checkToken, function (req, res, next) {
                         }
                         connection.query('UPDATE users SET ?? = ? WHERE id = ? AND email = ?', [req.query.img + '_path', req.file.filename, res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
                             if (error) {
-                                fs.unlink("uploads/" + req.file.filename, (err => {
+                                fs.unlink("user_images/" + req.file.filename, (err => {
                                     if (err) console.log(err);
                                     else {
                                         console.log("\nDeleted file: " + req.file.filename);
@@ -118,8 +120,47 @@ router.post('/', checkToken, function (req, res, next) {
 router.get('/:filename', checkToken, function (req, res, next) {
     const { filename } = req.params;
     const dirname = path.resolve();
-    const fullfilepath = path.join(dirname, 'uploads/' + filename);
+    const fullfilepath = path.join(dirname, 'user_images/' + filename);
     return res.sendFile(fullfilepath);
 });
+
+router.delete('/', checkToken, function (req, res, next) {
+    // CHECK LE FORMAT DE LA QUERRY POUR SQL INJECTION [profile, img1, img2, img3, img4]
+    connection.query('SELECT ?? FROM users WHERE id = ? AND email = ?', [req.query.img + '_path', res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
+        if (error) {
+            console.log("Error connecting with database");
+            console.error(error);
+            res.status(400).end();
+        }
+        else {
+            if (results[0][Object.keys(results[0])[0]]) {
+                console.log(results[0][Object.keys(results[0])[0]]);
+                fs.unlink("user_images/" + results[0][Object.keys(results[0])[0]], (err => {
+                    if (err) console.log(err);
+                    else {
+                        console.log("\nDeleted file");
+                    }
+                }))
+                connection.query('UPDATE users SET ?? = NULL WHERE id = ? AND email = ?', [req.query.img + "_path", res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
+                    if (error) {
+                        console.log("Error connecting with database");
+                        console.error(error);
+                        res.status(400).end();
+                    }
+                    else {
+                        if (req.query.img == "profile") {
+                            user.profileIsComplete(res.locals.decoded.id, res.locals.decoded.username);
+                            res.status(200).end();
+                        }
+                        res.status(400).end();
+                    }
+                });
+            }
+            else {
+                res.status(400).end();
+            }
+        }
+    });
+})
 
 module.exports = router;

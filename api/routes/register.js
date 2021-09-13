@@ -4,6 +4,9 @@ var bcrypt = require('bcrypt');
 var nodemailer = require("nodemailer");
 var jwt = require('jsonwebtoken');
 const connection = require('./connection');
+var TokenDB = require('./query');
+// var deleteTokenDB = require('./query');
+// var selectTokenDB = require('./query');
 
 /*
 	Here we are configuring our SMTP Server details.
@@ -27,24 +30,29 @@ const sendLinkVerification = function (req, res) {
 	const token = jwt.sign({ id: req.body.id, email: req.body.email, host: req.get('host') }, process.env.SECRET_LINK, {
 		expiresIn: '10m'
 	});
-	console.log("Get Host: " + req.get('host'));
-	console.log("token: " + token);
-	link = "http://" + req.get('host') + "/register/verify?id=" + token;
-	var mailOptions = {
-		to: req.body.email,
-		subject: "Please confirm your Email account",
-		html: "Hello " + req.body.username + ",<br> Please Click on the link to verify your email.<br><a href=" + link + ">Click here to verify</a>"
+	if (TokenDB.insertTokenDB(req.body.id, token)) {
+		console.log("error occured inserting token in tokens table");
 	}
-	console.log(mailOptions);
-	smtpTransport.sendMail(mailOptions, function (error, response) {
-		if (error) {
-			console.log(error);
-			res.end("error");
-		} else {
-			console.log("Message sent: " + response.message);
-			res.end("sent");
+	else {
+		console.log("Get Host: " + req.get('host'));
+		console.log("token: " + token);
+		link = "http://" + req.get('host') + "/register/verify?id=" + token;
+		var mailOptions = {
+			to: req.body.email,
+			subject: "Please confirm your Email account",
+			html: "Hello " + req.body.username + ",<br> Please Click on the link to verify your email.<br><a href=" + link + ">Click here to verify</a>"
 		}
-	});
+		console.log(mailOptions);
+		smtpTransport.sendMail(mailOptions, function (error, response) {
+			if (error) {
+				console.log(error);
+				res.end("error");
+			} else {
+				console.log("Message sent: " + response.message);
+				res.end("sent");
+			}
+		});
+	}
 }
 
 /* verify link */
@@ -57,6 +65,10 @@ const verifyLink = function (req, res) {
 				res.end("<h1>Bad Request</h1>");
 			}
 			else {
+				if (TokenDB.selectTokenDB(decoded.id, req.query.id)) {
+					console.log("email is not verified, token already used");
+					res.end("<h1>Bad Request</h1>");
+				}
 				connection.query('UPDATE users SET activated = 1 WHERE id = ? AND email = ?', [decoded.id, decoded.email], async function (error, results, fields) {
 					if (error) {
 						console.log("error updating database");
@@ -66,6 +78,9 @@ const verifyLink = function (req, res) {
 						if (results.changedRows === 1) {
 							console.log("email is verified, id:" + decoded.id);
 							res.end("<h1>Email " + decoded.email + " is been Successfully verified");
+							if (TokenDB.deleteTokenDB(decoded.id, req.query.id)) {
+								console.log("token already deleted");
+							}
 						}
 						else {
 							console.log("email already verified, id:" + decoded.id);
@@ -86,31 +101,24 @@ const register = async function (req, res) {
 	const saltRounds = 10;
 	const password = req.body.password;
 	const encryptedPassword = await bcrypt.hash(password, saltRounds)
-	let users = {
+	const user = {
 		"username": req.body.username,
 		"email": req.body.email,
 		"firstname": req.body.firstname,
 		"lastname": req.body.lastname,
 		"password": encryptedPassword
 	}
-	console.log(users);
-	connection.query('INSERT INTO users SET ?', users, function (error, results, fields) {
+	console.log(user);
+	connection.query('INSERT INTO users SET ?', user, function (error, results, fields) {
 		if (error) {
 			console.log("error occured");
-			res.status(400).json({
-				status: "400",
-				failed: "error occurred",
-				error: error
-			})
+			res.status(400).end();
 		}
 		else {
 			req.body.id = results.insertId;
 			console.log("user registered sucessfully");
 			sendLinkVerification(req, res);
-			res.status(200).json({
-				status: "200",
-				success: "user registered sucessfully"
-			})
+			res.status(200).end();
 		}
 	});
 }

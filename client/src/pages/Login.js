@@ -30,7 +30,7 @@ function Login(props) {
 			.then(data => {
 				console.log(data);
 				if (data.status === "200") {
-					console.log("code: " + data.status + ", status: " + data.success);
+					console.log("code: " + data.status);
 					localStorage.setItem("token", data.token);
 					props.login();
 					let path = `/`;
@@ -39,6 +39,9 @@ function Login(props) {
 				else {
 					console.log("code: " + data.status + ", status: " + data.error);
 				}
+			})
+			.catch(res => {
+				console.log("Fail to fetch");
 			})
 	}
 

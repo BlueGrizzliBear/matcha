@@ -65,8 +65,8 @@ class App extends Component {
 
   callUserIsAuth() {
     // catch the username if exist or null
-    fetch("http://localhost:9000/check_token", {
-      method: 'POST',
+    fetch("http://localhost:9000/user", {
+      method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })
       .then(res => res.json())

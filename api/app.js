@@ -11,7 +11,7 @@ var registerRouter = require('./routes/register');
 var logoutRouter = require('./routes/logout');
 var testAPIRouter = require('./routes/testAPI');
 var testDBRouter = require('./routes/testDB');
-var usersRouter = require('./routes/users');
+var userRouter = require('./routes/user');
 var uploadRouter = require('./routes/upload');
 
 var app = express();
@@ -33,7 +33,7 @@ app.use('/register', registerRouter);
 app.use('/logout', logoutRouter);
 app.use('/testAPI', testAPIRouter);
 app.use('/testDB', testDBRouter);
-app.use('/users', usersRouter);
+app.use('/user', userRouter);
 app.use('/upload', uploadRouter);
 
 // catch 404 and forward to error handler

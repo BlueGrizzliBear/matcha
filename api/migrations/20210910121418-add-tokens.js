@@ -21,6 +21,21 @@ exports.up = function (db) {
       primaryKey: true,
       autoIncrement: true
     },
+    user_id: {
+      type: 'int',
+      notNull: true,
+      foreignKey: {
+        name: 'user_token_id_fk',
+        table: 'users',
+        rules: {
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+        },
+        mapping: {
+          user_id: 'id'
+        }
+      }
+    },
     token: {
       type: 'text',
       lenght: 10000,

@@ -5,7 +5,7 @@ const multer = require('multer');
 const connection = require('./connection');
 const fs = require('fs')
 var path = require('path')
-var issueUserToken = require('./token');
+// var issueUserToken = require('./token');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -98,8 +98,8 @@ router.post('/', checkToken, function (req, res, next) {
                                 console.log(results);
                                 // Update token with informations
                                 // Issue token updated new user token
-                                var user = issueUserToken(res.locals.results);
-                                res.status(200).json(user).end();
+                                // var user = issueUserToken(res.locals.results);
+                                res.status(200).end();
                             }
                         });
                     }

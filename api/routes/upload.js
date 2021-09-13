@@ -39,7 +39,7 @@ router.post('/', checkToken, function (req, res, next) {
         storage: storage,
         fileFilter: (req, file, cb) => {
             if (!whitelist.includes(file.mimetype)) {
-                return cb(new Error('file is not allowed'))
+                return cb(new Error('file is not allowed'));
             }
             cb(null, true)
         }
@@ -57,10 +57,15 @@ router.post('/', checkToken, function (req, res, next) {
                 console.error(err);
                 res.status(400).end();
             }
+            else if (!(req.file && req.file.filename)) {
+                console.log("file does not exist")
+                res.status(400).end();
+            }
             else {
                 /* Look for previous profile picture and delete if exists */
                 //   CHECK LA QUERY pour correspondance au format voulu
-                connection.query('SELECT ?? FROM users WHERE id = ? AND email = ?', [req.query.img, res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
+
+                connection.query('SELECT ?? FROM users WHERE id = ? AND email = ?', [req.query.img + '_path', res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
                     if (error) {
                         fs.unlink("uploads/" + req.file.filename, (err => {
                             if (err) console.log(err);
@@ -81,7 +86,7 @@ router.post('/', checkToken, function (req, res, next) {
                                 }
                             }))
                         }
-                        connection.query('UPDATE users SET ?? = ? WHERE id = ? AND email = ?', [req.query.img, req.file.filename, res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
+                        connection.query('UPDATE users SET ?? = ? WHERE id = ? AND email = ?', [req.query.img + '_path', req.file.filename, res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
                             if (error) {
                                 fs.unlink("uploads/" + req.file.filename, (err => {
                                     if (err) console.log(err);
@@ -99,7 +104,7 @@ router.post('/', checkToken, function (req, res, next) {
                                 // Update token with informations
                                 // Issue token updated new user token
                                 // var user = issueUserToken(res.locals.results);
-                                res.status(200).end();
+                                res.status(200).json({ image: 'upload/' + req.file.filename }).end();
                             }
                         });
                     }

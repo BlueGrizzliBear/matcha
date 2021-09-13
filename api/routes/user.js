@@ -14,7 +14,7 @@ router.get('/', checkToken, function (req, res, next) {
   res.status(200).json({
     status: "200",
     isAuth: true,
-    isProfileComplete: /* res.locals.decoded.complete */true,
+    isProfileComplete: res.locals.decoded.complete, /* false initially */
     id: res.locals.decoded.id,
     username: res.locals.decoded.username,
     email: res.locals.decoded.email,

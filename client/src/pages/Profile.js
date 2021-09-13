@@ -1,6 +1,6 @@
-import { makeStyles } from '@material-ui/core/styles';
+// import { makeStyles } from '@material-ui/core/styles';
 
-import Figures from '../components/Figures'
+// import Figures from '../components/Figures'
 import ImageGallery from '../components/ImageGallery'
 import Bio from '../components/Bio'
 
@@ -12,13 +12,13 @@ function Profile() {
 
 	// const classes = useStyles();
 
-  return (
+	return (
 		<>
 			{/* <Figures /> */}
 			<ImageGallery />
 			<Bio />
 		</>
-  );
+	);
 }
 
 export default Profile;

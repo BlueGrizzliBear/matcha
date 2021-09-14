@@ -33,103 +33,138 @@ const useStyles = makeStyles((theme) => ({
 
 const itemData = [
 	{
+		id: 0,
 		img: selfy,
-		title: 'ProfileImage',
-		author: 'author',
+		title: 'img0',
 		profile: true,
 	},
 	{
+		id: 1,
 		img: selfy2,
-		title: 'Image1',
-		author: 'author',
+		title: 'img1',
 	},
 	{
+		id: 2,
 		img: selfy3,
-		title: 'Image2',
-		author: 'author',
+		title: 'img2',
 	},
 	{
+		id: 3,
 		img: selfy4,
-		title: 'Image3',
-		author: 'author',
+		title: 'img3',
 	},
 	{
+		id: 4,
 		img: image1,
-		title: 'Image4',
-		author: 'author',
+		title: 'img4',
 	},
 ]
 
 function ImageGallery() {
 
+	const fetchImage = (path, tag) => {
+		fetch(path, {
+			method: 'GET',
+			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+		})
+			.then(res => res.blob())
+			.then(res => {
+
+				const myImage = document.querySelector('img');
+				myImage.src = URL.createObjectURL(res);
+
+				const imageIndex = imageArr.findIndex((item => item.title === tag));
+				setImageArr(update(imageArr, {
+					[imageIndex]: { img: { $set: myImage.src } }
+				}));
+			})
+			.catch(function () {
+				console.log("Fail to upload image from server (POST)");
+			})
+	}
+
 	const classes = useStyles();
 
 	// const [isLoading, setisLoading] = useState(true);
 	const [imageArr, setImageArr] = useState(itemData);
-	const inputFile = useRef(null);
+	// const inputFile = useRef(null);
+	const inputFile = useRef(itemData.map(() => React.createRef()));
 
 	useEffect(() => {
 		console.log("will fetch data later");
-		// 	fetch('http://127.0.0.1:9000/user', {
-		// 		method: 'GET',
-		// 		headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
-		// 	})
-		// 		.then((res) => res.json())
-		// 		.then((data) => setImageArr([...data]))
-		// 	// .then(setisLoading(false));
+		fetch('http://localhost:9000/user', {
+			method: 'GET',
+			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+		})
+			.then(res => res.json())
+			// .then(data => setImageArr([...data]))
+			.then(data => {
+				console.log(data);
+				console.log(data.images);
+				// data.images.forEach((elem, index) => console.log(elem));
+
+				// const images = [];
+				// data.images.map((item, i) => {
+				// 	console.log(item);
+				// 	images.push(item);
+
+				// })
+
+				// // var obj = JSON.parse(JS_Obj);
+				// var images = [];
+
+				// for (let i in data.images) {
+				// 	console.log(data.images[i]);
+				// 	images.push(data.images[i]);
+				// }
+				// setImageArr(images);
+
+			})
+		// .then(setisLoading(false));
 	}, []);
 
-	const uploadImage = (tag, i, image) => {
+
+	const uploadImage = (tag, image) => {
 
 		const formData = new FormData()
 		formData.append('uploadedImage', image, image.name);
 
 		fetch('http://localhost:9000/upload?img=' + tag, {
 			method: 'POST',
-			headers: {
-				'Authorization': "Bearer " + localStorage.getItem("token"),
-			},
+			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 			body: formData
 		})
 			.then(res => res.json())
 			.then(res => {
-				fetch('http://localhost:9000/' + res.image, {
-					method: 'GET',
-					headers: {
-						'Authorization': "Bearer " + localStorage.getItem("token"),
-					},
-				})
-					.then(function (response) {
-						return (response.blob());
-					})
-					.then(img => {
+				fetchImage('http://localhost:9000/' + res.image, tag);
+				// fetch('http://localhost:9000/' + res.image, {
+				// 	method: 'GET',
+				// 	headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+				// })
+				// 	.then(res => res.blob())
+				// 	.then(res => {
 
-						const myImage = document.querySelector('img');
-						const objectURL = URL.createObjectURL(img);
-						myImage.src = objectURL;
+				// 		const myImage = document.querySelector('img');
+				// 		myImage.src = URL.createObjectURL(res);
 
-						console.log(res);
-						console.log(res.body);
-						setImageArr(update(imageArr, {
-							[i]: {
-								img: {
-									$set: myImage.src
-								}
-							}
-						}));
-					})
+				// 		const imageIndex = imageArr.findIndex((item => item.title === tag));
+				// 		setImageArr(update(imageArr, {
+				// 			[imageIndex]: { img: { $set: myImage.src } }
+				// 		}));
+				// 	})
+				// 	.catch(function () {
+				// 		console.log("Fail to upload image from server (POST)");
+				// 	})
 			})
-			.catch(res => {
-				console.log("Fail to fetch");
-				console.log(formData);
+			.catch(function () {
+				console.log("Fail to fetch image from server (GET)");
 			})
 	}
 
-	const handleFileUpload = e => {
+	const handleFileUpload = (e) => {
 		const { files } = e.target;
 		if (files && files.length) {
-			const tag = "profile";
-			uploadImage(tag, 0, files[0]);
+			uploadImage(e.target.title, files[0]);
 		}
 	};
 
@@ -138,7 +173,7 @@ function ImageGallery() {
 			<ImageList id="ImageList" className={classes.imageList} rowHeight={240} gap={16} cols={4} style={{ 'margin': '8px' }}>
 				{imageArr.map((item, i) => (
 					<ImageListItem
-						key={item.img}
+						key={i}
 						cols={item.profile ? 2 : 1}
 						rows={item.profile ? 2 : 1}
 						style={{
@@ -150,9 +185,10 @@ function ImageGallery() {
 					>
 						<img src={item.img} alt={item.title} style={{ 'objectFit': 'cover' }} />
 						<input
+							title={item.title}
 							style={{ display: "none" }}
 							// accept=".zip,.rar"
-							ref={inputFile}
+							ref={inputFile.current[i]}
 							onChange={handleFileUpload}
 							type="file"
 						/>
@@ -161,7 +197,7 @@ function ImageGallery() {
 							actionposition="right"
 							style={{ background: 'rgba(0,0,0,0)' }}
 							className={classes.titleBar}
-							actionIcon={<OptionButton item={item} ref={inputFile} />}
+							actionIcon={<OptionButton item={item} ref={inputFile.current[i]} />}
 						/>
 					</ImageListItem>
 				))}

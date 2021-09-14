@@ -19,8 +19,11 @@ const OptionButton = React.forwardRef((props, ref) => {
 
 	const handleMenuItemClick = (event, index) => {
 		console.info(`You clicked ${options[index]}`);
-		if (index === 0)
-			ref.current.click();
+		if (index === 0) {
+			ref.current.click(ref.id);
+			// props.onClick();
+			// props.myfunction(event, ref);
+		}
 		// props.handleFileUpload();
 		setOpen(false);
 	};

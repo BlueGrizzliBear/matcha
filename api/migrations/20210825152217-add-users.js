@@ -51,7 +51,7 @@ exports.up = function (db) {
       notNull: true
     },
     bio: 'string',
-    profile_path: {
+    img0_path: {
       type: 'string'
     },
     img1_path: {

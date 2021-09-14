@@ -6,16 +6,7 @@ const issueUserToken = function (results) {
     username: results.username,
     email: results.email,
     firstname: results.firstname,
-    lastname: results.lastname,
-    isActivated: results.activated,
-    gender: results.gendfer,
-    preference: results.preference,
-    bio: results.bio,
-    profile_path: 'upload/' + results.profile_path,
-    img1_path: 'upload/' + results.img1_path,
-    img2_path: 'upload/' + results.img2_path,
-    img3_path: 'upload/' + results.img3_path,
-    img4_path: 'upload/' + results.img4_path
+    lastname: results.lastname
   };
   const token = jwt.sign(user, process.env.SECRET, {
     expiresIn: '1h'

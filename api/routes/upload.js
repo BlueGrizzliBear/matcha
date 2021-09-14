@@ -19,8 +19,8 @@ const storage = multer.diskStorage({
         // console.log("req.results.id");
         // console.log(req.results.id);
         // console.log(typeof (req.results.id));
-        console.log("file");
-        console.log(file);
+        // console.log("file");
+        // console.log(file);
         // console.log(file.fieldname);
         // console.log(file.filename);
         const uniqueSuffix = req.results.id.toString() + Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -35,7 +35,7 @@ router.post('/', checkToken, function (req, res, next) {
         'image/png',
         'image/jpeg',
         'image/jpg'
-    ]
+    ];
 
     const uploads = multer({
         storage: storage,
@@ -43,7 +43,7 @@ router.post('/', checkToken, function (req, res, next) {
             if (!whitelist.includes(file.mimetype)) {
                 return cb(new Error('file is not allowed'));
             }
-            cb(null, true)
+            cb(null, true);
         }
     });
 
@@ -60,7 +60,7 @@ router.post('/', checkToken, function (req, res, next) {
                 res.status(400).end();
             }
             else if (!(req.file && req.file.filename)) {
-                console.log("file does not exist")
+                console.log("file does not exist");
                 res.status(400).end();
             }
             else {
@@ -148,7 +148,8 @@ router.delete('/', checkToken, function (req, res, next) {
                         res.status(400).end();
                     }
                     else {
-                        if (req.query.img == "profile") {
+                        if (req.query.img == "img0") {
+                            console.log("check if profile is complete");
                             user.profileIsComplete(res.locals.decoded.id, res.locals.decoded.username);
                             res.status(200).end();
                         }

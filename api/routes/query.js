@@ -58,4 +58,32 @@ const deleteAllUserTokenDB = function (userid) {
 	});
 }
 
-module.exports = { insertTokenDB, selectTokenDB, deleteTokenDB, deleteAllUserTokenDB };
+const insert = function (table, keys, values) {
+	connection.query('INSERT INTO ?? (??) VALUES (?)', [table, keys, values], async function (error, results, fields) {
+		if (error) {
+			console.log("error occured inserting token in tokens table");
+			console.log(error);
+			return error;
+		}
+		else {
+			console.log("Succefully insert token in tokens database");
+			console.log(results);
+			return false;
+		}
+	});
+}
+
+// const deleteRow = function (table, set) {
+// 	connection.query('DELETE FROM ?? WHERE ?', [table, set], async function (error, results, fields) {
+// 		if (error) {
+// 			console.log("error occured erasing token in tokens table");
+// 			console.log(error);
+// 			return error;
+// 		}
+// 		else {
+// 			return false;
+// 		}
+// 	});
+// }
+
+module.exports = { insertTokenDB, selectTokenDB, deleteTokenDB, deleteAllUserTokenDB, insert };

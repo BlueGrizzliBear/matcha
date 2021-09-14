@@ -12,7 +12,7 @@ function profileIsComplete(id, username) {
     }
     else {
       if (results.length > 0) {
-        if (results[0].birth_date && results[0].gender && results[0].bio && results[0].profile) {
+        if (/*results[0].birth_date && results[0].gender && results[0].bio && */results[0].profile) {
           if (results[0].complete == false) {
             connection.query('UPDATE users SET complete = true WHERE id = ? AND username = ?', [id, username], async function (error, results, fields) {
               if (error) {
@@ -42,22 +42,24 @@ router.get('/', checkToken, function (req, res, next) {
   res.status(200).json({
     status: "200",
     isAuth: true,
-    isProfileComplete: res.locals.decoded.complete, /* false initially */
-    id: res.locals.decoded.id,
-    username: res.locals.decoded.username,
-    email: res.locals.decoded.email,
-    firstname: res.locals.decoded.firstname,
-    lastname: res.locals.decoded.lastname,
-    birth_date: res.locals.decoded.birth_date,
-    isActivated: res.locals.decoded.activated,
-    gender: res.locals.decoded.gendfer,
-    preference: res.locals.decoded.preference,
-    bio: res.locals.decoded.bio,
-    profile: res.locals.decoded.profile_path,
-    img1: res.locals.decoded.img1_path,
-    img2: res.locals.decoded.img2_path,
-    img3: res.locals.decoded.img3_path,
-    img4: res.locals.decoded.img4_path
+    isProfileComplete: res.locals.results.complete, /* false initially */
+    id: res.locals.results.id,
+    username: res.locals.results.username,
+    email: res.locals.results.email,
+    firstname: res.locals.results.firstname,
+    lastname: res.locals.results.lastname,
+    birth_date: res.locals.results.birth_date,
+    isActivated: res.locals.results.activated,
+    gender: res.locals.results.gendfer,
+    preference: res.locals.results.preference,
+    bio: res.locals.results.bio,
+    images: {
+      img0: res.locals.results.img0_path,
+      img1: res.locals.results.img1_path,
+      img2: res.locals.results.img2_path,
+      img3: res.locals.results.img3_path,
+      img4: res.locals.results.img4_path
+    }
   });
 });
 

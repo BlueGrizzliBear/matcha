@@ -17,8 +17,8 @@ const storage = multer.diskStorage({
         // console.log("req.results.id");
         // console.log(req.results.id);
         // console.log(typeof (req.results.id));
-        console.log("file");
-        console.log(file);
+        // console.log("file");
+        // console.log(file);
         // console.log(file.fieldname);
         // console.log(file.filename);
         const uniqueSuffix = req.results.id.toString() + Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -100,11 +100,11 @@ router.post('/', checkToken, function (req, res, next) {
                             }
                             else {
                                 console.log("Image is uploaded on server and database");
-                                console.log(results);
+                                // console.log(results);
                                 // Update token with informations
                                 // Issue token updated new user token
                                 // var user = issueUserToken(res.locals.results);
-                                res.status(200).json({ image: 'upload/' + req.file.filename }).end();
+                                res.status(200).json({ image: req.file.filename }).end();
                             }
                         });
                     }

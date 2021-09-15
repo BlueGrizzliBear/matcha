@@ -3,8 +3,9 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 var nodemailer = require("nodemailer");
 var jwt = require('jsonwebtoken');
-const connection = require('./connection');
+const connection = require('../config/db');
 var TokenDB = require('./query');
+var Models = require('../models/model');
 // var deleteTokenDB = require('./query');
 // var selectTokenDB = require('./query');
 
@@ -25,37 +26,40 @@ var smtpTransport = nodemailer.createTransport({
 /*------------------SMTP Over-----------------------------*/
 
 
-/* sending mail */
+/* Sending link in email to user to verify account */
 const sendLinkVerification = function (req, res) {
+	// const user = new Token();
+
 	const token = jwt.sign({ id: req.body.id, email: req.body.email, host: req.get('host') }, process.env.SECRET_LINK, {
 		expiresIn: '10m'
 	});
+	token
 	if (TokenDB.insertTokenDB(req.body.id, token)) {
 		console.log("error occured inserting token in tokens table");
 	}
 	else {
-		console.log("Get Host: " + req.get('host'));
-		console.log("token: " + token);
+		// console.log("Get Host: " + req.get('host'));
+		// console.log("token: " + token);
 		link = "http://" + req.get('host') + "/register/verify?id=" + token;
 		var mailOptions = {
 			to: req.body.email,
 			subject: "Please confirm your Email account",
 			html: "Hello " + req.body.username + ",<br> Please Click on the link to verify your email.<br><a href=" + link + ">Click here to verify</a>"
 		}
-		console.log(mailOptions);
+		// console.log(mailOptions);
 		smtpTransport.sendMail(mailOptions, function (error, response) {
 			if (error) {
 				console.log(error);
 				res.end("error");
 			} else {
-				console.log("Message sent: " + response.message);
+				// console.log("Message sent: " + response.message);
 				res.end("sent");
 			}
 		});
 	}
 }
 
-/* verify link */
+/* Verify link on user click in email */
 const verifyLink = function (req, res) {
 	jwt.verify(req.query.id, process.env.SECRET, function (err, decoded) {
 		if ((req.protocol + "://" + req.get('host')) == ("http://" + decoded.host)) {
@@ -98,29 +102,38 @@ const verifyLink = function (req, res) {
 
 /* registering user in database */
 const register = async function (req, res) {
+	if (!req.body.password) {
+		console.log("Empty password");
+		res.status(400).end();
+	}
+	/* Number of pass to encrypt the user password */
 	const saltRounds = 10;
-	const password = req.body.password;
-	const encryptedPassword = await bcrypt.hash(password, saltRounds)
-	const user = {
+	/* Encrypt password before storing it to database */
+	const encryptedPassword = await bcrypt.hash(req.body.password, saltRounds);
+	/* Create the set to store in database */
+	const user_params = {
 		"username": req.body.username,
 		"email": req.body.email,
 		"firstname": req.body.firstname,
 		"lastname": req.body.lastname,
 		"password": encryptedPassword
 	}
-	console.log(user);
-	connection.query('INSERT INTO users SET ?', user, function (error, results, fields) {
+	/* Create new user model */
+	const user = new Models.User();
+
+	user.create(user_params, function (error, results) {
 		if (error) {
-			console.log("error occured");
+			// console.log(error);
 			res.status(400).end();
 		}
 		else {
 			req.body.id = results.insertId;
-			console.log("user registered sucessfully");
+			console.log("User registered sucessfully");
+			/* Sending verification link to activate user account */
 			sendLinkVerification(req, res);
 			res.status(200).end();
 		}
-	});
+	})
 }
 
 // POST route to register a user

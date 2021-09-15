@@ -1,4 +1,4 @@
-const connection = require('./connection');
+const connection = require('../config/db');
 
 
 const insertTokenDB = function (userid, token) {

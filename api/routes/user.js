@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var checkToken = require('./middleware');
-const connection = require('./connection');
+var checkToken = require('./middleware/middleware');
+const connection = require('../config/db');
 
 // Profile function to return true or false if profile is complete or not
 function profileIsComplete(id, username) {

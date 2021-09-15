@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var TokenDB = require('./query');
-var checkToken = require('./middleware');
+var checkToken = require('./middleware/middleware');
 
 /* GET home page. */
 router.get('/', checkToken, function (req, res, next) {

@@ -3,8 +3,7 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 var TokenDB = require('./query');
 var issueUserToken = require('./token');
-const connection = require('./connection');
-
+const connection = require('../config/db');
 
 const login = async function (req, res) {
   var username = req.body.username;

@@ -1,19 +1,19 @@
 var jwt = require('jsonwebtoken');
-const connection = require('./connection');
-var TokenDB = require('./query');
+const connection = require('../../config/db');
+var TokenDB = require('../query');
 
 // middleware to use on path everytime user acces sensitiv data
 // check if a token exist and is valid
 const checkToken = function (req, res, next) {
     const bearerToken = req.headers.authorization;
-    console.log("bearer token:" + bearerToken);
+    // console.log("bearer token:" + bearerToken);
     if (!bearerToken) {
         console.log("Unauthorized: No token provided");
         res.status(401).end();
     }
     else {
         const token = bearerToken.split(' ')[1]
-        console.log("token:" + token);
+        // console.log("token:" + token);
         if (TokenDB.selectTokenDB(req.body.id, token)) {
             console.log("Unauthorized: Token not in database");
             res.status(401).end();

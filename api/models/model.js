@@ -1,4 +1,5 @@
 const connection = require('../config/db');
+var jwt = require('jsonwebtoken');
 
 /* Utils validation function */
 const regexMatch = function (value, regex) {
@@ -39,15 +40,23 @@ const isValidPassword = function (value) {
     return true;
 }
 
-const isToken = function (value) {
+const isJWT = function (value) {
     if (regexMatch(value, /^[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+\.[a-zA-Z0-9-_]+$/))
+        return true;
+    return false;
+}
+
+const isBool = function (value) {
+    if (value == 1 || value == 0)
         return true;
     return false;
 }
 
 /* MODELS */
 class User {
-    constructor() {
+    constructor(user_id = null, username = null) {
+        this.user_id = user_id;
+        this.username = username;
     };
 
     validate(set, error) {
@@ -76,26 +85,40 @@ class User {
                 error("Invalid password format");
                 return;
             }
+            if (i == 'activated' && !isBool(set[i])) {
+                error("Invalid activated format");
+                return;
+            }
         }
         error(null);
     };
 
+    getUserId() {
+        return this.user_id;
+    };
+
+    getUsername() {
+        return this.username;
+    };
+
     create(set, ret) {
         /* Validate set and insert into database */
+        let el = this;
         this.validate(set, function (error) {
             if (error) {
                 ret('Validation failed: ' + error, null);
             }
             else {
-                console.log('before query here');
                 connection.query('INSERT INTO users SET ?', [set], function (error, results, fields) {
                     if (error) {
                         console.log("Error occured on users creation");
-                        ret(error, results);
+                        ret(error, null);
                     }
                     else {
+                        el.user_id = results.insertId;
+                        el.username = set['username'];
                         console.log("User registered sucessfully inside model");
-                        ret(error, results);
+                        ret(null, results);
                     }
                 });
             }
@@ -104,29 +127,50 @@ class User {
 
     update(set, ret) {
         /* Validate set and insert into database */
+        let el = this;
         this.validate(set, function (error) {
             if (error) {
                 ret('Validation failed: ' + error, null);
             }
             else {
-                console.log('before query here');
-                connection.query('INSERT INTO users SET ?', [set], function (error, results, fields) {
+                connection.query('UPDATE users SET ? WHERE username = ?', [set, el.username], function (error, results, fields) {
                     if (error) {
-                        console.log("Error occured on users creation");
-                        ret(error, results);
+                        console.log("Error occured on updating user database");
+                        ret(error, null);
                     }
                     else {
-                        console.log("User registered sucessfully inside model");
-                        ret(error, results);
+                        console.log("User updated successfully");
+                        ret(null, results);
                     }
                 });
+            }
+        });
+    };
+
+    find(ret) {
+        let el = this;
+        connection.query('SELECT * FROM users WHERE username = ?', [this.username], async function (error, results, fields) {
+            if (error) {
+                console.log("Error occured finding user in users table");
+                console.log(error);
+                ret(error, null);
+            }
+            else {
+                if (results.length > 0) {
+                    el.user_id = results[0].id;
+                    ret(null, results);
+                }
+                else
+                    ret("No results", null);
             }
         });
     };
 }
 
 class Token {
-    constructor() {
+    constructor(user_id = null, token = null) {
+        this.token = token;
+        this.user_id = user_id;
     };
 
     validate(set, error) {
@@ -151,6 +195,28 @@ class Token {
         return error(null);
     };
 
+    getToken() {
+        return this.token;
+    };
+
+    getUserId() {
+        return this.user_id;
+    };
+
+    verify(ret) {
+        let el = this;
+        jwt.verify(this.token, process.env.SECRET, function (err, decoded) {
+            if (err) {
+                console.log("Token is not valid")
+                ret(error, null);
+            }
+            else {
+                el.user_id = decoded.id;
+                ret(null, decoded);
+            }
+        });
+    };
+
     create(set, ret) {
         /* Validate set and insert into database */
         this.validate(set, function (error) {
@@ -172,11 +238,49 @@ class Token {
         });
     };
 
-    generate(set, expireTime) {
-        const token = jwt.sign(set, process.env.SECRET_LINK, {
+    generate(set, expireTime, ret) {
+        this.token = jwt.sign(set, process.env.SECRET_LINK, {
             expiresIn: expireTime
         });
-        return token;
+        this.create({ user_id: this.user_id, token: this.token }, function (error, results) {
+            if (error) {
+                console.log("Error occured on token creation inside model");
+                ret(error, results);
+            }
+            else {
+                console.log("Token registered sucessfully inside model");
+                ret(error, results);
+            }
+        });
+        return this.token;
+    };
+
+    find(ret) {
+        connection.query('SELECT * FROM tokens WHERE user_id = ? AND token = ?', [this.user_id, this.token], async function (error, results, fields) {
+            if (error) {
+                console.log("Error occured finding token in tokens table");
+                console.log(error);
+                ret(error, null);
+            }
+            else {
+                if (results.length > 0)
+                    ret(null, results);
+                else
+                    ret("No results", null);
+            }
+        });
+    };
+
+    delete(ret) {
+        connection.query('DELETE FROM tokens WHERE user_id = ? AND token = ?', [this.user_id, this.token], async function (error, results, fields) {
+            if (error) {
+                console.log("Error occured erasing token in tokens table");
+                console.log(error);
+                ret(error, null);
+            }
+            else
+                ret(null, results);
+        });
     };
 }
 

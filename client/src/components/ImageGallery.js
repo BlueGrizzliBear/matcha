@@ -1,16 +1,15 @@
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
-
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, ImageList, ImageListItem, ImageListItemBar } from '@material-ui/core';
 
 import OptionButton from '../components/OptionButton'
 
 import image1 from '../assets/images/no_img.svg';
-import selfy from '../assets/images/selfy_example.jpg';
-import selfy2 from '../assets/images/selfy2_example.jpg';
-import selfy3 from '../assets/images/selfy3_example.jpg';
-import selfy4 from '../assets/images/selfy4_example.jpg';
+// import selfy from '../assets/images/selfy_example.jpg';
+// import selfy2 from '../assets/images/selfy2_example.jpg';
+// import selfy3 from '../assets/images/selfy3_example.jpg';
+// import selfy4 from '../assets/images/selfy4_example.jpg';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -68,32 +67,25 @@ function ImageGallery() {
 	const inputFile = useRef(itemData.map(() => React.createRef()));
 
 	const fetchImage = (path, tag) => {
-
 		fetch(path, {
 			method: 'GET',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
-			.then(res => res.blob())
+			// Error handling if not any success code
 			.then(res => {
-
-				const myImage = document.querySelector('img');
-				myImage.src = URL.createObjectURL(res);
-
-				let imageIndex = itemData.slice().findIndex(x => x.title === tag);
-
-				if (imageIndex !== -1) {
-					let tempImgArr = itemData.slice();
-					tempImgArr[imageIndex]["img"] = myImage.src;
-					setImageArr(tempImgArr);
-					// console.log(tempImgArr);
-				}
-				else {
-					console.log('Did not find a match for this image');
-				}
-
+				if (!res.ok)
+					throw new Error('Reques: did not receive success code between 200-299.');
+				return res.blob();
 			})
-			.catch(function () {
-				console.log("Fail to display image from server (GET)");
+			.then(res => {
+				let tempImgArr = itemData.slice();
+				tempImgArr[itemData.findIndex(x => x.title === tag)]["img"] = URL.createObjectURL(res);
+				setImageArr(tempImgArr);
+			})
+			// Error handling if not any success code
+			.catch(error => {
+				console.log(error);
+				console.log("Fail to GET image from server");
 			})
 	}
 
@@ -110,32 +102,31 @@ function ImageGallery() {
 					}
 				}
 			})
+			.catch(error => {
+				console.log(error);
+				console.log("Fail to GET user from server");
+			})
 		// .then(setisLoading(false));
 	}, []);
-
-	const uploadImage = (tag, image) => {
-
-		const formData = new FormData()
-		formData.append('uploadedImage', image, image.name);
-
-		fetch('http://localhost:9000/upload?img=' + tag, {
-			method: 'POST',
-			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
-			body: formData
-		})
-			.then(res => res.json())
-			.then(res => {
-				fetchImage('http://localhost:9000/upload/' + res.image, tag);
-			})
-			.catch(function () {
-				console.log("Fail to fetch image from server (GET)");
-			})
-	}
 
 	const handleFileUpload = (e) => {
 		const { files } = e.target;
 		if (files && files.length) {
-			uploadImage(e.target.title, files[0]);
+			const formData = new FormData()
+			formData.append('uploadedImage', files[0], files[0].name);
+			fetch('http://localhost:9000/upload?img=' + e.target.title, {
+				method: 'POST',
+				headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+				body: formData
+			})
+				.then(res => res.json())
+				.then(res => {
+					fetchImage('http://localhost:9000/upload/' + res.image, e.target.title);
+				})
+				.catch(error => {
+					console.log(error);
+					console.log("Fail to POST image to server");
+				})
 		}
 	};
 
@@ -148,7 +139,7 @@ function ImageGallery() {
 						cols={item.profile ? 2 : 1}
 						rows={item.profile ? 2 : 1}
 						style={{
-							'padding': (item.profile ? '0px 8px' : '8px'),
+							padding: (item.profile ? '0px 8px' : '8px'),
 							width: (item.profile ? '800px' : '400px'),
 							minWidth: '250px',
 							maxWidth: '100%'

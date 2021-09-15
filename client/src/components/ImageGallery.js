@@ -1,6 +1,5 @@
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
-import update from 'react-addons-update';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, ImageList, ImageListItem, ImageListItemBar } from '@material-ui/core';
@@ -34,23 +33,23 @@ const useStyles = makeStyles((theme) => ({
 const itemData = [
 	{
 		id: 0,
-		img: selfy,
+		img: image1,
 		title: 'img0',
 		profile: true,
 	},
 	{
 		id: 1,
-		img: selfy2,
+		img: image1,
 		title: 'img1',
 	},
 	{
 		id: 2,
-		img: selfy3,
+		img: image1,
 		title: 'img2',
 	},
 	{
 		id: 3,
-		img: selfy4,
+		img: image1,
 		title: 'img3',
 	},
 	{
@@ -62,7 +61,14 @@ const itemData = [
 
 function ImageGallery() {
 
+	const classes = useStyles();
+
+	// const [isLoading, setisLoading] = useState(true);
+	const [imageArr, setImageArr] = useState(itemData);
+	const inputFile = useRef(itemData.map(() => React.createRef()));
+
 	const fetchImage = (path, tag) => {
+
 		fetch(path, {
 			method: 'GET',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
@@ -73,56 +79,39 @@ function ImageGallery() {
 				const myImage = document.querySelector('img');
 				myImage.src = URL.createObjectURL(res);
 
-				const imageIndex = imageArr.findIndex((item => item.title === tag));
-				setImageArr(update(imageArr, {
-					[imageIndex]: { img: { $set: myImage.src } }
-				}));
+				let imageIndex = itemData.slice().findIndex(x => x.title === tag);
+
+				if (imageIndex !== -1) {
+					let tempImgArr = itemData.slice();
+					tempImgArr[imageIndex]["img"] = myImage.src;
+					setImageArr(tempImgArr);
+					// console.log(tempImgArr);
+				}
+				else {
+					console.log('Did not find a match for this image');
+				}
+
 			})
 			.catch(function () {
-				console.log("Fail to upload image from server (POST)");
+				console.log("Fail to display image from server (GET)");
 			})
 	}
 
-	const classes = useStyles();
-
-	// const [isLoading, setisLoading] = useState(true);
-	const [imageArr, setImageArr] = useState(itemData);
-	// const inputFile = useRef(null);
-	const inputFile = useRef(itemData.map(() => React.createRef()));
-
 	useEffect(() => {
-		console.log("will fetch data later");
 		fetch('http://localhost:9000/user', {
 			method: 'GET',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
 			.then(res => res.json())
-			// .then(data => setImageArr([...data]))
 			.then(data => {
-				console.log(data);
-				console.log(data.images);
-				// data.images.forEach((elem, index) => console.log(elem));
-
-				// const images = [];
-				// data.images.map((item, i) => {
-				// 	console.log(item);
-				// 	images.push(item);
-
-				// })
-
-				// // var obj = JSON.parse(JS_Obj);
-				// var images = [];
-
-				// for (let i in data.images) {
-				// 	console.log(data.images[i]);
-				// 	images.push(data.images[i]);
-				// }
-				// setImageArr(images);
-
+				for (let tag in data.images) {
+					if (data.images[tag]) {
+						fetchImage('http://localhost:9000/upload/' + data.images[tag], tag);
+					}
+				}
 			})
 		// .then(setisLoading(false));
 	}, []);
-
 
 	const uploadImage = (tag, image) => {
 
@@ -136,25 +125,7 @@ function ImageGallery() {
 		})
 			.then(res => res.json())
 			.then(res => {
-				fetchImage('http://localhost:9000/' + res.image, tag);
-				// fetch('http://localhost:9000/' + res.image, {
-				// 	method: 'GET',
-				// 	headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
-				// })
-				// 	.then(res => res.blob())
-				// 	.then(res => {
-
-				// 		const myImage = document.querySelector('img');
-				// 		myImage.src = URL.createObjectURL(res);
-
-				// 		const imageIndex = imageArr.findIndex((item => item.title === tag));
-				// 		setImageArr(update(imageArr, {
-				// 			[imageIndex]: { img: { $set: myImage.src } }
-				// 		}));
-				// 	})
-				// 	.catch(function () {
-				// 		console.log("Fail to upload image from server (POST)");
-				// 	})
+				fetchImage('http://localhost:9000/upload/' + res.image, tag);
 			})
 			.catch(function () {
 				console.log("Fail to fetch image from server (GET)");

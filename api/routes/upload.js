@@ -102,11 +102,11 @@ router.post('/', checkToken, function (req, res, next) {
                             }
                             else {
                                 console.log("Image is uploaded on server and database");
-                                console.log(results);
+                                // console.log(results);
                                 // Update token with informations
                                 // Issue token updated new user token
                                 // var user = issueUserToken(res.locals.results);
-                                res.status(200).json({ image: 'upload/' + req.file.filename }).end();
+                                res.status(200).json({ image: req.file.filename }).end();
                             }
                         });
                     }

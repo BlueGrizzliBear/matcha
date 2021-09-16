@@ -1,122 +1,49 @@
 var express = require('express');
 var router = express.Router();
 var checkToken = require('../middleware/token');
-const multer = require('multer');
-const connection = require('../config/db');
-const fs = require('fs');
+const uploads = require('../config/uploads');
+var Models = require('../models/models');
+var validate = require('../models/validate');
 var path = require('path');
-var user = require('./user');
 
-// var issueUserToken = require('./token');
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        // console.log("req.results.username");
-        // console.log(req.results.username);
-        cb(null, 'user_images/');
-    },
-    filename: (req, file, cb) => {
-        // console.log("req.results.id");
-        // console.log(req.results.id);
-        // console.log(typeof (req.results.id));
-        // console.log("file");
-        // console.log(file);
-        // console.log(file.fieldname);
-        // console.log(file.filename);
-        const uniqueSuffix = req.results.id.toString() + Date.now() + '-' + Math.round(Math.random() * 1E9);
-        // console.log(uniqueSuffix);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-
+/* POST /upload?img=img0 - Uploads the user profile images (img0/img1/img2/img3/img4) */
 router.post('/', checkToken, function (req, res, next) {
-    const whitelist = [
-        'image/png',
-        'image/jpeg',
-        'image/jpg'
-    ];
-
-    const uploads = multer({
-        storage: storage,
-        fileFilter: (req, file, cb) => {
-            if (!whitelist.includes(file.mimetype)) {
-                return cb(new Error('file is not allowed'));
-            }
-            cb(null, true);
-        }
-    });
-
     const fileSize = parseInt(req.headers['content-length']);
     if (fileSize > 7340032) {
         res.status(413).end();
     }
+    else if (!req.query.img || !validate.isImageKey(req.query.img + '_path'))
+        res.status(400).end();
     else {
         req.results = res.locals.results
         const upload = uploads.single('uploadedImage');
         upload(req, res, function (err) {
             if (err) {
                 console.error(err);
+                console.log("Error on upload")
                 res.status(400).end();
             }
             else if (!(req.file && req.file.filename)) {
-                console.log("file does not exist");
+                console.log("File does not exist");
                 res.status(400).end();
             }
             else {
-                /* Look for previous profile picture and delete if exists */
-                //   CHECK LA QUERY pour correspondance au format voulu
-
-                connection.query('SELECT ?? FROM users WHERE id = ? AND email = ?', [req.query.img + '_path', res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
+                const user = new Models.User(res.locals.results.id, res.locals.results.username);
+                user.updateImage(req.query.img + '_path', req.file.filename, (error, results) => {
                     if (error) {
-                        fs.unlink("user_images/" + req.file.filename, (err => {
-                            if (err) console.log(err);
-                            else {
-                                console.log("\nDeleted file: " + req.file.filename);
-                            }
-                        }))
-                        console.log("Error connecting with database");
-                        console.error(error);
+                        console.log("Error on updating image");
+                        console.log(error);
                         res.status(400).end();
                     }
-                    else {
-                        if (results[0][Object.keys(results[0])[0]]) {
-                            fs.unlink("user_images/" + results[0][Object.keys(results[0])[0]], (err => {
-                                if (err) console.log(err);
-                                else {
-                                    console.log("\nDeleted file: " + results[0][Object.keys(results[0])[0]]);
-                                }
-                            }))
-                        }
-                        connection.query('UPDATE users SET ?? = ? WHERE id = ? AND email = ?', [req.query.img + '_path', req.file.filename, res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
-                            if (error) {
-                                fs.unlink("user_images/" + req.file.filename, (err => {
-                                    if (err) console.log(err);
-                                    else {
-                                        console.log("\nDeleted file: " + req.file.filename);
-                                    }
-                                }))
-                                console.log("error updating database");
-                                console.error(error);
-                                res.status(400).end();
-                            }
-                            else {
-                                console.log("Image is uploaded on server and database");
-                                // console.log(results);
-                                // Update token with informations
-                                // Issue token updated new user token
-                                // var user = issueUserToken(res.locals.results);
-                                res.status(200).json({ image: req.file.filename }).end();
-                            }
-                        });
-                    }
+                    else
+                        res.status(200).json({ image: req.file.filename }).end();
                 });
-
             }
         });
     }
 });
 
+/* GET /upload/486484844468-485648646846 - Send the asked image */
 router.get('/:filename', checkToken, function (req, res, next) {
     const { filename } = req.params;
     const dirname = path.resolve();
@@ -124,44 +51,22 @@ router.get('/:filename', checkToken, function (req, res, next) {
     return res.sendFile(fullfilepath);
 });
 
+/* DELETE /upload?img=img0 - Delete the user profile images (img0/img1/img2/img3/img4) */
 router.delete('/', checkToken, function (req, res, next) {
-    // CHECK LE FORMAT DE LA QUERRY POUR SQL INJECTION [profile, img1, img2, img3, img4]
-    connection.query('SELECT ?? FROM users WHERE id = ? AND email = ?', [req.query.img + '_path', res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
-        if (error) {
-            console.log("Error connecting with database");
-            console.error(error);
-            res.status(400).end();
-        }
-        else {
-            if (results[0][Object.keys(results[0])[0]]) {
-                console.log(results[0][Object.keys(results[0])[0]]);
-                fs.unlink("user_images/" + results[0][Object.keys(results[0])[0]], (err => {
-                    if (err) console.log(err);
-                    else {
-                        console.log("\nDeleted file");
-                    }
-                }))
-                connection.query('UPDATE users SET ?? = NULL WHERE id = ? AND email = ?', [req.query.img + "_path", res.locals.decoded.id, res.locals.decoded.email], async function (error, results, fields) {
-                    if (error) {
-                        console.log("Error connecting with database");
-                        console.error(error);
-                        res.status(400).end();
-                    }
-                    else {
-                        if (req.query.img == "img0") {
-                            console.log("check if profile is complete");
-                            user.profileIsComplete(res.locals.decoded.id, res.locals.decoded.username);
-                            res.status(200).end();
-                        }
-                        res.status(400).end();
-                    }
-                });
-            }
-            else {
+    if (!req.query.img && !validate.isImageKey(req.query.img + '_path'))
+        res.status(400).end();
+    else {
+        const user = new Models.User(res.locals.results.id, res.locals.results.username);
+        user.deleteImage(req.query.img + '_path', (error, results) => {
+            if (error) {
+                console.log("Error on updating image");
+                console.log(error);
                 res.status(400).end();
             }
-        }
-    });
+            else
+                res.status(200).end();
+        });
+    }
 })
 
 module.exports = router;

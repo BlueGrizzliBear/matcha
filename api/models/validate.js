@@ -49,4 +49,14 @@ const isBool = function (value) {
 	return false;
 }
 
-module.exports = { isAlphanum, isAlpha, isNum, isEmail, isValidPassword, isJWT, isBool };
+const isImageKey = function (value) {
+	keyArray = ['img0_path', 'img1_path', 'img2_path', 'img3_path', 'img4_path'];
+
+	for (const key of keyArray) {
+		if (value == key)
+			return true;
+	}
+	return false;
+}
+
+module.exports = { isAlphanum, isAlpha, isNum, isEmail, isValidPassword, isJWT, isBool, isImageKey };

@@ -1,5 +1,20 @@
 const connection = require('../config/db');
 var validators = require('./validate');
+const fs = require('fs');
+
+function profileCompleteCondition(results) {
+	if (/*results.birth_date && results.gender && */results.img0)
+		return true;
+	return false;
+}
+
+function deleteImage(path) {
+	fs.unlink(path, (err => {
+		if (err) console.log(err);
+		// else
+		// 	console.log("\nDeleted file: " + path);
+	}))
+}
 
 /* MODELS */
 class User {
@@ -52,20 +67,19 @@ class User {
 
 	create(set, ret) {
 		/* Validate set and insert into database */
-		let el = this;
-		this.validate(set, function (error) {
-			if (error) {
-				ret('Validation failed: ' + error, null);
+		this.validate(set, (verr) => {
+			if (verr) {
+				ret('Validation failed: ' + verr, null);
 			}
 			else {
-				connection.query('INSERT INTO users SET ?', [set], function (error, results, fields) {
+				connection.query('INSERT INTO users SET ?', [set], async (error, results, fields) => {
 					if (error) {
 						console.log("Error occured on users creation");
 						ret(error, null);
 					}
 					else {
-						el.user_id = results.insertId;
-						el.username = set['username'];
+						this.user_id = results.insertId;
+						this.username = set['username'];
 						console.log("User registered sucessfully inside model");
 						ret(null, results);
 					}
@@ -76,13 +90,12 @@ class User {
 
 	update(set, ret) {
 		/* Validate set and insert into database */
-		let el = this;
-		this.validate(set, function (error) {
-			if (error) {
-				ret('Validation failed: ' + error, null);
+		this.validate(set, (err) => {
+			if (err) {
+				ret('Validation failed: ' + err, null);
 			}
 			else {
-				connection.query('UPDATE users SET ? WHERE username = ?', [set, el.username], function (error, results, fields) {
+				connection.query('UPDATE users SET ? WHERE username = ?', [set, this.username], async (error, results, fields) => {
 					if (error) {
 						console.log("Error occured on updating user database");
 						ret(error, null);
@@ -97,8 +110,7 @@ class User {
 	};
 
 	find(ret) {
-		let el = this;
-		connection.query('SELECT * FROM users WHERE username = ?', [this.username], async function (error, results, fields) {
+		connection.query('SELECT * FROM users WHERE username = ?', [this.username], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding user in users table");
 				console.log(error);
@@ -106,7 +118,7 @@ class User {
 			}
 			else {
 				if (results.length > 0) {
-					el.user_id = results[0].id;
+					this.user_id = results[0].id;
 					ret(null, results);
 				}
 				else
@@ -115,37 +127,121 @@ class User {
 		});
 	};
 
-	profileIsComplete(ret) {
-		connection.query('SELECT * FROM users WHERE id = ? AND username = ?', [this.user_id, this.username], async function (error, results, fields) {
+	findKey(key, ret) {
+		connection.query('SELECT ?? FROM users WHERE username = ?', [key, this.username], async (error, results, fields) => {
 			if (error) {
+				console.log("Error occured finding user in users table");
 				console.log(error);
 				ret(error, null);
 			}
 			else {
 				if (results.length > 0) {
-					if (/*results[0].birth_date && results[0].gender && results[0].bio && */results[0].profile) {
-						if (results[0].complete == false) {
-							connection.query('UPDATE users SET complete = true WHERE id = ? AND username = ?', [id, username], async function (error, results, fields) {
-								if (error) {
-									console.log(error);
-									ret(error, null);
-								}
-							})
-						}
-						ret(null, results);
-						return;
+					this.user_id = results[0].id;
+					ret(null, results);
+				}
+				else
+					ret("No results", null);
+			}
+		});
+	};
+
+	updateImage(key, newfilename, ret) {
+		this.findKey(key, (err, res) => {
+			if (err) {
+				console.log("Error on finding user image");
+				deleteImage("user_images/" + newfilename);
+				ret(err, null);
+			}
+			else {
+				if (res[0][Object.keys(res[0])[0]]) {
+					deleteImage("user_images/" + res[0][Object.keys(res[0])[0]]);
+				}
+				connection.query('UPDATE users SET ?? = ? WHERE username = ?', [key, newfilename, this.username], async (error, results, fields) => {
+					if (error) {
+						console.log("Error in updating user image");
+						deleteImage("user_images/" + newfilename);
+						ret(error, null);
 					}
 					else {
-						if (results[0].complete == true) {
-							connection.query('UPDATE users SET complete = false WHERE id = ? AND username = ?', [id, username], async function (error, results, fields) {
-								if (error)
-									console.log(error);
-							})
-						}
+						this.profileIsComplete((picerr, picres) => {
+							ret(null, results);
+						});
 					}
+				});
+			}
+		});
+	}
+
+	deleteImage(key, ret) {
+		connection.query('SELECT ?? FROM users WHERE username = ?', [key, this.username], async (err, res, fields) => {
+			if (err) {
+				console.log("Error connecting with database");
+				console.error(err);
+				ret(err, null);
+			}
+			else {
+				if (res[0][Object.keys(res[0])[0]]) {
+					deleteImage("user_images/" + res[0][Object.keys(res[0])[0]]);
+					connection.query('UPDATE users SET ?? = NULL WHERE username = ?', [key, this.username], async (error, results, fields) => {
+						if (error) {
+							console.log("Error connecting with database");
+							console.error(error);
+							ret(error, null);
+						}
+						else {
+							if (key == "img0_path") {
+								this.profileIsComplete((picerr, picres) => {
+									ret(null, results);
+								});
+							}
+							ret(null, results);
+						}
+					});
 				}
+				else
+					ret("Already deleted from database", null);
+			}
+		});
+	}
+
+	profileIsComplete(ret) {
+		this.find((error, results) => {
+			if (error) {
+				console.log(error);
 				ret(error, null);
 			}
+			else if (results.length > 0) {
+				if (profileCompleteCondition(results[0])) {
+					if (results[0].complete == false) {
+						this.update({ complete: 1 }, (err, res) => {
+							if (err) {
+								console.log(error);
+								ret(err, null);
+							}
+							else
+								ret(null, "Profile is complete");
+						});
+					}
+					else
+						ret(null, "Profile is already complete");
+				}
+				else {
+					if (results[0].complete == true) {
+						this.update({ complete: 0 }, (err, res) => {
+							if (err) {
+								console.log(err);
+								ret(err, null);
+							}
+							else
+								ret("Incomplete profile", null);
+						});
+					}
+					else
+						ret("Profile is still incomplete", null);
+				}
+			}
+			else
+				ret("No user found", null);
 		});
 	}
 }

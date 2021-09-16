@@ -3,7 +3,7 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 var Models = require('../models/models');
 
-/* POST User login with username and password */
+/* POST /login - User login with username and password and send back token */
 router.post('/', function (req, res, next) {
   var password = req.body.password;
   const user = new Models.User(null, req.body.username);

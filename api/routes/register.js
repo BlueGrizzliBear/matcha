@@ -134,17 +134,17 @@ const register = async function (req, res) {
 	}
 }
 
-// POST route to register a user
+/* POST /register - Register a user into database */
 router.post('/', function (req, res, next) {
 	register(req, res);
 });
 
-// GET route to verify a link /regsiter/verify
+/* GET /regsiter/verify?id=token - Verify a generated token link to verify user email */
 router.get('/verify', function (req, res, next) {
 	verifyLink(req, res);
 });
 
-// POST route to send a link verification email again /register/send_link
+/* POST /register/send_link - Send an email link verification again */
 router.post('/send_link', function (req, res, next) {
 	// needs user id and user email in req in order to work
 	sendLinkVerification(req, res);

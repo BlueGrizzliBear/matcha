@@ -11,7 +11,6 @@ const checkToken = function (req, res, next) {
     }
     else {
         const token = new Models.Token(null, bearerToken.split(' ')[1])
-        console.log("token:" + token.getToken());
         token.verify(function (err, decoded) {
             if (err) {
                 console.log("Unauthorized: Invalid token");
@@ -24,7 +23,6 @@ const checkToken = function (req, res, next) {
                         res.status(401).end();
                     }
                     else {
-                        // req.id = decoded.id;
                         const user = new Models.User(decoded.id, decoded.username);
                         user.find(function (error, results) {
                             if (error) {

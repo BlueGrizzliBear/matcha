@@ -40,14 +40,13 @@ class Token {
 	};
 
 	verify(ret) {
-		let el = this;
-		jwt.verify(this.token, process.env.SECRET, function (err, decoded) {
+		jwt.verify(this.token, process.env.SECRET, (err, decoded) => {
 			if (err) {
 				console.log("Token is not valid")
 				ret(err, null);
 			}
 			else {
-				el.user_id = decoded.id;
+				this.user_id = decoded.id;
 				ret(null, decoded);
 			}
 		});
@@ -55,12 +54,12 @@ class Token {
 
 	create(set, ret) {
 		/* Validate set and insert into database */
-		this.validate(set, function (error) {
+		this.validate(set, (error) => {
 			if (error) {
 				ret('Validation failed: ' + error, null);
 			}
 			else {
-				connection.query('INSERT INTO tokens SET ?', [set], function (error, results, fields) {
+				connection.query('INSERT INTO tokens SET ?', [set], async (error, results, fields) => {
 					if (error) {
 						console.log("Error occured on token creation inside model");
 						ret(error, results);
@@ -78,7 +77,7 @@ class Token {
 		this.token = jwt.sign(set, process.env.SECRET_LINK, {
 			expiresIn: expireTime
 		});
-		this.create({ user_id: this.user_id, token: this.token }, function (error, results) {
+		this.create({ user_id: this.user_id, token: this.token }, (error, results) => {
 			if (error) {
 				console.log("Error occured on token creation inside model");
 				ret(error, results);
@@ -92,7 +91,7 @@ class Token {
 	};
 
 	find(ret) {
-		connection.query('SELECT * FROM tokens WHERE user_id = ? AND token = ?', [this.user_id, this.token], async function (error, results, fields) {
+		connection.query('SELECT * FROM tokens WHERE user_id = ? AND token = ?', [this.user_id, this.token], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding token in tokens table");
 				console.log(error);
@@ -108,7 +107,7 @@ class Token {
 	};
 
 	delete(ret) {
-		connection.query('DELETE FROM tokens WHERE user_id = ? AND token = ?', [this.user_id, this.token], async function (error, results, fields) {
+		connection.query('DELETE FROM tokens WHERE user_id = ? AND token = ?', [this.user_id, this.token], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured erasing token in tokens table");
 				console.log(error);

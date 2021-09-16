@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var checkToken = require('./middleware/middleware');
+var checkToken = require('../middleware/token');
 const multer = require('multer');
 const connection = require('../config/db');
 const fs = require('fs');

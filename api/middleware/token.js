@@ -1,4 +1,4 @@
-var Models = require('../../models/model');
+var Models = require('../models/models');
 
 // middleware to use on path everytime user acces sensitiv data
 // check if a token exist and is valid

@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
 var nodemailer = require("nodemailer");
-var Models = require('../models/model');
+var Models = require('../models/models');
 
 /*
 	Here we are configuring our SMTP Server details.
@@ -64,23 +64,23 @@ const verifyLink = function (req, res) {
 				console.log("Domain is matched. Information is from Authentic email");
 			else
 				res.end("<h1>Request is from unknown source");
-			token.find(function (error, results) {
-				if (error) {
+			token.find(function (findError, results) {
+				if (findError) {
 					console.log("Email is not verified, token already used");
 					res.end("<h1>Bad Request</h1>");
 				}
 				else {
 					const user = new Models.User(decoded.id, decoded.username);
-					user.update({ activated: 1 }, function (error, results) {
-						if (error) {
+					user.update({ activated: 1 }, function (updateError, results) {
+						if (updateError) {
 							console.log("error updating database");
 							res.end("<h1>Bad Request</h1>");
 						}
 						else {
 							if (results.changedRows === 1) {
 								res.end("<h1>Email " + decoded.email + " is been Successfully verified");
-								token.delete(function (error, results) {
-									if (error)
+								token.delete(function (deleteError, results) {
+									if (deleteError)
 										console.log("Token already deleted");
 								});
 							}
@@ -98,38 +98,40 @@ const verifyLink = function (req, res) {
 
 /* registering user in database */
 const register = async function (req, res) {
-	if (!req.body.password) {
+	if (!req.body.password || typeof req.body.password !== 'string') {
 		console.log("Empty password");
 		res.status(400).end();
 	}
-	/* Number of pass to encrypt the user password */
-	const saltRounds = 10;
-	/* Encrypt password before storing it to database */
-	const encryptedPassword = await bcrypt.hash(req.body.password, saltRounds);
-	/* Create the set to store in database */
-	const user_params = {
-		"username": req.body.username,
-		"email": req.body.email,
-		"firstname": req.body.firstname,
-		"lastname": req.body.lastname,
-		"password": encryptedPassword
-	}
-	/* Create new user model */
-	const user = new Models.User();
+	else {
+		/* Number of pass to encrypt the user password */
+		const saltRounds = 10;
+		/* Encrypt password before storing it to database */
+		const encryptedPassword = await bcrypt.hash(req.body.password, saltRounds);
+		/* Create the set to store in database */
+		const user_params = {
+			"username": req.body.username,
+			"email": req.body.email,
+			"firstname": req.body.firstname,
+			"lastname": req.body.lastname,
+			"password": encryptedPassword
+		}
+		/* Create new user model */
+		const user = new Models.User();
 
-	user.create(user_params, function (error, results) {
-		if (error) {
-			// console.log(error);
-			res.status(400).end();
-		}
-		else {
-			req.body.id = results.insertId;
-			console.log("User registered sucessfully");
-			/* Sending verification link to activate user account */
-			sendLinkVerification(req, res);
-			res.status(200).end();
-		}
-	})
+		user.create(user_params, function (error, results) {
+			if (error) {
+				// console.log(error);
+				res.status(400).end();
+			}
+			else {
+				req.body.id = results.insertId;
+				console.log("User registered sucessfully");
+				/* Sending verification link to activate user account */
+				sendLinkVerification(req, res);
+				res.status(200).end();
+			}
+		})
+	}
 }
 
 // POST route to register a user

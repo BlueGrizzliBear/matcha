@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
 var Models = require('../models/models');
+var activation = require("./activation");
 
 /* POST /login - User login with username and password and send back token */
 router.post('/', function (req, res, next) {
@@ -43,6 +44,41 @@ router.post('/', function (req, res, next) {
           }).end();
         }
       });
+    }
+  });
+});
+
+
+/* POST /register/send_link - Send an email link verification again */
+router.post('/activation_link', function (req, res, next) {
+  const user = new Models.User(null, req.body.username);
+
+  user.find(function (error, results) {
+    if (error) {
+      console.log(error);
+      res.status(400).end();
+    }
+    else {
+      req.body.id = user.getUserId();
+      activation.sendLinkVerification(req, res);
+      res.status(200).end();
+    }
+  });
+});
+
+/* POST /login/reset_password_link - Send an email link to reset password */
+router.post('/forgot_password', function (req, res, next) {
+  const user = new Models.User(null, req.body.username);
+
+  user.find(function (error, results) {
+    if (error) {
+      console.log(error);
+      res.status(400).end();
+    }
+    else {
+      req.body.id = user.getUserId();
+      activation.sendPasswordResetLink(req, res);
+      res.status(200).end();
     }
   });
 });

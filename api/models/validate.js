@@ -30,11 +30,11 @@ const isEmail = function (value) {
 }
 
 const isValidPassword = function (value) {
+	console.log(value);
 	// Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character:
-	// if (regexMatch(value, /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/))
-	//     return true;
-	// return false;
-	return true;
+	if (regexMatch(value, /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\/\\])[A-Za-z\d@$!%*?&\/\\]{8,}$/))
+		return true;
+	return false;
 }
 
 const isJWT = function (value) {
@@ -50,7 +50,7 @@ const isBool = function (value) {
 }
 
 const isImageKey = function (value) {
-	keyArray = ['img0_path', 'img1_path', 'img2_path', 'img3_path', 'img4_path'];
+	const keyArray = ['img0_path', 'img1_path', 'img2_path', 'img3_path', 'img4_path'];
 
 	for (const key of keyArray) {
 		if (value == key)
@@ -59,4 +59,12 @@ const isImageKey = function (value) {
 	return false;
 }
 
-module.exports = { isAlphanum, isAlpha, isNum, isEmail, isValidPassword, isJWT, isBool, isImageKey };
+const validateKey = function (value, keyArray) {
+	for (const key of keyArray) {
+		if (value == key)
+			return true;
+	}
+	return false;
+}
+
+module.exports = { isAlphanum, isAlpha, isNum, isEmail, isValidPassword, isJWT, isBool, isImageKey, validateKey };

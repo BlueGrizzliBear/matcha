@@ -1,9 +1,10 @@
 const connection = require('../config/db');
 var validators = require('./validate');
 const fs = require('fs');
+var bcrypt = require('bcrypt');
 
 function profileCompleteCondition(results) {
-	if (/*results.birth_date && results.gender && */results.img0)
+	if (/*results.birth_date && results.gender && */results.img0_path)
 		return true;
 	return false;
 }
@@ -23,7 +24,7 @@ class User {
 		this.username = username;
 	};
 
-	validate(set, error) {
+	async validate(set, error) {
 		if (!set) {
 			error("Empty values send");
 			return;
@@ -49,6 +50,11 @@ class User {
 				error("Invalid password format");
 				return;
 			}
+			else if (i == 'password') {
+				const saltRounds = 10;
+				const password = set[i];
+				set[i] = await bcrypt.hash(password, saltRounds);
+			}
 			if (i == 'activated' && !validators.isBool(set[i])) {
 				error("Invalid activated format");
 				return;
@@ -67,11 +73,18 @@ class User {
 
 	create(set, ret) {
 		/* Validate set and insert into database */
+		for (let i in set) {
+			if (!validators.validateKey(i, ['username', 'email', 'password', 'firstname', 'lastname'])) {
+				ret('Validation failed: Unauthorized key', null);
+				return;
+			}
+		}
 		this.validate(set, (verr) => {
 			if (verr) {
 				ret('Validation failed: ' + verr, null);
 			}
 			else {
+
 				connection.query('INSERT INTO users SET ?', [set], async (error, results, fields) => {
 					if (error) {
 						console.log("Error occured on users creation");
@@ -88,21 +101,32 @@ class User {
 		});
 	};
 
-	update(set, ret) {
+	update(set, keyValidation, ret) {
 		/* Validate set and insert into database */
+		if (keyValidation == true) {
+			for (let i in set) {
+				if (!validators.validateKey(i, ['email', 'password', 'firstname', 'lastname', 'birth_date', 'gender', 'preference', 'bio'])) {
+					ret('Validation failed: Unauthorized key', null);
+					return;
+				}
+			}
+		}
 		this.validate(set, (err) => {
 			if (err) {
 				ret('Validation failed: ' + err, null);
 			}
 			else {
+				// si email change => desactiver profile et renvoyer un lien verification par email
+				// si password change => reset tous les token sauf celui sur lequel connecté
 				connection.query('UPDATE users SET ? WHERE username = ?', [set, this.username], async (error, results, fields) => {
 					if (error) {
 						console.log("Error occured on updating user database");
 						ret(error, null);
 					}
 					else {
-						console.log("User updated successfully");
-						ret(null, results);
+						this.profileIsComplete((picerr, picres) => {
+							ret(null, results);
+						});
 					}
 				});
 			}
@@ -213,7 +237,7 @@ class User {
 			else if (results.length > 0) {
 				if (profileCompleteCondition(results[0])) {
 					if (results[0].complete == false) {
-						this.update({ complete: 1 }, (err, res) => {
+						this.update({ complete: 1 }, false, (err, res) => {
 							if (err) {
 								console.log(error);
 								ret(err, null);
@@ -227,7 +251,7 @@ class User {
 				}
 				else {
 					if (results[0].complete == true) {
-						this.update({ complete: 0 }, (err, res) => {
+						this.update({ complete: 0 }, false, (err, res) => {
 							if (err) {
 								console.log(err);
 								ret(err, null);

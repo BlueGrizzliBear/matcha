@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var checkToken = require('../middleware/token');
+var Models = require('../models/models');
 
 /* GET /user - Send user profile informations */
 router.get('/', checkToken, function (req, res, next) {
@@ -15,7 +16,7 @@ router.get('/', checkToken, function (req, res, next) {
     lastname: res.locals.results.lastname,
     birth_date: res.locals.results.birth_date,
     isActivated: res.locals.results.activated,
-    gender: res.locals.results.gendfer,
+    gender: res.locals.results.gender,
     preference: res.locals.results.preference,
     bio: res.locals.results.bio,
     images: {
@@ -24,45 +25,105 @@ router.get('/', checkToken, function (req, res, next) {
       img2: res.locals.results.img2_path,
       img3: res.locals.results.img3_path,
       img4: res.locals.results.img4_path
-    }
+    },
+    likes: 50, // A FAIRE
+    watch: 2 // A FAIRE
   }).end();
 });
 
 /* POST /user - Update/change user profile informations */
 router.post('/', checkToken, function (req, res, next) {
   /* Update user informations */
-  let set = req.body;
   const user = new Models.User(res.locals.results.id, res.locals.results.username);
-  user.update(set, async (error, results, fields) => {
+  user.update(req.body, true, (error, results) => {
     if (error) {
       console.log(error);
       res.status(400).end();
     }
     else {
-      // console.log(results);
-      /* return user profile with new changed informations */
-      res.status(200).json({
-        status: "200",
-        isAuth: true,
-        isProfileComplete: results.complete,
-        id: results.id,
-        username: results.username,
-        email: results.email,
-        firstname: results.firstname,
-        lastname: results.lastname,
-        birth_date: results.birth_date,
-        isActivated: results.activated,
-        gender: results.gendfer,
-        preference: results.preference,
-        bio: results.bio,
-        images: {
-          profile: results.img0_path,
-          img1: results.img1_path,
-          img2: results.img2_path,
-          img3: results.img3_path,
-          img4: results.img4_path
+      user.find((error, results) => {
+        /* return user profile with new changed informations */
+        res.status(200).json({
+          status: "200",
+          isAuth: true,
+          isProfileComplete: results[0].complete,
+          id: results[0].id,
+          username: results[0].username,
+          email: results[0].email,
+          firstname: results[0].firstname,
+          lastname: results[0].lastname,
+          birth_date: results[0].birth_date,
+          isActivated: results[0].activated,
+          gender: results[0].gender,
+          preference: results[0].preference,
+          bio: results[0].bio,
+          images: {
+            profile: results[0].img0_path,
+            img1: results[0].img1_path,
+            img2: results[0].img2_path,
+            img3: results[0].img3_path,
+            img4: results[0].img4_path
+          },
+          likes: 50, // A FAIRE
+          watch: 2 // A FAIRE
+        }).end();
+      });
+    }
+  });
+});
+
+/* GET /user - Send user profile informations */
+router.get('/:username', checkToken, function (req, res, next) {
+  const user = new Models.User(null, req.params['username']);
+  user.find((error, results) => {
+    /* return user profile with new changed informations */
+    res.status(200).json({
+      status: "200",
+      // isAuth: true,
+      isProfileComplete: results[0].complete,
+      id: results[0].id,
+      username: results[0].username,
+      email: results[0].email,
+      firstname: results[0].firstname,
+      lastname: results[0].lastname,
+      birth_date: results[0].birth_date,
+      isActivated: results[0].activated,
+      gender: results[0].gender,
+      preference: results[0].preference,
+      bio: results[0].bio,
+      images: {
+        profile: results[0].img0_path,
+        img1: results[0].img1_path,
+        img2: results[0].img2_path,
+        img3: results[0].img3_path,
+        img4: results[0].img4_path
+      },
+      likes: 50, // A FAIRE
+      watch: 2 // A FAIRE
+    }).end();
+  });
+});
+
+/* GET /user/reset?id=token - Verify a generated token link to reset password */
+router.get('/reset_password', checkToken, function (req, res, next) {
+  // A VOIR COMMENT TRAITER LE
+  const user = new Models.User(res.locals.results.id, res.locals.results.username);
+  user.update(req.body, true, (error, results) => {
+    if (error) {
+      console.log(error);
+      res.status(400).end();
+    }
+    else {
+      const token = new Models.Token(res.locals.results.id, res.locals.token);
+      token.delete((tokerr, tokres) => {
+        if (tokerr) {
+          console.log(tokerr);
+          res.status(400).end();
         }
-      }).end();
+        else {
+          res.status(200).end();
+        }
+      });
     }
   });
 });

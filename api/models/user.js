@@ -2,6 +2,7 @@ const connection = require('../config/db');
 var validators = require('./validate');
 const fs = require('fs');
 var bcrypt = require('bcrypt');
+var Like = require('./like');
 
 function profileCompleteCondition(results) {
 	if (/*results.birth_date && results.gender && */results.img0_path)
@@ -135,6 +136,11 @@ class User {
 
 	find(ret) {
 		connection.query('SELECT * FROM users WHERE username = ?', [this.username], async (error, results, fields) => {
+			// connection.query('SELECT *
+			// 						FROM users
+			// 						JOIN likes ON likes.liked_user_id = users.id
+			// 						JOIN watches ON watches.watched_user_id = user.id
+			// 						WHERE username = ?', [this.username], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding user in users table");
 				console.log(error);

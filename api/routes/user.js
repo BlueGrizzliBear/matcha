@@ -8,7 +8,7 @@ router.get('/', checkToken, function (req, res, next) {
   res.status(200).json({
     status: "200",
     isAuth: true,
-    isProfileComplete: res.locals.results.complete, /* false initially */
+    isProfileComplete: res.locals.results.complete,
     id: res.locals.results.id,
     username: res.locals.results.username,
     email: res.locals.results.email,
@@ -104,11 +104,13 @@ router.get('/:username', checkToken, function (req, res, next) {
   });
 });
 
-/* GET /user/reset?id=token - Verify a generated token link to reset password */
-router.get('/reset_password', checkToken, function (req, res, next) {
-  // A VOIR COMMENT TRAITER LE
+/* POST /user/reset_password - Verify a generated token link to reset password */
+router.post('/reset_password', checkToken, function (req, res, next) {
+  // A VOIR COMMENT TRAITER LE RETOUR SUR LE FRONT
+  // (lien du mail pointant directement sur le front avec parsing du token dans la querry renvoyé sur la route en back
+  // ou lien de mail poitant sur le back et reset sur le back avec redirection sur le front une fois reset)
   const user = new Models.User(res.locals.results.id, res.locals.results.username);
-  user.update(req.body, true, (error, results) => {
+  user.update({ password: req.body.password }, true, (error, results) => {
     if (error) {
       console.log(error);
       res.status(400).end();

@@ -39,6 +39,7 @@ const sendPasswordResetLink = function (req, res) {
 		if (error)
 			console.log(error);
 		else {
+			// A CHANGER PAR LIEN POINTANT SUR LE FRONT
 			link = "http://" + req.get('host') + "/user/reset_password?id=" + token.getToken();
 			var mailOptions = {
 				to: req.body.email,

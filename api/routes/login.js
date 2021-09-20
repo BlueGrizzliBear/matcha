@@ -66,7 +66,7 @@ router.post('/activation_link', function (req, res, next) {
   });
 });
 
-/* POST /login/reset_password_link - Send an email link to reset password */
+/* POST /login/forgot_password - Send an email link to reset password */
 router.post('/forgot_password', function (req, res, next) {
   const user = new Models.User(null, req.body.username);
 
@@ -76,7 +76,9 @@ router.post('/forgot_password', function (req, res, next) {
       res.status(400).end();
     }
     else {
-      req.body.id = user.getUserId();
+      req.body.id = results[0].id;
+      req.body.username = results[0].username;
+      req.body.email = results[0].email;
       activation.sendPasswordResetLink(req, res);
       res.status(200).end();
     }

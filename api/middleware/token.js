@@ -7,6 +7,7 @@ const checkToken = function (req, res, next) {
     // console.log("bearer token:" + bearerToken);
     if (!bearerToken) {
         console.log("Unauthorized: No token provided");
+        // ENVOYER 200 PLUTOT?
         res.status(401).end();
     }
     else {
@@ -14,12 +15,14 @@ const checkToken = function (req, res, next) {
         token.verify(function (err, decoded) {
             if (err) {
                 console.log("Unauthorized: Invalid token");
+                // REDIRECTION POUR AMENER SUR PAGE LOGIN?
                 res.status(401).end();
             }
             else {
                 token.find(function (finderror, findresults) {
                     if (finderror) {
                         console.log("Unauthorized: Token is revoked");
+                        // REDIRECTION POUR AMENER SUR PAGE LOGIN?
                         res.status(401).end();
                     }
                     else {
@@ -27,7 +30,7 @@ const checkToken = function (req, res, next) {
                         user.find(function (error, results) {
                             if (error) {
                                 console.log(error);
-                                res.status(400).end();
+                                res.status(500).end();
                             }
                             else {
                                 res.locals.decoded = decoded;

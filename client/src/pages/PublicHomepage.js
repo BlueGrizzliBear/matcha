@@ -1,23 +1,32 @@
-import { Component } from 'react';
-import Button from '@material-ui/core/Button';
+import * as React from 'react';
+import Button from '@mui/material/Button';
+// import { makeStyles } from '@mui/styles';
+
 import { Link } from "react-router-dom";
 
-class PublicHomepage extends Component {
-	// constructor(props) {
-	// 	super(props);
-	// 	// this.state = { apiResponse: "", dbResponse: "" };		
-	// }
+// const useStyles = makeStyles((theme) => ({
+// 	root: {
+// 		backgroundColor: theme.palette.primary.main,
+// 	// display: 'flex',
+// 	  // flexWrap: 'wrap',
+// 	  // justifyContent: 'space-around',
+// 	  // overflow: 'hidden',
+// 	},
+//   }));  
 
-	render () {
-		return (
-			<>
-				<h1 id="catchphrase">For people searching for love</h1>
-				<Button	variant="contained" color="primary" component={Link} to="/register">
-					Create account
-				</Button>
-			</>
-		);
-	}
+function PublicHomepage() {
+
+	// const classes = useStyles();
+
+	return (
+		<>
+			<h1 id="catchphrase">For people searching for love</h1>
+			<Button	variant="contained" color="primary" component={Link} to="/register">
+				Create account
+			</Button>
+		</>
+	);
 }
 
 export default PublicHomepage;
+

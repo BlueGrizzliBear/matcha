@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { Box, ImageList, ImageListItem, ImageListItemBar } from '@material-ui/core';
+import { makeStyles } from '@mui/styles';
+import { Box, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
 
 import OptionButton from '../components/OptionButton'
 
@@ -19,10 +19,11 @@ const useStyles = makeStyles((theme) => ({
 		overflow: 'hidden',
 	},
 	imageList: {
-		justifyContent: "center",
-		alignItems: "flex-start",
-		flexDirection: 'column',
-		height: 530,
+		// justifyContent: "flex-start",
+		// alignItems: "flex-start",
+		// flexDirection: 'column',
+		height: 480,
+		// width: "100%",
 		// Profile image is 640x480 and small images are 320x240
 		// Promote the list into its own layer in Chrome. This cost memory, but helps keep FPS high.
 		transform: 'translateZ(0)',
@@ -132,17 +133,23 @@ function ImageGallery() {
 
 	return (
 		<Box className={classes.root} >
-			<ImageList id="ImageList" className={classes.imageList} rowHeight={240} gap={16} cols={4} style={{ 'margin': '8px' }}>
+			<ImageList id="ImageList" className={classes.imageList} rowHeight={240} gap={0} cols={4} style={{ 'margin': '0px 8px' }}>
 				{imageArr.map((item, i) => (
 					<ImageListItem
 						key={i}
 						cols={item.profile ? 2 : 1}
 						rows={item.profile ? 2 : 1}
 						style={{
-							padding: (item.profile ? '0px 8px' : '8px'),
+							// padding: (item.profile ? '0px 8px' : '8px'),
 							width: (item.profile ? '800px' : '400px'),
-							minWidth: '250px',
-							maxWidth: '100%'
+							minWidth: '100%',
+							// maxWidth: '100%',
+							// width: '100%',
+							// maxWidth: (item.profile ? 400 : 200),
+							justifyContent: 'center',
+							// alignItems: 'center',
+							overflow: 'hidden',
+
 						}}
 					>
 						<img src={item.img} alt={item.title} style={{ 'objectFit': 'cover' }} />

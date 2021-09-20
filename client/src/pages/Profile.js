@@ -1,5 +1,3 @@
-// import { makeStyles } from '@material-ui/core/styles';
-
 import Figures from '../components/Figures'
 import ImageGallery from '../components/ImageGallery'
 import Interests from '../components/Interests'

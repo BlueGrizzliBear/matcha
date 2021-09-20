@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Button, Box } from '@material-ui/core';
-import { Visibility, VisibilityOff } from '@material-ui/icons';
+import { Button, Box } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+
 import InputForm, { PasswordInputForm } from '../components/InputForm';
 
 function Register() {

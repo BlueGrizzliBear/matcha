@@ -23,20 +23,17 @@
   align-content: center;
   height: 48px;
   margin: 0.8%;
-
 }
 
 #ImageList {
-  /* width: 640px; */
   width: 100%;
 }
 #Profile {
-  /* width: 640px; */
   width: 100%;
 }
 
 #Logo {
-  content:url(../images/short_logo.svg);
+  content: url(../images/short_logo.svg);
 }
 
 /* At the top level of your code */
@@ -45,7 +42,7 @@
     margin: 5px 10px;
   }
   #Logo {
-    content:url(../images/logo.svg);
+    content: url(../images/logo.svg);
   }
 }
 
@@ -58,6 +55,5 @@
   #Profile {
     width: 100%;
     max-width: 1600px;
-
   }
 }

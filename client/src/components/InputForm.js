@@ -1,5 +1,5 @@
-import { makeStyles } from '@material-ui/core/styles';
-import { TextField, InputLabel, FilledInput, InputAdornment, IconButton, FormControl } from '@material-ui/core';
+import { makeStyles } from '@mui/styles';
+import { TextField, InputLabel, FilledInput, InputAdornment, IconButton, FormControl } from '@mui/material';
 
 const formStyle = makeStyles((theme) => ({
 	root: {

@@ -1,9 +1,8 @@
-import { Box } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Box, Badge } from '@mui/material';
 
-import LocationOnIcon from '@material-ui/icons/LocationOn';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import VisibilityIcon from '@material-ui/icons/Visibility';
+import { makeStyles } from '@mui/styles';
+
+import { Visibility as VisibilityIcon, Favorite as FavoriteIcon, LocationOn as LocationOnIcon } from '@mui/icons-material';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -53,20 +52,22 @@ function Figures() {
 	return (
 		<>
 			<Box className={classes.root}>
-				<Box id="Profile" className={classes.Profileroot} style={{ 'margin': '8px' }}>
-					<Box className={classes.LeftRoot} style={{ 'margin': '8px' }}>
+				<Box id="Profile" className={classes.Profileroot} style={{ 'margin': '8px 8px 0px' }}>
+					<Box className={classes.LeftRoot} style={{ 'margin': '0px 8px' }}>
 						<Box className={classes.UpperRoot}>
-							<h2 style={{ 'margin': '8px' }} >Firstname Lastname, age</h2>
+							<h2 style={{ 'margin': '4px' }} >Firstname Lastname, age</h2>
 						</Box>
-						<Box className={classes.FigureRoot} style={{ 'margin': '8px' }}>
+						<Box className={classes.FigureRoot} style={{ 'margin': '4px' }}>
 							<LocationOnIcon />
 							<Box style={{ 'marginLeft': '8px' }}>Location</Box>
 						</Box>
 					</Box>
 
-					<Box className={classes.RightRoot} style={{ 'margin': '8px' }}>
+					<Box className={classes.RightRoot} style={{ 'margin': '0px 8px' }}>
 						<Box className={classes.FigureRoot} style={{ 'margin': '8px' }}>
-							<FavoriteIcon />
+							<Badge badgeContent={3} color="primary">
+								<FavoriteIcon />
+							</Badge>
 							<Box style={{ 'marginLeft': '8px' }}>4</Box>
 						</Box>
 						<Box className={classes.FigureRoot} style={{ 'margin': '8px' }}>

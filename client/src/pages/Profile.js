@@ -1,8 +1,9 @@
-// import { makeStyles } from '@material-ui/core/styles';
-
-// import Figures from '../components/Figures'
+import Figures from '../components/Figures'
 import ImageGallery from '../components/ImageGallery'
-import Bio from '../components/Bio'
+import Interests from '../components/Interests'
+import Biography from '../components/Biography'
+import Gender from '../components/Gender'
+import SexualPreferences from '../components/SexualPreferences'
 
 // const useStyles = makeStyles((theme) => ({
 
@@ -14,9 +15,12 @@ function Profile() {
 
 	return (
 		<>
-			{/* <Figures /> */}
+			<Figures />
 			<ImageGallery />
-			<Bio />
+			<Interests />
+			<Biography />
+			<Gender />
+			<SexualPreferences />
 		</>
 	);
 }

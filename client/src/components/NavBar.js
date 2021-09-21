@@ -1,14 +1,14 @@
 import React from 'react';
-import { IconButton, Button, Box, Badge } from '@material-ui/core';
-import { Switch, Route, Link } from "react-router-dom";
-import '../assets/stylesheets/Components.css';
 
-import { useHistory } from "react-router-dom";
+import { IconButton, Button, Box, Badge, Tooltip } from '@mui/material';
+import { Notifications as NotificationsIcon, Chat as ChatIcon } from '@mui/icons-material';
+
+import { Switch, Route, Link, useHistory } from "react-router-dom";
+
+import '../assets/stylesheets/Components.css';
 
 import { ReactComponent as ProfileIcon } from "../assets/images/profile.svg";
 import { ReactComponent as LogoutIcon } from "../assets/images/logout.svg";
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import ChatIcon from '@material-ui/icons/Chat';
 
 function NavBar(props) {
 
@@ -52,9 +52,11 @@ function NavBar(props) {
                   <IconButton aria-label="show profile" color="inherit" component={Link} to="/profile" style={{ height: "24px" }}>
                     <ProfileIcon />
                   </IconButton>
-                  <IconButton aria-label="log out" color="inherit" onClick={handleLogout} style={{ height: "48px" }}>
-                    <LogoutIcon />
-                  </IconButton>
+                  <Tooltip title="logout">
+                    <IconButton aria-label="log out" color="inherit" onClick={handleLogout} style={{ height: "48px" }}>
+                      <LogoutIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
               </Route>
             </Switch>

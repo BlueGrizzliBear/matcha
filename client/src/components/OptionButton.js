@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { IconButton, ClickAwayListener, Grow, Paper, Popper, MenuItem, MenuList } from '@material-ui/core';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { IconButton, ClickAwayListener, Grow, Paper, Popper, MenuItem, MenuList } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 const options = ['Edit', 'Delete'];
 

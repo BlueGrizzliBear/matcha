@@ -1,4 +1,3 @@
-
 const connection = require('../config/db');
 
 class Like {

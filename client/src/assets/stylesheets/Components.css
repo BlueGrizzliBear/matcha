@@ -25,13 +25,6 @@
   margin: 0.8%;
 }
 
-#ImageList {
-  width: 100%;
-}
-#Profile {
-  width: 100%;
-}
-
 #Logo {
   content: url(../images/short_logo.svg);
 }
@@ -43,17 +36,5 @@
   }
   #Logo {
     content: url(../images/logo.svg);
-  }
-}
-
-@media screen and (min-width: 1350px) {
-  /* .Profile { */
-  #ImageList {
-    width: 100%;
-    max-width: 1600px;
-  }
-  #Profile {
-    width: 100%;
-    max-width: 1600px;
   }
 }

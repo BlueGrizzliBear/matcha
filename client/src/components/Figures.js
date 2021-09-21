@@ -10,14 +10,12 @@ const useStyles = makeStyles((theme) => ({
 		flexWrap: 'wrap',
 		justifyContent: 'space-around',
 		overflow: 'hidden',
-		// margin: 'auto'
 	},
 	Profileroot: {
 		display: 'flex',
 		flexWrap: 'wrap',
 		justifyContent: 'space-between',
 		overflow: 'hidden',
-		// margin: 'auto'
 	},
 	LeftRoot: {
 		display: 'inline',
@@ -52,7 +50,7 @@ function Figures() {
 	return (
 		<>
 			<Box className={classes.root}>
-				<Box id="Profile" className={classes.Profileroot} style={{ 'margin': '8px 8px 0px' }}>
+				<Box id="Profile" sx={{ width: '100%', maxWidth: 1552 }} className={classes.Profileroot} style={{ 'margin': '8px 8px 0px' }}>
 					<Box className={classes.LeftRoot} style={{ 'margin': '0px 8px' }}>
 						<Box className={classes.UpperRoot}>
 							<h2 style={{ 'margin': '4px' }} >Firstname Lastname, age</h2>

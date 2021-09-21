@@ -18,16 +18,6 @@ const useStyles = makeStyles((theme) => ({
 		justifyContent: 'space-around',
 		overflow: 'hidden',
 	},
-	imageList: {
-		// justifyContent: "flex-start",
-		// alignItems: "flex-start",
-		// flexDirection: 'column',
-		height: 480,
-		// width: "100%",
-		// Profile image is 640x480 and small images are 320x240
-		// Promote the list into its own layer in Chrome. This cost memory, but helps keep FPS high.
-		transform: 'translateZ(0)',
-	},
 }));
 
 const itemData = [
@@ -133,26 +123,23 @@ function ImageGallery() {
 
 	return (
 		<Box className={classes.root} >
-			<ImageList id="ImageList" className={classes.imageList} rowHeight={240} gap={0} cols={4} style={{ 'margin': '0px 8px' }}>
+			<ImageList sx={{ width: '100%', height: 576, maxWidth: 1552 }} rowHeight={'auto'} gap={8} cols={3} >
 				{imageArr.map((item, i) => (
 					<ImageListItem
 						key={i}
-						cols={item.profile ? 2 : 1}
+						cols={1}
 						rows={item.profile ? 2 : 1}
-						style={{
-							// padding: (item.profile ? '0px 8px' : '8px'),
-							width: (item.profile ? '800px' : '400px'),
-							minWidth: '100%',
-							// maxWidth: '100%',
-							// width: '100%',
-							// maxWidth: (item.profile ? 400 : 200),
+						sx={{
+							width: '100vw',
 							justifyContent: 'center',
-							// alignItems: 'center',
+							alignContent: 'center',
 							overflow: 'hidden',
-
+							'@media screen and (min-width: 768px)': {
+								width: (item.profile ? 768 : 384),
+							}
 						}}
 					>
-						<img src={item.img} alt={item.title} style={{ 'objectFit': 'cover' }} />
+						<img src={item.img} alt={item.title} style={{ objectFit: 'cover' }} />
 						<input
 							title={item.title}
 							style={{ display: "none" }}

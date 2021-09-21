@@ -1,0 +1,4 @@
+# Ignoring this folder and all the sub files
+*
+*/
+!.gitignore

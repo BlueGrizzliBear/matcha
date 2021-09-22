@@ -6,25 +6,18 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 const options = ['Edit', 'Delete'];
 
 const OptionButton = React.forwardRef((props, ref) => {
-	// function OptionButton(props) {
 
 	const [open, setOpen] = React.useState(false);
 	const [anchorRef, setAnchorRef] = React.useState(null);
 
-	const popperRef = React.createRef(null);
-
-	const MyGrow = React.forwardRef((props, ref) => {
-		return <Grow ref={ref} {...props} />;
-	});
-
 	const handleMenuItemClick = (event, index) => {
 		console.info(`You clicked ${options[index]}`);
-		if (index === 0) {
+		if (options[index] === 'Edit') {
 			ref.current.click(ref.id);
-			// props.onClick();
-			// props.myfunction(event, ref);
 		}
-		// props.handleFileUpload();
+		if (options[index] === 'Delete') {
+			props.handleFileDelete(props.item.title);
+		}
 		setOpen(false);
 	};
 
@@ -49,40 +42,36 @@ const OptionButton = React.forwardRef((props, ref) => {
 				aria-label={`edit ${props.item.title}`}
 				position="top"
 				actionposition="right"
-				style={{ background: 'rgba(229,230,235,0.1)', padding: '5px', margin: 'auto 7px' }}
+				style={{ background: 'rgba(229,230,235,0.1)', padding: '5px', margin: '7px 7px' }}
 			>
 				<MoreVertIcon style={{ color: 'rgba(5,5,5,1)', top: '0' }} />
 			</IconButton>
 			<Popper
 				open={open}
 				anchorEl={anchorRef}
-				role={undefined}
-				placement={'bottom-end'}
+				placement="bottom-end"
 				transition
 				disablePortal={false}
-				modifiers={{
-					flip: {
-						enabled: false
-					},
-					preventOverflow: {
-						enabled: true,
-						boundariesElement: 'scrollParent'
-					}
-				}}
-				ref={popperRef}
-				transitioncomponent={MyGrow}
+				modifiers={[
+					{ name: 'flip', enabled: false },
+					{ name: 'preventOverflow', enabled: true, options: { boundariesElement: 'scrollParent' }}
+				]}
 			>
-				<Paper>
-					<ClickAwayListener onClickAway={handleClose}>
-						<MenuList id="split-button-menu">
-							{options.map((option, index) => (
-								<MenuItem key={option} onClick={(event) => handleMenuItemClick(event, index)}>
-									{option}
-								</MenuItem>
-							))}
-						</MenuList>
-					</ClickAwayListener>
-				</Paper>
+				{({ TransitionProps }) => (
+					<Grow {...TransitionProps} timeout={350}>
+						<Paper>
+							<ClickAwayListener onClickAway={handleClose}>
+								<MenuList id="split-button-menu">
+									{options.map((option, index) => (
+										<MenuItem key={option} onClick={(event) => handleMenuItemClick(event, index)}>
+											{option}
+										</MenuItem>
+									))}
+								</MenuList>
+							</ClickAwayListener>
+						</Paper>
+					</Grow>
+				)}
 			</Popper>
 		</>
 	);

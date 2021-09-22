@@ -23,9 +23,7 @@ function NavBar(props) {
   return (
     <Box id="NavBar">
       <IconButton aria-label="search with Matcha" color="inherit" component={Link} to="/" style={{ height: "48px" }}>
-      {/* <Button color="inherit" aria-label="search with Matcha" component={Link} to="/"> */}
         <img id="Logo" alt="logo" />
-      {/* </Button> */}
       </IconButton>
       <Switch>
         <Route path="/">
@@ -41,22 +39,28 @@ function NavBar(props) {
                 <Box style={{ display: "flex", alignItems: "center" }}>
                   <IconButton aria-label="show 11 new notifications" color="inherit" component={Link} to="/notifications" style={{ height: "48px" }}>
                     <Badge badgeContent={11} color="primary">
-                      <NotificationsIcon />
+                      <Tooltip title="notifications">
+                        <NotificationsIcon />
+                      </Tooltip>
                     </Badge>
                   </IconButton>
                   <IconButton aria-label="show chat" color="inherit" component={Link} to="/chat" style={{ height: "48px" }}>
                     <Badge badgeContent={3} color="primary">
-                      <ChatIcon />
+                      <Tooltip title="chat">
+                        <ChatIcon />
+                      </Tooltip>
                     </Badge>
                   </IconButton>
                   <IconButton aria-label="show profile" color="inherit" component={Link} to="/profile" style={{ height: "24px" }}>
-                    <ProfileIcon />
+                    <Tooltip title="profile">
+                      <ProfileIcon />
+                    </Tooltip>
                   </IconButton>
-                  <Tooltip title="logout">
                     <IconButton aria-label="log out" color="inherit" onClick={handleLogout} style={{ height: "48px" }}>
-                      <LogoutIcon />
+                      <Tooltip title="logout">
+                        <LogoutIcon />
+                      </Tooltip>
                     </IconButton>
-                  </Tooltip>
                 </Box>
               </Route>
             </Switch>

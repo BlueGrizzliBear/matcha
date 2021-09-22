@@ -53,7 +53,19 @@ exports.up = function (db) {
         }
       }
     },
-  });
+  })
+    .then(
+      function (result) {
+        db.runSql('ALTER TABLE likes ADD CONSTRAINT uc_liking_liked UNIQUE (liking_user_id, liked_user_id)',
+          (err) => {
+            if (err)
+              console.log(err);
+          });
+      },
+      function (err) {
+        return;
+      }
+    );
 };
 
 exports.down = function (db) {

@@ -78,7 +78,7 @@ router.get('/:username/like', checkToken, function (req, res, next) {
   const likedUser = new Models.User(null, req.params['username'])
   likedUser.find((err, results) => {
     if (err) {
-      console.log(error);
+      console.log(err);
       res.status(400).end();
     }
     else {
@@ -96,12 +96,12 @@ router.get('/:username/like', checkToken, function (req, res, next) {
   });
 });
 
-/* GET /user/username/unlike - Like username's profile */
+/* GET /user/username/unlike - Unlike username's profile */
 router.get('/:username/unlike', checkToken, function (req, res, next) {
   const likedUser = new Models.User(null, req.params['username'])
   likedUser.find((err, results) => {
     if (err) {
-      console.log(error);
+      console.log(err);
       res.status(400).end();
     }
     else {

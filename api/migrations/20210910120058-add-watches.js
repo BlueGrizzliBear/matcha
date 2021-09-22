@@ -53,7 +53,19 @@ exports.up = function (db) {
         }
       }
     },
-  });
+  })
+    .then(
+      function (result) {
+        db.runSql('ALTER TABLE watches ADD CONSTRAINT uc_watching_watched UNIQUE (watching_user_id, watched_user_id)',
+          (err) => {
+            if (err)
+              console.log(err);
+          });
+      },
+      function (err) {
+        return;
+      }
+    );
 };
 
 exports.down = function (db) {

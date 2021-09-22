@@ -36,23 +36,15 @@ class Like {
 		return this.liked_user_id;
 	};
 
-	create(set, ret) {
-		/* Validate set and insert into database */
-		this.validate(set, (error) => {
+	create(ret) {
+		connection.query('INSERT INTO likes SET ?', [{ liking_user_id: this.liking_user_id, liked_user_id: this.liked_user_id }], async (error, results, fields) => {
 			if (error) {
-				ret('Validation failed: ' + error, null);
+				console.log("Error occured on like creation inside model");
+				ret(error, results);
 			}
 			else {
-				connection.query('INSERT INTO likes SET ?', [set], async (error, results, fields) => {
-					if (error) {
-						console.log("Error occured on like creation inside model");
-						ret(error, results);
-					}
-					else {
-						// console.log("Like registered sucessfully inside model");
-						ret(error, results);
-					}
-				});
+				// console.log("Like registered sucessfully inside model");
+				ret(error, results);
 			}
 		});
 	};
@@ -60,12 +52,28 @@ class Like {
 	find(ret) {
 		connection.query('SELECT * FROM likes WHERE liked_user_id = ?', [this.liked_user_id], async (error, results, fields) => {
 			if (error) {
-				console.log("Error occured finding liked_user_id in tokens table");
+				console.log("Error occured finding liked_user_id in likes table");
 				console.log(error);
 				ret(error, null);
 			}
 			else {
-				ret(results.length, null);
+				ret(null, results.length);
+			}
+		});
+	};
+
+	liking(ret) {
+		connection.query('SELECT * FROM likes WHERE liking_user_id = ? AND liked_user_id = ?', [this.liking_user_id, this.liked_user_id], async (error, results, fields) => {
+			if (error) {
+				console.log("Error occured finding liking_user_id and liked_user_id in likes table");
+				console.log(error);
+				ret(error, null);
+			}
+			else {
+				if (results.length > 0)
+					ret(null, true);
+				else
+					ret(null, false);
 			}
 		});
 	};
@@ -73,12 +81,15 @@ class Like {
 	delete(ret) {
 		connection.query('DELETE FROM likes WHERE liking_user_id = ? AND liked_user_id = ?', [this.liking_user_id, this.liked_user_id], async (error, results, fields) => {
 			if (error) {
-				console.log("Error occured erasing liking_user_id in tokens table");
+				console.log("Error occured erasing liking_user_id in likes table");
 				console.log(error);
 				ret(error, null);
 			}
-			else
+			else {
+				// if (results.affectedRows == 0)
+				// console.log("Alredy unlike")
 				ret(null, results);
+			}
 		});
 	};
 }

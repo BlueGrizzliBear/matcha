@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var checkToken = require('../middleware/token');
+var watchedUser = require('../middleware/watch');
 var Models = require('../models/models');
 
 /* GET /user - Send user profile informations */
@@ -26,8 +27,8 @@ router.get('/', checkToken, function (req, res, next) {
       img3: res.locals.results.img3_path,
       img4: res.locals.results.img4_path
     },
-    likes: 50, // A FAIRE
-    watch: 2 // A FAIRE
+    likes: results[0].likes,
+    watches: results[0].watches
   }).end();
 });
 
@@ -64,43 +65,106 @@ router.post('/', checkToken, function (req, res, next) {
             img3: results[0].img3_path,
             img4: results[0].img4_path
           },
-          likes: 50, // A FAIRE
-          watch: 2 // A FAIRE
+          likes: results[0].likes,
+          watches: results[0].watches
         }).end();
       });
     }
   });
 });
 
-/* GET /user - Send user profile informations */
-router.get('/:username', checkToken, function (req, res, next) {
+/* GET /user/username/like - Like username's profile */
+router.get('/:username/like', checkToken, function (req, res, next) {
+  const likedUser = new Models.User(null, req.params['username'])
+  likedUser.find((err, results) => {
+    if (err) {
+      console.log(error);
+      res.status(400).end();
+    }
+    else {
+      const like = new Models.Like(res.locals.results.id, results[0].id);
+      like.create((likeerr, likeres) => {
+        if (likeerr) {
+          console.log(likeerr);
+          res.status(400).end();
+        }
+        else {
+          res.status(200).end();
+        }
+      })
+    }
+  });
+});
+
+/* GET /user/username/unlike - Like username's profile */
+router.get('/:username/unlike', checkToken, function (req, res, next) {
+  const likedUser = new Models.User(null, req.params['username'])
+  likedUser.find((err, results) => {
+    if (err) {
+      console.log(error);
+      res.status(400).end();
+    }
+    else {
+      const like = new Models.Like(res.locals.results.id, results[0].id);
+      like.delete((likeerr, likeres) => {
+        if (likeerr) {
+          console.log(likeerr);
+          res.status(400).end();
+        }
+        else {
+          res.status(200).end();
+        }
+      })
+    }
+  });
+});
+
+/* GET /user/username - Send username profile informations */
+router.get('/:username', checkToken, watchedUser, function (req, res, next) {
   const user = new Models.User(null, req.params['username']);
   user.find((error, results) => {
-    /* return user profile with new changed informations */
-    res.status(200).json({
-      status: "200",
-      // isAuth: true,
-      isProfileComplete: results[0].complete,
-      id: results[0].id,
-      username: results[0].username,
-      email: results[0].email,
-      firstname: results[0].firstname,
-      lastname: results[0].lastname,
-      birth_date: results[0].birth_date,
-      isActivated: results[0].activated,
-      gender: results[0].gender,
-      preference: results[0].preference,
-      bio: results[0].bio,
-      images: {
-        profile: results[0].img0_path,
-        img1: results[0].img1_path,
-        img2: results[0].img2_path,
-        img3: results[0].img3_path,
-        img4: results[0].img4_path
-      },
-      likes: 50, // A FAIRE
-      watch: 2 // A FAIRE
-    }).end();
+    if (error) {
+      console.log(error);
+      res.status(400).end();
+    }
+    else {
+      // console.log(results[0].likes);
+      /* return user profile with new changed informations */
+      const like = new Models.Like(res.locals.results.id, user.getUserId());
+      like.liking((likeerr, likeres) => {
+        if (likeerr) {
+          console.log(likeerr);
+          res.status(400).end();
+        }
+        else {
+          res.status(200).json({
+            status: "200",
+            // isAuth: true,
+            isProfileComplete: results[0].complete,
+            id: results[0].id,
+            username: results[0].username,
+            email: results[0].email,
+            firstname: results[0].firstname,
+            lastname: results[0].lastname,
+            birth_date: results[0].birth_date,
+            isActivated: results[0].activated,
+            gender: results[0].gender,
+            preference: results[0].preference,
+            bio: results[0].bio,
+            images: {
+              profile: results[0].img0_path,
+              img1: results[0].img1_path,
+              img2: results[0].img2_path,
+              img3: results[0].img3_path,
+              img4: results[0].img4_path
+            },
+            likes: results[0].likes,
+            liking: likeres,
+            watches: results[0].watches
+          }).end();
+        }
+      });
+    }
   });
 });
 

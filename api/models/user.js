@@ -3,6 +3,7 @@ var validators = require('./validate');
 const fs = require('fs');
 var bcrypt = require('bcrypt');
 var Like = require('./like');
+var Watch = require('./watch');
 
 function profileCompleteCondition(results) {
 	if (/*results.birth_date && results.gender && */results.img0_path)
@@ -136,11 +137,7 @@ class User {
 
 	find(ret) {
 		connection.query('SELECT * FROM users WHERE username = ?', [this.username], async (error, results, fields) => {
-			// connection.query('SELECT *
-			// 						FROM users
-			// 						JOIN likes ON likes.liked_user_id = users.id
-			// 						JOIN watches ON watches.watched_user_id = user.id
-			// 						WHERE username = ?', [this.username], async (error, results, fields) => {
+			// connection.query('SELECT * FROM users JOIN likes ON likes.liked_user_id = users.id JOIN watches ON watches.watched_user_id = user.id WHERE username = ?', [this.username], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding user in users table");
 				console.log(error);
@@ -149,7 +146,29 @@ class User {
 			else {
 				if (results.length > 0) {
 					this.user_id = results[0].id;
-					ret(null, results);
+					const like = new Like(null, this.user_id);
+					like.find((likeerr, likeres) => {
+						if (likeerr) {
+							console.log("Error occured finding likes");
+							console.log(likeerr);
+							ret(likeerr, null);
+						}
+						else {
+							results[0].likes = likeres;
+							const watch = new Watch(null, this.user_id);
+							watch.find((watcherr, watchres) => {
+								if (watcherr) {
+									console.log("Error occured finding watches");
+									console.log(watcherr);
+									ret(watcherr, null);
+								}
+								else {
+									results[0].watches = watchres;
+									ret(null, results);
+								}
+							});
+						}
+					});
 				}
 				else
 					ret("No results", null);

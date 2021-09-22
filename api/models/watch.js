@@ -36,23 +36,15 @@ class Watch {
 		return this.watched_user_id;
 	};
 
-	create(set, ret) {
-		/* Validate set and insert into database */
-		this.validate(set, (error) => {
+	create(ret) {
+		connection.query('INSERT INTO watches SET ?', [{ watching_user_id: this.watching_user_id, watched_user_id: this.watched_user_id }], async (error, results, fields) => {
 			if (error) {
-				ret('Validation failed: ' + error, null);
+				console.log("Error occured on watch creation inside model");
+				ret(error, results);
 			}
 			else {
-				connection.query('INSERT INTO watches SET ?', [set], async (error, results, fields) => {
-					if (error) {
-						console.log("Error occured on watch creation inside model");
-						ret(error, results);
-					}
-					else {
-						// console.log("Watch registered sucessfully inside model");
-						ret(error, results);
-					}
-				});
+				// console.log("Watch registered sucessfully inside model");
+				ret(error, results);
 			}
 		});
 	};
@@ -65,7 +57,7 @@ class Watch {
 				ret(error, null);
 			}
 			else {
-				ret(results.length, null);
+				ret(null, results.length);
 			}
 		});
 	};

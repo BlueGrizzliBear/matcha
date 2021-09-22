@@ -6,16 +6,9 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 const options = ['Edit', 'Delete'];
 
 const OptionButton = React.forwardRef((props, ref) => {
-	// function OptionButton(props) {
 
 	const [open, setOpen] = React.useState(false);
 	const [anchorRef, setAnchorRef] = React.useState(null);
-
-	const popperRef = React.createRef(null);
-
-	const MyGrow = React.forwardRef((props, ref) => {
-		return <Grow ref={ref} {...props} />;
-	});
 
 	const handleMenuItemClick = (event, index) => {
 		console.info(`You clicked ${options[index]}`);
@@ -56,33 +49,31 @@ const OptionButton = React.forwardRef((props, ref) => {
 			<Popper
 				open={open}
 				anchorEl={anchorRef}
-				role={undefined}
-				placement={'bottom-end'}
+				placement="bottom-end"
 				transition
 				disablePortal={false}
-				modifiers={{
-					flip: {
-						enabled: false
-					},
-					preventOverflow: {
-						enabled: true,
-						boundariesElement: 'scrollParent'
-					}
-				}}
-				ref={popperRef}
-				transitioncomponent={MyGrow}
+				modifiers={[
+					{ name: 'flip', enabled: false },
+					{ name: 'preventOverflow', enabled: true, options: { boundariesElement: 'scrollParent' }}
+				]}
 			>
-				<Paper>
-					<ClickAwayListener onClickAway={handleClose}>
-						<MenuList id="split-button-menu">
-							{options.map((option, index) => (
-								<MenuItem key={option} onClick={(event) => handleMenuItemClick(event, index)}>
-									{option}
-								</MenuItem>
-							))}
-						</MenuList>
-					</ClickAwayListener>
-				</Paper>
+				{({ TransitionProps }) => (
+					<Grow {...TransitionProps} timeout={350}>
+						<Paper>
+							<ClickAwayListener onClickAway={handleClose}>
+								<MenuList id="split-button-menu">
+									{options.map((option, index) => (
+										<MenuItem key={option} onClick={(event) => handleMenuItemClick(event, index)}>
+											{option}
+										</MenuItem>
+									))}
+								</MenuList>
+							</ClickAwayListener>
+						</Paper>
+					</Grow>
+				)}
+
+
 			</Popper>
 		</>
 	);

@@ -31,7 +31,7 @@ class User {
 			return;
 		}
 		for (let i in set) {
-			if (!set[i]) {
+			if (set[i] === '') {
 				error(i + " is empty");
 				return;
 			}

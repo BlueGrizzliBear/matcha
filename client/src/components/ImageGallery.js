@@ -5,7 +5,7 @@ import { Box, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
 
 import OptionButton from '../components/OptionButton'
 
-import image1 from '../assets/images/no_img.svg';
+import placeholder from '../assets/images/no_img.svg';
 // import selfy from '../assets/images/selfy_example.jpg';
 // import selfy2 from '../assets/images/selfy2_example.jpg';
 // import selfy3 from '../assets/images/selfy3_example.jpg';
@@ -23,28 +23,28 @@ const useStyles = makeStyles((theme) => ({
 const itemData = [
 	{
 		id: 0,
-		img: image1,
+		img: placeholder,
 		title: 'img0',
 		profile: true,
 	},
 	{
 		id: 1,
-		img: image1,
+		img: placeholder,
 		title: 'img1',
 	},
 	{
 		id: 2,
-		img: image1,
+		img: placeholder,
 		title: 'img2',
 	},
 	{
 		id: 3,
-		img: image1,
+		img: placeholder,
 		title: 'img3',
 	},
 	{
 		id: 4,
-		img: image1,
+		img: placeholder,
 		title: 'img4',
 	},
 ]
@@ -52,8 +52,6 @@ const itemData = [
 function ImageGallery() {
 
 	const classes = useStyles();
-
-	// const [isLoading, setisLoading] = useState(true);
 	const [imageArr, setImageArr] = useState(itemData);
 	const inputFile = useRef(itemData.map(() => React.createRef()));
 
@@ -121,6 +119,23 @@ function ImageGallery() {
 		}
 	};
 
+	const handleFileDelete = (imgTitle) => {
+		console.log(imgTitle);
+		fetch('http://localhost:9000/upload?img=' + imgTitle, {
+			method: 'DELETE',
+			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+		})
+		.then(res => {
+			let tempImgArr = itemData.slice();
+			tempImgArr[itemData.findIndex(x => x.title === imgTitle)]["img"] = placeholder;
+			setImageArr(tempImgArr);
+		})
+		.catch(error => {
+			console.log(error);
+			console.log("Fail to POST image to server");
+		})
+	};
+
 	return (
 		<Box className={classes.root} >
 			<ImageList sx={{ width: '100%', height: 576, maxWidth: 1552 }} rowHeight={'auto'} gap={8} cols={3} >
@@ -153,7 +168,7 @@ function ImageGallery() {
 							actionposition="right"
 							style={{ background: 'rgba(0,0,0,0)' }}
 							className={classes.titleBar}
-							actionIcon={<OptionButton item={item} ref={inputFile.current[i]} />}
+							actionIcon={<OptionButton item={item} ref={inputFile.current[i]} handleFileDelete={handleFileDelete} />}
 						/>
 					</ImageListItem>
 				))}

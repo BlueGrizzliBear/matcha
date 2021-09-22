@@ -12,12 +12,12 @@ const OptionButton = React.forwardRef((props, ref) => {
 
 	const handleMenuItemClick = (event, index) => {
 		console.info(`You clicked ${options[index]}`);
-		if (index === 0) {
+		if (options[index] === 'Edit') {
 			ref.current.click(ref.id);
-			// props.onClick();
-			// props.myfunction(event, ref);
 		}
-		// props.handleFileUpload();
+		if (options[index] === 'Delete') {
+			props.handleFileDelete(props.item.title);
+		}
 		setOpen(false);
 	};
 
@@ -42,7 +42,7 @@ const OptionButton = React.forwardRef((props, ref) => {
 				aria-label={`edit ${props.item.title}`}
 				position="top"
 				actionposition="right"
-				style={{ background: 'rgba(229,230,235,0.1)', padding: '5px', margin: 'auto 7px' }}
+				style={{ background: 'rgba(229,230,235,0.1)', padding: '5px', margin: '7px 7px' }}
 			>
 				<MoreVertIcon style={{ color: 'rgba(5,5,5,1)', top: '0' }} />
 			</IconButton>
@@ -72,8 +72,6 @@ const OptionButton = React.forwardRef((props, ref) => {
 						</Paper>
 					</Grow>
 				)}
-
-
 			</Popper>
 		</>
 	);

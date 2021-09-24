@@ -69,10 +69,14 @@ class App extends Component {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })
+      .then(data => {
+        
+      })
       .then(res => res.json())
       .then(data => {
         // console.log(data);
         if (data.status === "200") {
+          console.log("here in 200");
           this.setState({ isAuth: data.isAuth });
           this.setState({ isActivated: data.isActivated });
           this.setState({ isProfileComplete: data.isProfileComplete });

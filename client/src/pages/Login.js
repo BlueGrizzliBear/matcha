@@ -30,14 +30,9 @@ function Login(props) {
 			}),
 		})
 			.then(res => {
-				console.log(res.status);
 				if (res.ok && res.status !== 204) {
 					return res.json().then((data) => {
-						console.log("code: " + data.status);
-						console.log(typeof data.token);
-
 						localStorage.setItem("token", data.token);
-						console.log("before login");
 						props.login();
 						history.push(`/`);
 					})
@@ -47,22 +42,6 @@ function Login(props) {
 					setError(true);
 				}
 			})
-			// .then(res => res.json())
-			// .then(data => {
-			// 	console.log(data);
-			// 	if (data.status === "200") {
-			// 		console.log("code: " + data.status);
-			// 		localStorage.setItem("token", data.token);
-			// 		props.login();
-			// 		history.push(`/`);
-			// 	}
-			// 	else {
-			// 		console.log("Incorrect username or password");
-			// 		setError(true);
-			// 		console.log("code: " + data.status + ", status: " + data.error);
-			// 		return ;
-			// 	}
-			// })
 			.catch(() => {
 				console.log("Fail to login to server");
 			})
@@ -84,9 +63,10 @@ function Login(props) {
 		<>
 			<Box className="FormBox">
 				<Box component="form" noValidate={true} autoComplete="off" onSubmit={handleLogin}>
-					<InputForm error={error} helperText={error ? "Gross error" : ''} label="Username" value={values.username} autoFocus={true} onChange={handleChange('username')} />
+					<InputForm error={error} helperText={error && "Incorrect username or password"} label="Username" value={values.username} autoFocus={true} onChange={handleChange('username')} />
 					<PasswordInputForm
 						error={error}
+						helpertext={"Incorrect username or password"}
 						filledInputProps={{
 							label: "Password",
 							value: values.password,

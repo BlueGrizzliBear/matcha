@@ -1,5 +1,5 @@
 import { makeStyles } from '@mui/styles';
-import { TextField, InputLabel, FilledInput, InputAdornment, IconButton, FormControl } from '@mui/material';
+import { TextField, InputLabel, FilledInput, InputAdornment, IconButton, FormControl, FormHelperText } from '@mui/material';
 
 const formStyle = (props) => makeStyles((theme) => ({
 	root: {
@@ -49,7 +49,7 @@ export function PasswordInputForm(props) {
 				<FilledInput
 					{...props.filledInputProps}
 					classes={classes}
-					error={props.error}
+					// error={props.error}
 					disableUnderline={true}
 					autoComplete="current-password"
 					endAdornment={
@@ -64,6 +64,9 @@ export function PasswordInputForm(props) {
 						</InputAdornment>
 					}
 				/>
+				{props.error && <FormHelperText error={props.error}>
+					{props.helpertext}
+				</FormHelperText>}
 			</FormControl>
 		</>
 	);

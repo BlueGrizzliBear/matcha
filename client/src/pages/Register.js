@@ -12,9 +12,7 @@ function Register() {
 	const history = useHistory();
 
 	const [errors, setErrors] = useState({});
-
 	const [showPassword, setPasswordState] = useState(false);
-
 	const [values, setValues] = useState({
 		email: '',
 		lastname: '',
@@ -55,9 +53,7 @@ function Register() {
 	}
 		
 	const validateFields = (values) => {
-		
-		console.log("Validating fields");
-		let errorsArr = {};
+		let errorsArr = { ...errors };
 		let formIsValid = true;
 
 		for (let field in values)
@@ -74,8 +70,6 @@ function Register() {
 			else
 				delete errorsArr[field];
 		}
-
-		console.log(errorsArr);
 		setErrors(errorsArr);
 		return (formIsValid);
 	}
@@ -85,7 +79,6 @@ function Register() {
 
 		if (validateFields(values))
 		{
-			console.log("VALIDATED")
 			fetch('http://localhost:9000/register', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -99,13 +92,21 @@ function Register() {
 			})
 				.then(res => {
 					if (res.ok) {
-						console.log("User successfully registered");
-						console.log("code: " + res.status + ", status: " + res.statusText);
+						// console.log("User successfully registered");
+						// console.log("code: " + res.status + ", status: " + res.statusText);
 						history.push(`/`);
 					}
+					else if (res.status === 409)
+					{
+						let errorsArr = { ...errors };
+						errorsArr['email'] = "Username or email already exists.";
+						errorsArr['username'] = "Username or email already exists";
+						setErrors(errorsArr);
+					}
 					else {
-						console.log("Username or email already exists");
-						console.log("code: " + res.status + ", status: " + res.statusText);
+						console.log("An error occured: please retry later.");
+						history.push(`/register`);
+
 					}
 				})
 				.catch(() => {
@@ -113,8 +114,6 @@ function Register() {
 				})
 		}
 	}
-
-
 
 	const handleChange = (prop) => (event) => {
 		validateFields({[event.target.name]: event.target.value});
@@ -132,13 +131,13 @@ function Register() {
 	return (
 		<Box className="FormBox">
 			<Box component="form" noValidate={true} autoComplete="off" onSubmit={handleRegister}>
-				<InputForm name="email" error={'email' in errors} /* helperText={errors['email']} */ label="Email" value={values.email} onChange={handleChange('email')} autoFocus={true} />
-				<InputForm name="lastname" error={'lastname' in errors} /* helperText={errors['lastname']} */ label="Lastname" value={values.lastname} onChange={handleChange('lastname')} />
-				<InputForm name="firstname" error={'firstname' in errors} /* helperText={errors['firstname']} */ label="Firstname" value={values.firstname} onChange={handleChange('firstname')} />
-				<InputForm name="username" error={'username' in errors} /* helperText={errors['username']} */label="Username" value={values.username} onChange={handleChange('username')} />
+				<InputForm name="email" error={'email' in errors} helperText={'email' in errors && errors['email']} label="Email" value={values.email} onChange={handleChange('email')} autoFocus={true} />
+				<InputForm name="lastname" error={'lastname' in errors} helperText={'lastname' in errors && errors['lastname']}  label="Lastname" value={values.lastname} onChange={handleChange('lastname')} />
+				<InputForm name="firstname" error={'firstname' in errors} helperText={'firstname' in errors && errors['firstname']}  label="Firstname" value={values.firstname} onChange={handleChange('firstname')} />
+				<InputForm name="username" error={'username' in errors} helperText={'username' in errors && errors['username']} label="Username" value={values.username} onChange={handleChange('username')} />
 				<PasswordInputForm
 					error={'password' in errors}
-					/* helperText={errors['password']} */
+					helpertext={errors['password']}
 					filledInputProps={{
 						name: "password",
 						label: "Password",

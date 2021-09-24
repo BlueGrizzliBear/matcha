@@ -10,7 +10,7 @@ router.post('/', function (req, res, next) {
 	user.create(req.body, function (error, results) {
 		if (error) {
 			console.log(error);
-			res.status(400).end();
+			res.status((error.code === 'ER_DUP_ENTRY' ? 409 : 400)).end();
 		}
 		else {
 			req.body.id = results.insertId;

@@ -6,6 +6,7 @@ var Models = require('../models/models');
 
 /* GET /user - Send user profile informations */
 router.get('/', checkToken, function (req, res, next) {
+  console.log(res.locals.results);
   res.status(200).json({
     status: "200",
     isAuth: true,
@@ -27,8 +28,8 @@ router.get('/', checkToken, function (req, res, next) {
       img3: res.locals.results.img3_path,
       img4: res.locals.results.img4_path
     },
-    likes: results[0].likes,
-    watches: results[0].watches
+    likes: res.locals.results.likes,
+    watches: res.locals.results.watches
   }).end();
 });
 

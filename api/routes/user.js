@@ -27,8 +27,8 @@ router.get('/', checkToken, function (req, res, next) {
       img3: res.locals.results.img3_path,
       img4: res.locals.results.img4_path
     },
-    likes: results[0].likes,
-    watches: results[0].watches
+    likes: res.locals.results.likes,
+    watches: res.locals.results.watches
   }).end();
 });
 

@@ -5,7 +5,7 @@ var bcrypt = require('bcrypt');
 var Like = require('./like');
 var Watch = require('./watch');
 
-function profileCompleteCondition(results) {
+function isProfileComplete(results) {
 	if (/*results.birth_date && results.gender && */results.img0_path)
 		return true;
 	return false;
@@ -57,7 +57,27 @@ class User {
 				const password = set[i];
 				set[i] = await bcrypt.hash(password, saltRounds);
 			}
-			if (i == 'activated' && !validators.isBool(set[i])) {
+			else if (i == 'birth_date' && !validators.isDate(set[i])) {
+				error("Invalid date format");
+				return;
+			}
+			else if (i == 'gender' && !validators.isAlpha(set[i])) {
+				error("Invalid gender format");
+				return;
+			}
+			else if (i == 'preference' && !validators.isPreference(set[i])) {
+				error("Invalid preference format");
+				return;
+			}
+			else if (i == 'bio' && !validators.isAlpha(set[i])) {
+				error("Invalid bio format");
+				return;
+			}
+			else if (i == 'address' && !validators.isAlpha(set[i])) {
+				error("Invalid address format");
+				return;
+			}
+			if ((i == 'activated' || i == 'complete') && !validators.isBool(set[i])) {
 				error("Invalid activated format");
 				return;
 			}
@@ -107,6 +127,8 @@ class User {
 		/* Validate set and insert into database */
 		if (keyValidation == true) {
 			for (let i in set) {
+				if (i == 'bio')
+					set[i] = validators.escapeHTML(set[i]);
 				if (!validators.validateKey(i, ['email', 'password', 'firstname', 'lastname', 'birth_date', 'gender', 'preference', 'bio'])) {
 					ret('Validation failed: Unauthorized key', null);
 					return;
@@ -260,7 +282,7 @@ class User {
 				ret(error, null);
 			}
 			else if (results.length > 0) {
-				if (profileCompleteCondition(results[0])) {
+				if (isProfileComplete(results[0])) {
 					if (results[0].complete == false) {
 						this.update({ complete: 1 }, false, (err, res) => {
 							if (err) {

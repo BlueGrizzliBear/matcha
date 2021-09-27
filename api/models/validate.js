@@ -29,6 +29,25 @@ const isEmail = function (value) {
 	return false;
 }
 
+const isDate = function (value) {
+	// yyyy-mm-dd
+	if (regexMatch(value, /^(19|20)\d\d[-](0?[1-9]|1[012])[-](0?[1-9]|[12][0-9]|3[01])$/))
+		return true;
+	return false;
+}
+
+// const isGender = function (value) {
+// 	if (set[i] === "Male" || set[i] === 'Female' || set[i] === 'Other')
+// 		return true;
+// 	return false;
+// }
+
+const isPreference = function (value) {
+	if (set[i] === "Male" || set[i] === 'Female' || set[i] === 'Both')
+		return true;
+	return false;
+}
+
 const isValidPassword = function (value) {
 	console.log(value);
 	// Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character:
@@ -67,4 +86,25 @@ const validateKey = function (value, keyArray) {
 	return false;
 }
 
-module.exports = { isAlphanum, isAlpha, isNum, isEmail, isValidPassword, isJWT, isBool, isImageKey, validateKey };
+const escapeHTML = str => str.replace(/[&<>'"]/g, tag => ({
+	'&': '&amp;',
+	'<': '&lt;',
+	'>': '&gt;',
+	"'": '&#39;',
+	'"': '&quot;',
+	'/': '&#47;'
+}[tag]));
+
+module.exports = {
+	isAlphanum,
+	isAlpha,
+	isNum,
+	isEmail,
+	isValidPassword,
+	isJWT,
+	isBool,
+	isImageKey,
+	validateKey,
+	isDate,
+	escapeHTML
+};

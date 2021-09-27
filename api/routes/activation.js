@@ -73,7 +73,7 @@ const verifyLink = function (req, res) {
 			if ((req.protocol + "://" + req.get('host')) == ("http://" + decoded.host))
 				console.log("Domain is matched. Information is from Authentic email");
 			else
-				res.end("<h1>Request is from unknown source");
+				res.end("<h1>Request is from unknown source</h1>");
 			token.find(function (findError, results) {
 				if (findError) {
 					console.log("Email is not verified, token already used");
@@ -88,7 +88,7 @@ const verifyLink = function (req, res) {
 						}
 						else {
 							if (results.changedRows === 1) {
-								res.end("<h1>Email " + decoded.email + " is been Successfully verified");
+								res.end("<h1>Email " + decoded.email + " is been Successfully verified</h1>");
 								token.delete(function (deleteError, results) {
 									if (deleteError)
 										console.log("Token already deleted");
@@ -96,7 +96,7 @@ const verifyLink = function (req, res) {
 							}
 							else {
 								console.log("email already verified, id:" + decoded.id);
-								res.end("<h1>Email " + decoded.email + " is already verified");
+								res.end("<h1>Email " + decoded.email + " is already verified</h1>");
 							}
 						}
 					});

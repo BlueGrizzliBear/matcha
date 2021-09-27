@@ -15,61 +15,80 @@ exports.setup = function (options, seedLink) {
 };
 
 exports.up = function (db) {
-  return db.createTable('messages', {
+  return db.createTable('notifications', {
     id: {
       type: 'int',
       primaryKey: true,
       autoIncrement: true
     },
-    sender_user_id:
+    user_id:
     {
       type: 'int',
       notNull: true,
       foreignKey: {
-        name: 'sender_user_id_fk',
+        name: 'user_id_fk',
         table: 'users',
         rules: {
           onDelete: 'CASCADE',
           onUpdate: 'RESTRICT'
         },
         mapping: {
-          sender_user_id: 'id'
+          user_id: 'id'
         }
       }
     },
-    receiver_user_id:
+    message_id:
     {
       type: 'int',
-      notNull: true,
+      defaultValue: null,
       foreignKey: {
-        name: 'receiver_user_id_fk',
-        table: 'users',
+        name: 'message_id_fk',
+        table: 'messages',
         rules: {
           onDelete: 'CASCADE',
           onUpdate: 'RESTRICT'
         },
         mapping: {
-          receiver_user_id: 'id'
+          message_id: 'id'
         }
       }
     },
-    message: {
-      type: 'string',
-      notNull: true,
+    like_id:
+    {
+      type: 'int',
+      defaultValue: null,
+      foreignKey: {
+        name: 'like_id_fk',
+        table: 'likes',
+        rules: {
+          onDelete: 'CASCADE',
+          onUpdate: 'RESTRICT'
+        },
+        mapping: {
+          like_id: 'id'
+        }
+      }
     },
-    read: {
-      type: 'boolean',
-      defaultValue: false,
-      notNull: true
+    watch_id:
+    {
+      type: 'int',
+      defaultValue: null,
+      foreignKey: {
+        name: 'watch_id_fk',
+        table: 'watches',
+        rules: {
+          onDelete: 'CASCADE',
+          onUpdate: 'RESTRICT'
+        },
+        mapping: {
+          watch_id: 'id'
+        }
+      }
     }
-    // sent_date: {
-    //   type: 'datetime',
-    //   defaultValue: CURRENT_TIMESTAMP
-    // }
   })
     .then(
       function (result) {
-        db.runSql('ALTER TABLE messages ADD sent_date DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6)',
+        db.runSql('ALTER TABLE notifications ADD sent_date DATETIME DEFAULT CURRENT_TIMESTAMP',
           (err) => {
             if (err)
               console.log(err);
@@ -82,7 +101,7 @@ exports.up = function (db) {
 };
 
 exports.down = function (db) {
-  return db.dropTable('messages');
+  return null;
 };
 
 exports._meta = {

@@ -10,6 +10,8 @@ var logoutRouter = require('./routes/logout');
 var registerRouter = require('./routes/register');
 var uploadRouter = require('./routes/upload');
 var userRouter = require('./routes/user');
+var chatRouter = require('./routes/chat');
+// var websocketRouter = require('./websockets/websocket');
 
 var app = express();
 
@@ -29,6 +31,8 @@ app.use('/logout', logoutRouter);
 app.use('/register', registerRouter);
 app.use('/upload', uploadRouter);
 app.use('/user', userRouter);
+app.use('/chat', chatRouter);
+// app.use('/websocket', websocketRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

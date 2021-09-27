@@ -54,6 +54,15 @@ exports.up = function (db) {
     img0_path: {
       type: 'string'
     },
+    gps_long: {
+      type: 'decimal',
+    },
+    gps_lat: {
+      type: 'decimal',
+    },
+    address: {
+      type: 'string',
+    },
     img1_path: {
       type: 'string'
     },

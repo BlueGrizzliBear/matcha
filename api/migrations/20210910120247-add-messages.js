@@ -69,7 +69,7 @@ exports.up = function (db) {
   })
     .then(
       function (result) {
-        db.runSql('ALTER TABLE messages ADD sent_date DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6)',
+        return db.runSql('ALTER TABLE messages ADD sent_date DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6)',
           (err) => {
             if (err)
               console.log(err);

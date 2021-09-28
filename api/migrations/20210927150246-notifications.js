@@ -93,7 +93,7 @@ exports.up = function (db) {
   })
     .then(
       function (result) {
-        db.runSql('ALTER TABLE notifications ADD sent_date DATETIME DEFAULT CURRENT_TIMESTAMP',
+        return db.runSql('ALTER TABLE notifications ADD sent_date DATETIME DEFAULT CURRENT_TIMESTAMP',
           (err) => {
             if (err)
               console.log(err);
@@ -106,7 +106,7 @@ exports.up = function (db) {
 };
 
 exports.down = function (db) {
-  return db.dropTable('notifications');
+  return db.dropTable('tokens');
 };
 
 exports._meta = {

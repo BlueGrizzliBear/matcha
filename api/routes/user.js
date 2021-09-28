@@ -20,6 +20,12 @@ router.get('/', checkToken, function (req, res, next) {
     gender: res.locals.results.gender,
     preference: res.locals.results.preference,
     bio: res.locals.results.bio,
+    position: {
+      long: res.locals.results.gps_long,
+      lat: res.locals.results.gps_lat
+    },
+    address: res.locals.results.address,
+    location_mode: res.locals.results.location_mode,
     images: {
       img0: res.locals.results.img0_path,
       img1: res.locals.results.img1_path,
@@ -58,6 +64,12 @@ router.post('/', checkToken, function (req, res, next) {
           gender: results[0].gender,
           preference: results[0].preference,
           bio: results[0].bio,
+          position: {
+            long: results[0].gps_long,
+            lat: results[0].gps_lat
+          },
+          address: results[0].address,
+          location_mode: results[0].location_mode,
           images: {
             profile: results[0].img0_path,
             img1: results[0].img1_path,
@@ -89,7 +101,17 @@ router.get('/:username/like', checkToken, function (req, res, next) {
           res.status(400).end();
         }
         else {
-          res.status(200).end();
+          // TODO: trigger websocket event
+          const notification = new Models.Notification(results[0].id, 2, likeres.insertId);
+          notification.create((nerr, nres) => {
+            if (nerr) {
+              console.log(nerr);
+              res.status(400).end();
+            }
+            else {
+              res.status(200).end();
+            }
+          });
         }
       })
     }
@@ -112,6 +134,7 @@ router.get('/:username/unlike', checkToken, function (req, res, next) {
           res.status(400).end();
         }
         else {
+          // TODO: trigger websocket event
           res.status(200).end();
         }
       })
@@ -128,7 +151,6 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
       res.status(400).end();
     }
     else {
-      // console.log(results[0].likes);
       /* return user profile with new changed informations */
       const like = new Models.Like(res.locals.results.id, user.getUserId());
       like.liking((likeerr, likeres) => {
@@ -139,7 +161,6 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
         else {
           res.status(200).json({
             status: "200",
-            // isAuth: true,
             isProfileComplete: results[0].complete,
             id: results[0].id,
             username: results[0].username,

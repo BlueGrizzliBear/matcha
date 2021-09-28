@@ -17,7 +17,17 @@ const watchedUser = function (req, res, next) {
                     next();
                 }
                 else {
-                    next();
+                    // TODO: trigger websocket event
+                    const notification = new Models.Notification(results[0].id, 3, watchres.insertId);
+                    notification.create((nerr, nres) => {
+                        if (nerr) {
+                            console.log(nerr);
+                            res.status(400).end();
+                        }
+                        else {
+                            next();
+                        }
+                    });
                 }
             })
         }

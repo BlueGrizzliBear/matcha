@@ -34,6 +34,7 @@ router.get('/:id', checkToken, function (req, res, next) {
 					res.status(400).end();
 				}
 				else {
+					// TODO: trigger websocket event
 					res.status(200).json(results).end();
 				}
 			});
@@ -42,7 +43,7 @@ router.get('/:id', checkToken, function (req, res, next) {
 });
 
 /* POST /chat/:id/send - Send a message to a user */
-router.get('/:id/send', checkToken, function (req, res, next) {
+router.post('/:id/send', checkToken, function (req, res, next) {
 	const chat = new Models.Chat(res.locals.results.id, parseInt(req.params['id']));
 
 	chat.create(req.body.message, (error, results) => {
@@ -52,7 +53,16 @@ router.get('/:id/send', checkToken, function (req, res, next) {
 		}
 		else {
 			// TODO: trigger websocket event
-			res.status(200).end();
+			const notification = new Models.Notification(parseInt(req.params['id']), 1, results.insertId);
+			notification.create((nerr, nres) => {
+				if (nerr) {
+					console.log(nerr);
+					res.status(400).end();
+				}
+				else {
+					res.status(200).end();
+				}
+			});
 		}
 	});
 });

@@ -84,6 +84,11 @@ exports.up = function (db) {
           watch_id: 'id'
         }
       }
+    },
+    read: {
+      type: 'boolean',
+      defaultValue: false,
+      notNull: true
     }
   })
     .then(
@@ -101,7 +106,7 @@ exports.up = function (db) {
 };
 
 exports.down = function (db) {
-  return null;
+  return db.dropTable('notifications');
 };
 
 exports._meta = {

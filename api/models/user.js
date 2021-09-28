@@ -77,8 +77,16 @@ class User {
 				error("Invalid address format");
 				return;
 			}
+			else if ((i == 'gps_long' || i == 'gps_lat') && !Number.isFinite(set[i])) {
+				error("Invalid location_mode format");
+				return;
+			}
+			else if (i == 'location_mode' && !validators.isBool(set[i])) {
+				error("Invalid location_mode format");
+				return;
+			}
 			if ((i == 'activated' || i == 'complete') && !validators.isBool(set[i])) {
-				error("Invalid activated format");
+				error("Invalid activated/complete format");
 				return;
 			}
 		}
@@ -129,7 +137,7 @@ class User {
 			for (let i in set) {
 				if (i == 'bio')
 					set[i] = validators.escapeHTML(set[i]);
-				if (!validators.validateKey(i, ['email', 'password', 'firstname', 'lastname', 'birth_date', 'gender', 'preference', 'bio'])) {
+				if (!validators.validateKey(i, ['email', 'password', 'firstname', 'lastname', 'birth_date', 'gender', 'preference', 'bio', 'gps_long', 'gps_lat', 'address', 'location_mode'])) {
 					ret('Validation failed: Unauthorized key', null);
 					return;
 				}
@@ -158,8 +166,20 @@ class User {
 	};
 
 	find(ret) {
-		connection.query('SELECT * FROM users WHERE username = ?', [this.username], async (error, results, fields) => {
-			// connection.query('SELECT * FROM users JOIN likes ON likes.liked_user_id = users.id JOIN watches ON watches.watched_user_id = user.id WHERE username = ?', [this.username], async (error, results, fields) => {
+		// SELECT u.*, COUNT(l.id) likes, COUNT(w.id) watches
+		// FROM users u
+		// LEFT JOIN likes l
+		//   ON l.liked_user_id = u.id
+		// LEFT JOIN watches w
+		//   ON w.watched_user_id = u.id
+		// WHERE u.username = 'tgroveham8'
+		connection.query('SELECT u.*, COUNT(l.id) likes, COUNT(w.id) watches \
+FROM users u \
+LEFT JOIN likes l \
+  ON l.liked_user_id = u.id \
+LEFT JOIN watches w \
+ON w.watched_user_id = u.id \
+WHERE u.username = ?', [this.username], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding user in users table");
 				console.log(error);
@@ -168,29 +188,7 @@ class User {
 			else {
 				if (results.length > 0) {
 					this.user_id = results[0].id;
-					const like = new Like(null, this.user_id);
-					like.find((likeerr, likeres) => {
-						if (likeerr) {
-							console.log("Error occured finding likes");
-							console.log(likeerr);
-							ret(likeerr, null);
-						}
-						else {
-							results[0].likes = likeres;
-							const watch = new Watch(null, this.user_id);
-							watch.find((watcherr, watchres) => {
-								if (watcherr) {
-									console.log("Error occured finding watches");
-									console.log(watcherr);
-									ret(watcherr, null);
-								}
-								else {
-									results[0].watches = watchres;
-									ret(null, results);
-								}
-							});
-						}
-					});
+					ret(null, results);
 				}
 				else
 					ret("No results", null);

@@ -63,6 +63,11 @@ exports.up = function (db) {
     address: {
       type: 'string',
     },
+    location_mode: {
+      type: 'boolean',
+      defaultValue: false,
+      notNull: true
+    },
     img1_path: {
       type: 'string'
     },

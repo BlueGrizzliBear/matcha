@@ -70,9 +70,6 @@ class Chat {
 						ret(error, null);
 					}
 					else {
-						this.sender_user_id = set['sender_user_id'];
-						this.receiver_user_id = set['receiver_user_id'];
-						console.log("Message registered sucessfully inside model");
 						ret(null, results);
 					}
 				});
@@ -81,7 +78,21 @@ class Chat {
 	}
 
 	find(ret) {
-		connection.query('SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date FROM (SELECT * , ROW_NUMBER() OVER (PARTITION BY sender_user_id + receiver_user_id ORDER BY sent_date DESC) rn FROM messages WHERE sender_user_id = ? OR receiver_user_id = ?) m JOIN users u1 ON m.sender_user_id = u1.id JOIN users u2 ON m.receiver_user_id = u2.id WHERE rn = 1', [this.sender_id, this.sender_id], async (error, results, fields) => {
+		// SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date FROM (
+		//   SELECT *, ROW_NUMBER() OVER (PARTITION BY sender_user_id + receiver_user_id ORDER BY sent_date DESC) rn
+		//     FROM messages
+		//     WHERE sender_user_id = 1003 OR receiver_user_id = 1) m
+		//   LEFT JOIN users u1
+		//     ON m.sender_user_id = u1.id
+		//   LEFT JOIN users u2
+		//     ON m.receiver_user_id = u2.id
+		// WHERE rn = 1
+		connection.query('SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date \
+FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY sender_user_id + receiver_user_id ORDER BY sent_date DESC) rn \
+FROM messages WHERE sender_user_id = ? OR receiver_user_id = ?) m \
+LEFT JOIN users u1 ON m.sender_user_id = u1.id \
+LEFT JOIN users u2 ON m.receiver_user_id = u2.id \
+WHERE rn = 1', [this.sender_id, this.sender_id], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding messages in messages table");
 				console.log(error);
@@ -94,7 +105,22 @@ class Chat {
 	}
 
 	findConversation(ret) {
-		connection.query('SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date, u1.username FROM messages m JOIN users u1 ON m.sender_user_id = u1.id JOIN users u2 ON m.receiver_user_id = u2.id WHERE (sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?) ORDER BY sent_date DESC LIMIT 100', [this.sender_id, this.receiver_id, this.receiver_id, this.sender_id], async (error, results, fields) => {
+		// SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date, u1.username
+		// FROM messages m
+		// JOIN users u1
+		//   ON m.sender_user_id = u1.id
+		// JOIN users u2
+		//   ON m.receiver_user_id = u2.id
+		// WHERE (sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?)
+		// ORDER BY sent_date DESC
+		// LIMIT 100
+		connection.query('SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date, u1.username \
+FROM messages m \
+LEFT JOIN users u1 ON m.sender_user_id = u1.id \
+LEFT JOIN users u2 ON m.receiver_user_id = u2.id \
+WHERE (sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?) \
+ORDER BY sent_date DESC \
+LIMIT 100', [this.sender_id, this.receiver_id, this.receiver_id, this.sender_id], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding messages in messages table");
 				console.log(error);
@@ -102,7 +128,6 @@ class Chat {
 			}
 			else {
 				if (results.length > 0) {
-					console.log(results);
 					ret(null, results);
 				}
 				else
@@ -161,25 +186,6 @@ class Chat {
 }
 
 module.exports = Chat;
-
-// SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date FROM (SELECT * , ROW_NUMBER() OVER (PARTITION BY sender_user_id + receiver_user_id ORDER BY sent_date DESC) rn FROM messages WHERE sender_user_id = 1003 OR receiver_user_id = 1) m JOIN users u1 ON m.sender_user_id = u1.id JOIN users u2 ON m.receiver_user_id = u2.id WHERE rn = 1
-
-// SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date FROM (
-// 	SELECT * , ROW_NUMBER()
-// 	OVER (PARTITION BY sender_user_id + receiver_user_id ORDER BY sent_date DESC) rn
-// 	FROM messages
-// 	WHERE sender_user_id = 1003 OR receiver_user_id = 1) m
-//   JOIN users u1
-//   ON m.sender_user_id = u1.id
-//   JOIN users u2
-//   ON m.receiver_user_id = u2.id
-//   WHERE rn = 1
-
-
-// SELECT ANY_VALUE(id), sender_user_id, receiver_user_id, ANY_VALUE(message), ANY_VALUE(`read`), MAX(sent_date)
-// FROM (SELECT * FROM messages WHERE sender_user_id = 1003 OR receiver_user_id = 1003) group_index
-// GROUP BY sender_user_id, receiver_user_id
-
 
 // SELECT ANY_VALUE(t1.id), t1.sender_user_id, t1.receiver_user_id, ANY_VALUE(t1.message), ANY_VALUE(t1.read), MAX(t1.sent_date)
 // FROM messages t1

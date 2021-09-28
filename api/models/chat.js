@@ -107,9 +107,9 @@ WHERE rn = 1', [this.sender_id, this.sender_id], async (error, results, fields) 
 	findConversation(ret) {
 		// SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date, u1.username
 		// FROM messages m
-		// JOIN users u1
+		// LEFT JOIN users u1
 		//   ON m.sender_user_id = u1.id
-		// JOIN users u2
+		// LEFT JOIN users u2
 		//   ON m.receiver_user_id = u2.id
 		// WHERE (sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?)
 		// ORDER BY sent_date DESC

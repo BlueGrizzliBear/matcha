@@ -85,6 +85,32 @@ router.post('/', checkToken, function (req, res, next) {
   });
 });
 
+/* POST /user/reset_password - Verify a generated token link to reset password */
+router.post('/reset_password', checkToken, function (req, res, next) {
+  // A VOIR COMMENT TRAITER LE RETOUR SUR LE FRONT
+  // (lien du mail pointant directement sur le front avec parsing du token dans la querry renvoyé sur la route en back
+  // ou lien de mail poitant sur le back et reset sur le back avec redirection sur le front une fois reset)
+  const user = new Models.User(res.locals.results.id, res.locals.results.username);
+  user.update({ password: req.body.password }, true, (error, results) => {
+    if (error) {
+      console.log(error);
+      res.status(400).end();
+    }
+    else {
+      const token = new Models.Token(res.locals.results.id, res.locals.token);
+      token.delete((tokerr, tokres) => {
+        if (tokerr) {
+          console.log(tokerr);
+          res.status(400).end();
+        }
+        else {
+          res.status(200).end();
+        }
+      });
+    }
+  });
+});
+
 /* GET /user/username/like - Like username's profile */
 router.get('/:username/like', checkToken, function (req, res, next) {
   const likedUser = new Models.User(null, req.params['username'])
@@ -183,32 +209,6 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
             liking: likeres,
             watches: results[0].watches
           }).end();
-        }
-      });
-    }
-  });
-});
-
-/* POST /user/reset_password - Verify a generated token link to reset password */
-router.post('/reset_password', checkToken, function (req, res, next) {
-  // A VOIR COMMENT TRAITER LE RETOUR SUR LE FRONT
-  // (lien du mail pointant directement sur le front avec parsing du token dans la querry renvoyé sur la route en back
-  // ou lien de mail poitant sur le back et reset sur le back avec redirection sur le front une fois reset)
-  const user = new Models.User(res.locals.results.id, res.locals.results.username);
-  user.update({ password: req.body.password }, true, (error, results) => {
-    if (error) {
-      console.log(error);
-      res.status(400).end();
-    }
-    else {
-      const token = new Models.Token(res.locals.results.id, res.locals.token);
-      token.delete((tokerr, tokres) => {
-        if (tokerr) {
-          console.log(tokerr);
-          res.status(400).end();
-        }
-        else {
-          res.status(200).end();
         }
       });
     }

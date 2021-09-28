@@ -176,7 +176,7 @@ class User {
 		connection.query('SELECT u.*, COUNT(l.id) likes, COUNT(w.id) watches \
 FROM users u \
 LEFT JOIN likes l \
-  ON l.liked_user_id = u.id \
+ON l.liked_user_id = u.id \
 LEFT JOIN watches w \
 ON w.watched_user_id = u.id \
 WHERE u.username = ?', [this.username], async (error, results, fields) => {

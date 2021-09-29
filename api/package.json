@@ -21,7 +21,7 @@
     "mysql": "^2.18.1",
     "nodemailer": "^6.6.3",
     "nodemon": "^2.0.12",
-    "websocket": "^1.0.34"
+    "ws": "^8.2.2"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

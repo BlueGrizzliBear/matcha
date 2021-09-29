@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var checkToken = require('../middleware/token');
 var Models = require('../models/models');
+const websocket = require('../websockets/websocket.js');
 
 /* GET /chat - Send user existing chats conversations */
 router.get('/', checkToken, function (req, res, next) {
@@ -52,7 +53,6 @@ router.post('/:id/send', checkToken, function (req, res, next) {
 			res.status(400).end();
 		}
 		else {
-			// TODO: trigger websocket event
 			const notification = new Models.Notification(parseInt(req.params['id']), 1, results.insertId);
 			notification.create((nerr, nres) => {
 				if (nerr) {
@@ -60,6 +60,9 @@ router.post('/:id/send', checkToken, function (req, res, next) {
 					res.status(400).end();
 				}
 				else {
+					// TODO: trigger websocket event
+					websocket.sendNotification(parseInt(req.params['id']));
+					websocket.sendChat(parseInt(req.params['id']));
 					res.status(200).end();
 				}
 			});

@@ -3,6 +3,7 @@ var router = express.Router();
 var checkToken = require('../middleware/token');
 var watchedUser = require('../middleware/watch');
 var Models = require('../models/models');
+const websocket = require('../websockets/websocket.js');
 
 /* GET /user - Send user profile informations */
 router.get('/', checkToken, function (req, res, next) {
@@ -135,7 +136,7 @@ router.get('/:username/like', checkToken, function (req, res, next) {
             }
             else {
               // TODO: trigger websocket event
-              // websocket.sendNotification(results[0].id, 2);
+              websocket.sendNotification(results[0].id, 2);
               res.status(200).end();
             }
           });
@@ -232,7 +233,7 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
   });
 });
 
-/* GET /user/username/block - Like username's profile */
+/* GET /user/username/block - Block user */
 router.get('/:username/block', checkToken, function (req, res, next) {
   const blockedUser = new Models.User(null, req.params['username'])
   blockedUser.find((err, results) => {
@@ -254,6 +255,31 @@ router.get('/:username/block', checkToken, function (req, res, next) {
     }
   });
 });
+
+
+/* GET /user/username/unblock - Unblock user */
+router.get('/:username/unblock', checkToken, function (req, res, next) {
+  const blockedUser = new Models.User(null, req.params['username'])
+  blockedUser.find((err, results) => {
+    if (err) {
+      console.log(err);
+      res.status(400).end();
+    }
+    else {
+      const block = new Models.Block(res.locals.results.id, results[0].id);
+      block.unblock((blockerr, blockres) => {
+        if (blockerr) {
+          console.log(blockerr);
+          res.status(400).end();
+        }
+        else {
+          res.status(200).end();
+        }
+      });
+    }
+  });
+});
+
 
 /* POST /user/username/report - Like username's profile */
 router.post('/:username/report', checkToken, function (req, res, next) {

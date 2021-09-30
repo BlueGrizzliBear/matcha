@@ -30,9 +30,11 @@ wss.on('connection', function (ws, request, client) {
 	ws.id = client.id;
 	ws.username = client.username;
 	ws.on('message', function message(msg) {
+		// if message reveivec isOnline => send message to all conversations and watching person to see online
 		console.log(`Received message ${msg} from user ${client}`);
 	});
 	ws.on('close', function close() {
+		// send message to all conversations and watching person to see offline
 		console.log(`Socket connection closed from user ${client}`);
 	});
 });

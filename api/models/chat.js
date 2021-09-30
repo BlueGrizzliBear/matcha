@@ -112,7 +112,7 @@ FROM messages m \
 LEFT JOIN users u1 ON m.sender_user_id = u1.id \
 LEFT JOIN users u2 ON m.receiver_user_id = u2.id \
 LEFT JOIN blocklist bl ON bl.blocking_user_id = ? AND (bl.blocked_user_id = m.sender_user_id OR bl.blocked_user_id = m.receiver_user_id) \
-WHERE (sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?) \
+WHERE ((sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?)) AND bl.id IS NULL \
 ORDER BY sent_date DESC \
 LIMIT 100', [this.sender_id, this.sender_id, this.receiver_id, this.receiver_id, this.sender_id], async (error, results, fields) => {
 			if (error) {

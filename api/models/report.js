@@ -1,4 +1,5 @@
 const connection = require('../config/db');
+var validators = require('./validate');
 
 class Report {
 	constructor(reporting_user_id = null, reported_user_id = null, reason = null) {

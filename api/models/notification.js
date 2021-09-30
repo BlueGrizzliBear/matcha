@@ -88,20 +88,22 @@ class Notification {
 	}
 
 	find(ret) {
-		// SELECT n.*, u.username AS sender, m.message \
-		// FROM notifications n \
-		// LEFT JOIN (\
-		// SELECT * , ROW_NUMBER() OVER (PARTITION BY sender_user_id ORDER BY sent_date DESC) rn \
-		// FROM messages\
-		// ) m \
-		// ON (n.message_id IS NOT NULL AND n.message_id = m.id) \
-		// LEFT JOIN likes l \
-		// ON (n.like_id IS NOT NULL AND n.like_id = l.id) \
-		// LEFT JOIN watches w \
-		// ON (n.watch_id IS NOT NULL AND n.watch_id = w.id) \
-		// LEFT JOIN users u \
-		// ON (m.sender_user_id = u.id OR l.liking_user_id = u.id OR w.watching_user_id = u.id) \
-		// WHERE (rn = 1 OR rn IS NULL) AND user_id = ? \
+		// SELECT n.*, u.username AS sender, m.message
+		// FROM notifications n
+		// LEFT JOIN (
+		// SELECT * , ROW_NUMBER() OVER (PARTITION BY sender_user_id ORDER BY sent_date DESC) rn
+		// FROM messages
+		// ) m
+		// ON (n.message_id IS NOT NULL AND n.message_id = m.id)
+		// LEFT JOIN likes l
+		// ON (n.like_id IS NOT NULL AND n.like_id = l.id)
+		// LEFT JOIN watches w
+		// ON (n.watch_id IS NOT NULL AND n.watch_id = w.id)
+		// LEFT JOIN users u
+		// ON (m.sender_user_id = u.id OR l.liking_user_id = u.id OR w.watching_user_id = u.id)
+		// LEFT JOIN blocklist bl
+		// ON bl.blocking_user_id = 1001 AND bl.blocked_user_id = u.id
+		// WHERE (rn = 1 OR rn IS NULL) AND user_id = 1001 AND bl.id IS NULL
 		// LIMIT 100
 		connection.query('SELECT n.*, u.username AS sender, m.message \
 FROM notifications n \
@@ -116,8 +118,10 @@ LEFT JOIN watches w \
 ON (n.watch_id IS NOT NULL AND n.watch_id = w.id) \
 LEFT JOIN users u \
 ON (m.sender_user_id = u.id OR l.liking_user_id = u.id OR w.watching_user_id = u.id) \
-WHERE (rn = 1 OR rn IS NULL) AND user_id = ? \
-LIMIT 100', [this.user_id], async (error, results, fields) => {
+LEFT JOIN blocklist bl \
+ON bl.blocking_user_id = ? AND bl.blocked_user_id = u.id \
+WHERE (rn = 1 OR rn IS NULL) AND user_id = ? AND bl.id IS NULL \
+LIMIT 100', [this.user_id, this.user_id], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding notifications in table");
 				console.log(error);

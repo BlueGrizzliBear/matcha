@@ -5,7 +5,7 @@ insert into
     message
   )
 values
-  (1, 1004, 'ID1: Salut Tsanuta');
+  (1, 1001, 'ID1: Salut Tsanuta');
 insert into
   messages (
     sender_user_id,
@@ -13,7 +13,7 @@ insert into
     message
   )
 values
-  (1004, 1, 'Salut ID1');
+  (1001, 1, 'Salut ID1');
 insert into
   messages (
     sender_user_id,
@@ -21,7 +21,7 @@ insert into
     message
   )
 values
-  (1004, 1, 'Comment ca va ID1 ?');
+  (1001, 1, 'Comment ca va ID1 ?');
 insert into
   messages (
     sender_user_id,
@@ -29,7 +29,7 @@ insert into
     message
   )
 values
-  (1, 1004, 'ID1: Ca va bien et toi ?');
+  (1, 1001, 'ID1: Ca va bien et toi ?');
 insert into
   messages (
     sender_user_id,
@@ -37,7 +37,7 @@ insert into
     message
   )
 values
-  (2, 1004, 'ID2: Salut Tsanuta');
+  (2, 1001, 'ID2: Salut Tsanuta');
 insert into
   messages (
     sender_user_id,
@@ -45,7 +45,7 @@ insert into
     message
   )
 values
-  (1004, 2, 'Salut ID2');
+  (1001, 2, 'Salut ID2');
 insert into
   messages (
     sender_user_id,
@@ -53,7 +53,7 @@ insert into
     message
   )
 values
-  (1004, 2, 'Comment ca va ID2 ?');
+  (1001, 2, 'Comment ca va ID2 ?');
 insert into
   messages (
     sender_user_id,
@@ -61,7 +61,7 @@ insert into
     message
   )
 values
-  (2, 1004, 'ID2:Ca va bien et toi ?');
+  (2, 1001, 'ID2:Ca va bien et toi ?');
 insert into
   messages (
     sender_user_id,

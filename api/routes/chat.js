@@ -35,7 +35,7 @@ router.get('/:id', checkToken, function (req, res, next) {
 					res.status(400).end();
 				}
 				else {
-					// TODO: trigger websocket event
+					websocket.sendChat(parseInt(req.params['id']));
 					res.status(200).json(results).end();
 				}
 			});
@@ -60,8 +60,7 @@ router.post('/:id/send', checkToken, function (req, res, next) {
 					res.status(400).end();
 				}
 				else {
-					// TODO: trigger websocket event
-					websocket.sendNotification(parseInt(req.params['id']));
+					websocket.sendNotification(parseInt(req.params['id']), 1);
 					websocket.sendChat(parseInt(req.params['id']));
 					res.status(200).end();
 				}

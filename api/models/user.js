@@ -2,8 +2,6 @@ const connection = require('../config/db');
 var validators = require('./validate');
 const fs = require('fs');
 var bcrypt = require('bcrypt');
-var Like = require('./like');
-var Watch = require('./watch');
 
 function isProfileComplete(results) {
 	if (/*results.birth_date && results.gender && */results.img0_path)

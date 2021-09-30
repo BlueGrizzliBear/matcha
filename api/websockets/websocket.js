@@ -27,7 +27,6 @@ const authenticate = (request, err) => {
 
 // ws://localhost:9000
 wss.on('connection', function (ws, request, client) {
-
 	ws.id = client.id;
 	ws.username = client.username;
 	ws.on('message', function message(msg) {
@@ -43,12 +42,19 @@ const sendNotification = function (userId, type, from, message = null) {
 		console.log(client.id);
 		// Check that connect are open and still alive to avoid socket error
 		if (client.readyState === 1 && client.id === userId) {
-			client.send("New Notification");
+			if (type == 1)
+				client.send("New Message");
+			else if (type == 2)
+				client.send("New Like");
+			else if (type == 3)
+				client.send("New Watch");
+			else if (type == 4)
+				client.send("New Unlike");
 		}
 	});
 }
 
-const sendChat = function (userId, from, message) {
+const sendChat = function (userId, read, from, message = null) {
 	wss.clients.forEach((client) => {
 		console.log(client.id);
 		// Check that connect are open and still alive to avoid socket error
@@ -56,7 +62,6 @@ const sendChat = function (userId, from, message) {
 			client.send("New Message");
 		}
 	});
-
 }
 
 module.exports = { authenticate, sendNotification, sendChat, wss };

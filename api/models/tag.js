@@ -21,7 +21,7 @@ class Tag {
 				error("Invalid user_id format");
 				return;
 			}
-			if (i == 'tag' && !validators.isAlphanum(set[i])) {
+			if (i == 'tag' && !(typeof set[i] === 'string') && !validators.isAlphanum(set[i])) {
 				error("Invalid tag format");
 				return;
 			}
@@ -38,31 +38,20 @@ class Tag {
 	};
 
 	create(ret) {
-		connection.query('SELECT * FROM tags WHERE tag = ?', [this.tag], async (sterr, stres, fields) => {
-			if (sterr) {
-				console.log("Error occured on finding tag inside tags table");
-				ret(sterr, stres);
+		const set = { user_id: this.user_id, tag: this.tag }
+		this.validate(set, (verr) => {
+			if (verr) {
+				ret('Validation failed: ' + verr, null);
 			}
 			else {
-				if (stres.length > 0) {
-					connection.query('INSERT INTO tag_user SET tag_id = ?, user_id = ?', [stres[0].id, this.user_id], async (error, results, fields) => {
-						if (error) {
-							console.log("Error occured on tag creation inside tag_user table");
-							ret(error, results);
-						}
-						else {
-							ret(error, results);
-						}
-					});
-				}
-				else {
-					connection.query('INSERT INTO tags SET tag = ?', [this.tag], async (tagerr, tagres, fields) => {
-						if (tagerr) {
-							console.log("Error occured on tag creation inside tags table");
-							ret(tagerr, tagres);
-						}
-						else {
-							connection.query('INSERT INTO tag_user SET tag_id = ?, user_id = ?', [tagres.insertId, this.user_id], async (error, results, fields) => {
+				connection.query('SELECT * FROM tags WHERE tag = ?', [this.tag], async (sterr, stres, fields) => {
+					if (sterr) {
+						console.log("Error occured on finding tag inside tags table");
+						ret(sterr, stres);
+					}
+					else {
+						if (stres.length > 0) {
+							connection.query('INSERT INTO tag_user SET tag_id = ?, user_id = ?', [stres[0].id, this.user_id], async (error, results, fields) => {
 								if (error) {
 									console.log("Error occured on tag creation inside tag_user table");
 									ret(error, results);
@@ -72,8 +61,27 @@ class Tag {
 								}
 							});
 						}
-					});
-				}
+						else {
+							connection.query('INSERT INTO tags SET tag = ?', [this.tag], async (tagerr, tagres, fields) => {
+								if (tagerr) {
+									console.log("Error occured on tag creation inside tags table");
+									ret(tagerr, tagres);
+								}
+								else {
+									connection.query('INSERT INTO tag_user SET tag_id = ?, user_id = ?', [tagres.insertId, this.user_id], async (error, results, fields) => {
+										if (error) {
+											console.log("Error occured on tag creation inside tag_user table");
+											ret(error, results);
+										}
+										else {
+											ret(error, results);
+										}
+									});
+								}
+							});
+						}
+					}
+				});
 			}
 		});
 	};

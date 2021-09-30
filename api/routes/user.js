@@ -127,7 +127,6 @@ router.get('/:username/like', checkToken, function (req, res, next) {
           res.status(400).end();
         }
         else {
-          // TODO: trigger websocket event
           const notification = new Models.Notification(results[0].id, 2, likeres.insertId);
           notification.create((nerr, nres) => {
             if (nerr) {
@@ -135,6 +134,8 @@ router.get('/:username/like', checkToken, function (req, res, next) {
               res.status(400).end();
             }
             else {
+              // TODO: trigger websocket event
+              // websocket.sendNotification(results[0].id, 2);
               res.status(200).end();
             }
           });
@@ -161,6 +162,7 @@ router.get('/:username/unlike', checkToken, function (req, res, next) {
         }
         else {
           // TODO: trigger websocket event
+          websocket.sendNotification(results[0].id, 4);
           res.status(200).end();
         }
       })
@@ -185,30 +187,91 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
           res.status(400).end();
         }
         else {
-          res.status(200).json({
-            status: "200",
-            isProfileComplete: results[0].complete,
-            id: results[0].id,
-            username: results[0].username,
-            email: results[0].email,
-            firstname: results[0].firstname,
-            lastname: results[0].lastname,
-            birth_date: results[0].birth_date,
-            isActivated: results[0].activated,
-            gender: results[0].gender,
-            preference: results[0].preference,
-            bio: results[0].bio,
-            images: {
-              profile: results[0].img0_path,
-              img1: results[0].img1_path,
-              img2: results[0].img2_path,
-              img3: results[0].img3_path,
-              img4: results[0].img4_path
-            },
-            likes: results[0].likes,
-            liking: likeres,
-            watches: results[0].watches
-          }).end();
+          const block = new Models.Block(res.locals.results.id, user.getUserId());
+          block.blocked((blockerr, blockres) => {
+            if (blockerr) {
+              console.log(blockerr);
+              res.status(400).end();
+            }
+            else {
+              if (blockres == true)
+                res.status(200).json({ blocked: blockres }).end();
+              else {
+                websocket.sendNotification(results[0].id, 3);
+                res.status(200).json({
+                  status: "200",
+                  isProfileComplete: results[0].complete,
+                  id: results[0].id,
+                  username: results[0].username,
+                  email: results[0].email,
+                  firstname: results[0].firstname,
+                  lastname: results[0].lastname,
+                  birth_date: results[0].birth_date,
+                  isActivated: results[0].activated,
+                  gender: results[0].gender,
+                  preference: results[0].preference,
+                  bio: results[0].bio,
+                  images: {
+                    profile: results[0].img0_path,
+                    img1: results[0].img1_path,
+                    img2: results[0].img2_path,
+                    img3: results[0].img3_path,
+                    img4: results[0].img4_path
+                  },
+                  likes: results[0].likes,
+                  liking: likeres,
+                  watches: results[0].watches,
+                  blocked: blockres
+                }).end();
+              }
+            }
+          });
+        }
+      });
+    }
+  });
+});
+
+/* GET /user/username/block - Like username's profile */
+router.get('/:username/block', checkToken, function (req, res, next) {
+  const blockedUser = new Models.User(null, req.params['username'])
+  blockedUser.find((err, results) => {
+    if (err) {
+      console.log(err);
+      res.status(400).end();
+    }
+    else {
+      const block = new Models.Block(res.locals.results.id, results[0].id);
+      block.create((blockerr, blockres) => {
+        if (blockerr) {
+          console.log(blockerr);
+          res.status(400).end();
+        }
+        else {
+          res.status(200).end();
+        }
+      });
+    }
+  });
+});
+
+/* POST /user/username/report - Like username's profile */
+router.post('/:username/report', checkToken, function (req, res, next) {
+  const reportedUser = new Models.User(null, req.params['username'])
+  reportedUser.find((err, results) => {
+    if (err) {
+      console.log(err);
+      res.status(400).end();
+    }
+    else {
+      const report = new Models.Report(res.locals.results.id, results[0].id, req.body.reason);
+      report.create((reporterr, reportres) => {
+        if (reporterr) {
+          console.log(reporterr);
+          res.status(400).end();
+        }
+        else {
+          res.status(200).end();
         }
       });
     }

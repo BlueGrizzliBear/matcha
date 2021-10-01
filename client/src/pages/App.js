@@ -64,21 +64,36 @@ class App extends Component {
   }
 
   callUserIsAuth() {
+    console.log("Inside CallUserisAuth");
     // catch the username if exist or null
     fetch("http://localhost:9000/user", {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })
-      .then(res => res.json())
-      .then(data => {
-        // console.log(data);
-        if (data.status === "200") {
-          this.setState({ isAuth: data.isAuth });
-          this.setState({ isActivated: data.isActivated });
-          this.setState({ isProfileComplete: data.isProfileComplete });
+
+      .then(res => {
+        if (res.ok && res.status === 200) {
+          return res.json().then((data) => {
+            this.setState({ isAuth: data.isAuth });
+            this.setState({ isActivated: data.isActivated });
+            this.setState({ isProfileComplete: data.isProfileComplete });
+					})
         }
+        // else {
+          // console.log("Username or email already exists");
+          // console.log("code: " + res.status + ", status: " + res.statusText);
+        // }
       })
-      .catch(res => {
+      // .then(res => res.json())
+      // .then(data => {
+      //   if (data.status === "200") {
+      //     this.setState({ isAuth: data.isAuth });
+      //     this.setState({ isActivated: data.isActivated });
+      //     this.setState({ isProfileComplete: data.isProfileComplete });
+      //   }
+      // })
+      .catch(error => {
+        console.log(error);
         console.log("Fail to fetch");
       })
   }

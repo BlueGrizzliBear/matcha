@@ -9,13 +9,13 @@ import SexualPreferences from '../components/SexualPreferences'
 
 // }));
 
-function Profile() {
+function Profile(props) {
 
 	// const classes = useStyles();
 
 	return (
 		<>
-			<Figures />
+			<Figures {...props}/>
 			<ImageGallery />
 			<Interests />
 			<Biography />

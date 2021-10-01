@@ -39,7 +39,7 @@ class ProtectedRoute extends Component {
       <Route
         {...props}
         render={props => (
-          this.props.condition ? <Redirect to={this.props.toRedirect} /> : <Component {...props} />
+          this.props.condition ? <Redirect to={this.props.toRedirect} /> : <Component {...props} {...this.props.user}/>
         )}
       />
     )
@@ -49,7 +49,12 @@ class ProtectedRoute extends Component {
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { isAuth: false, isActivated: false, isProfileComplete: false };
+    this.state = {
+      isAuth: false,
+      isActivated: false,
+      isProfileComplete: false,
+      user: {}
+    };
     this.logout = this.logout.bind(this);
     this.login = this.login.bind(this);
   }
@@ -77,21 +82,10 @@ class App extends Component {
             this.setState({ isAuth: data.isAuth });
             this.setState({ isActivated: data.isActivated });
             this.setState({ isProfileComplete: data.isProfileComplete });
+            this.setState({ user: data });
 					})
         }
-        // else {
-          // console.log("Username or email already exists");
-          // console.log("code: " + res.status + ", status: " + res.statusText);
-        // }
       })
-      // .then(res => res.json())
-      // .then(data => {
-      //   if (data.status === "200") {
-      //     this.setState({ isAuth: data.isAuth });
-      //     this.setState({ isActivated: data.isActivated });
-      //     this.setState({ isProfileComplete: data.isProfileComplete });
-      //   }
-      // })
       .catch(error => {
         console.log(error);
         console.log("Fail to fetch");
@@ -115,7 +109,7 @@ class App extends Component {
                 <ProtectedRoute exact path='/' component={UserHomepage} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                 <ProtectedRoute exact path='/notifications' component={Notifications} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                 <ProtectedRoute exact path='/chat' component={Chat} toRedirect="/profile" condition={!this.state.isProfileComplete} />
-                <ProtectedRoute exact path='/profile' component={Profile} />
+                <ProtectedRoute exact path='/profile' component={Profile} user={this.state.user}/>
                 <ProtectedRoute path='/' component={NotFound} toRedirect="/profile" condition={!this.state.isProfileComplete} />
               </Switch>
             </>

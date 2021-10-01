@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
 		flexWrap: 'wrap',
 		justifyContent: 'space-around',
 		overflow: 'hidden',
+		'@media screen and (min-width: 804px)': {
+			margin: '0px 18px',
+		}
 	},
 }));
 

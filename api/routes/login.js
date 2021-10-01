@@ -17,24 +17,29 @@ router.post('/', function (req, res, next) {
     else {
       bcrypt.compare(password, results[0].password, function (err, compare) {
         if (compare) {
-          // Issue token
-          console.log("comparison is OK");
-          const token = new Models.Token(user.getUserId(), null);
-          token.generate({ id: user.getUserId(), username: user.getUsername() }, '1h', function (error, results) {
-            if (error) {
-              console.log("error occured inserting token in tokens table");
-              res.status(400).end();
-            }
-            else {
-              console.log("User login successfull");
-              res.status(200).json({
-                id: user.getUserId(),
-                username: user.getUsername(),
-                token: token.getToken(),
-                status: "200"
-              }).end();
-            }
-          });
+          if (results[0].activated == 0) {
+            console.log("User not activated");
+            res.status(403).end();
+          }
+          else {
+            // Issue token
+            const token = new Models.Token(user.getUserId(), null);
+            token.generate({ id: user.getUserId(), username: user.getUsername() }, '1h', function (error, results) {
+              if (error) {
+                console.log("error occured inserting token in tokens table");
+                res.status(400).end();
+              }
+              else {
+                console.log("User login successfull");
+                res.status(200).json({
+                  id: user.getUserId(),
+                  username: user.getUsername(),
+                  token: token.getToken(),
+                  status: "200"
+                }).end();
+              }
+            });
+          }
         }
         else {
           console.log("Username and password does not match");

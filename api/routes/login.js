@@ -54,7 +54,7 @@ router.post('/', function (req, res, next) {
 });
 
 
-/* POST /register/send_link - Send an email link verification again */
+/* POST /login/send_link - Send an email link verification again */
 router.post('/activation_link', function (req, res, next) {
   const user = new Models.User(null, req.body.username);
 
@@ -64,7 +64,9 @@ router.post('/activation_link', function (req, res, next) {
       res.status(400).end();
     }
     else {
-      req.body.id = user.getUserId();
+      req.body.id = results[0].id;
+      req.body.username = results[0].username;
+      req.body.email = results[0].email;
       activation.sendLinkVerification(req, res);
       res.status(200).end();
     }

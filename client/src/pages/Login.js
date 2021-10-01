@@ -37,6 +37,10 @@ function Login(props) {
 						history.push(`/`);
 					})
 				}
+				else if (res.status === 403) {
+					console.log("Account not activated.");
+					setError(true);
+				}
 				else {
 					console.log("Incorrect username or password.");
 					setError(true);

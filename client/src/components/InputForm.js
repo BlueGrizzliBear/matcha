@@ -64,7 +64,10 @@ export function PasswordInputForm(props) {
 						</InputAdornment>
 					}
 				/>
-				{props.error && <FormHelperText error={props.error}>
+				{(props.error) && <FormHelperText error={props.error}>
+					{props.helpertext}
+				</FormHelperText>}
+				{(props.sent) && <FormHelperText >
 					{props.helpertext}
 				</FormHelperText>}
 			</FormControl>

@@ -7,7 +7,7 @@ import InputForm, { PasswordInputForm } from '../components/InputForm';
 
 import { useHistory } from "react-router-dom";
 
-function Register() {
+function Register(props) {
 
 	const history = useHistory();
 
@@ -37,33 +37,31 @@ function Register() {
 		if (regexMatch(value, /^[a-zA-Z0-9]+$/))
 			return true;
 		return false;
-	}	
+	}
 
 	const isAlpha = function (value) {
 		if (regexMatch(value, /^[a-zA-Z]+$/))
 			return true;
 		return false;
 	}
-	
+
 	const isValidPassword = function (value) {
 		// Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character:
 		if (regexMatch(value, /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&/\\])[A-Za-z\d@$!%*?&/\\]{8,}$/))
 			return true;
 		return false;
 	}
-		
+
 	const validateFields = (values) => {
 		let errorsArr = { ...errors };
 		let formIsValid = true;
 
-		for (let field in values)
-		{
-			if ((field ==='email' && !isEmail(values[field])) ||
-				(field ==='lastname' && !isAlpha(values[field])) ||
-				(field ==='firstname' && !isAlpha(values[field])) ||
-				(field ==='username' && !isAlphanum(values[field])) ||
-				(field ==='password' && !isValidPassword(values[field])))
-			{
+		for (let field in values) {
+			if ((field === 'email' && !isEmail(values[field])) ||
+				(field === 'lastname' && !isAlpha(values[field])) ||
+				(field === 'firstname' && !isAlpha(values[field])) ||
+				(field === 'username' && !isAlphanum(values[field])) ||
+				(field === 'password' && !isValidPassword(values[field]))) {
 				errorsArr[field] = "Incorrect entry.";
 				formIsValid = false;
 			}
@@ -77,8 +75,7 @@ function Register() {
 	const handleRegister = (e) => {
 		e.preventDefault();
 
-		if (validateFields(values))
-		{
+		if (validateFields(values)) {
 			fetch('http://localhost:9000/register', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -92,12 +89,15 @@ function Register() {
 			})
 				.then(res => {
 					if (res.ok) {
-						// console.log("User successfully registered");
+						console.log("User successfully registered");
 						// console.log("code: " + res.status + ", status: " + res.statusText);
-						history.push(`/`);
+						// props.setValue('isSent');
+						props.setValue('isSent', true);
+						history.push(`/login`);
+						// const test = { sent: true }
+						// props.register("/login", test);
 					}
-					else if (res.status === 409)
-					{
+					else if (res.status === 409) {
 						let errorsArr = { ...errors };
 						errorsArr['email'] = "Username or email already exists.";
 						errorsArr['username'] = "Username or email already exists";
@@ -116,7 +116,7 @@ function Register() {
 	}
 
 	const handleChange = (prop) => (event) => {
-		validateFields({[event.target.name]: event.target.value});
+		validateFields({ [event.target.name]: event.target.value });
 		setValues({ ...values, [prop]: event.target.value });
 	};
 
@@ -132,8 +132,8 @@ function Register() {
 		<Box className="FormBox">
 			<Box component="form" noValidate={true} autoComplete="off" onSubmit={handleRegister}>
 				<InputForm name="email" error={'email' in errors} helperText={'email' in errors && errors['email']} label="Email" value={values.email} onChange={handleChange('email')} autoFocus={true} />
-				<InputForm name="lastname" error={'lastname' in errors} helperText={'lastname' in errors && errors['lastname']}  label="Lastname" value={values.lastname} onChange={handleChange('lastname')} />
-				<InputForm name="firstname" error={'firstname' in errors} helperText={'firstname' in errors && errors['firstname']}  label="Firstname" value={values.firstname} onChange={handleChange('firstname')} />
+				<InputForm name="lastname" error={'lastname' in errors} helperText={'lastname' in errors && errors['lastname']} label="Lastname" value={values.lastname} onChange={handleChange('lastname')} />
+				<InputForm name="firstname" error={'firstname' in errors} helperText={'firstname' in errors && errors['firstname']} label="Firstname" value={values.firstname} onChange={handleChange('firstname')} />
 				<InputForm name="username" error={'username' in errors} helperText={'username' in errors && errors['username']} label="Username" value={values.username} onChange={handleChange('username')} />
 				<PasswordInputForm
 					error={'password' in errors}
@@ -147,7 +147,7 @@ function Register() {
 					}}
 					iconButtonProps={{
 						onClick: handleClickShowPassword,
-						onMouseDown: handleMouseDownPassword,	
+						onMouseDown: handleMouseDownPassword,
 					}}
 					// visibility={values.showPassword ? <Visibility /> : <VisibilityOff />}
 					visibility={showPassword ? <Visibility /> : <VisibilityOff />}

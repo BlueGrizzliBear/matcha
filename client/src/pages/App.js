@@ -53,21 +53,27 @@ class App extends Component {
       isAuth: false,
       isActivated: false,
       isProfileComplete: false,
+      isSent: false,
       user: {}
     };
+    this.setValue = this.setValue.bind(this);
     this.logout = this.logout.bind(this);
     this.login = this.login.bind(this);
   }
 
   login() {
     this.dataFetch();
-    return (<Redirect to={"/"} />);
+    // return (<Redirect to={"/"} />);
   }
 
   logout() {
     localStorage.removeItem("token");
     this.setState({ isAuth: false });
-    return (<Redirect to={"/"} />);
+    // return (<Redirect to={"/"} />);
+  }
+
+  setValue(key, value) {
+    this.setState({ [key]: value });
   }
 
   dataFetch() {
@@ -116,8 +122,8 @@ class App extends Component {
             <>
               <Switch>
                 <Route exact path="/" component={PublicHomepage} />
-                <Route exact push path="/login"><Login auth={this.state.isAuth} login={this.login} /></Route>
-                <Route exact push path="/register" component={Register} />
+                <Route exact push path="/login"><Login auth={this.state.isAuth} login={this.login} isSent={this.state.isSent} /></Route>
+                <Route exact push path="/register"><Register setValue={this.setValue} /></Route>
                 <ProtectedRoute path='/' component={NotFound} toRedirect="/" condition={!this.state.isAuth} />
               </Switch>
             </>

@@ -15,7 +15,7 @@ function Profile(props) {
 
 	return (
 		<>
-			<Figures {...props}/>
+			<Figures {...props} />
 			<ImageGallery />
 			<Interests />
 			<Biography />

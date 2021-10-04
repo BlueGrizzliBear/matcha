@@ -34,8 +34,10 @@ const sendPasswordResetLink = function (req, res) {
 	const token = new Models.Token(req.body.id);
 	/* Generate a token and save to database */
 	token.generate({ id: req.body.id, username: req.body.username, email: req.body.email, host: req.get('host') }, '10m', function (error, results) {
-		if (error)
+		if (error) {
 			console.log(error);
+			res.end("error");
+		}
 		else {
 			// A CHANGER PAR LIEN POINTANT SUR LE FRONT
 			link = "http://" + req.get('host') + "/user/reset_password?id=" + token.getToken();

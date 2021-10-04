@@ -164,32 +164,41 @@ class User {
 	};
 
 	find(ret) {
-		// SELECT u.*, COUNT(l.id) likes, COUNT(w.id) watches
-		// FROM users u
-		// LEFT JOIN likes l
-		//   ON l.liked_user_id = u.id
-		// LEFT JOIN watches w
-		//   ON w.watched_user_id = u.id
-		// WHERE u.username = 'tgroveham8'
-		connection.query('SELECT u.*, COUNT(l.id) likes, COUNT(w.id) watches \
+		const set = { username: this.username }
+		this.validate(set, (verr) => {
+			if (verr) {
+				ret('Validation failed: ' + verr, null);
+			}
+			else {
+
+				// SELECT u.*, COUNT(l.id) likes, COUNT(w.id) watches
+				// FROM users u
+				// LEFT JOIN likes l
+				//   ON l.liked_user_id = u.id
+				// LEFT JOIN watches w
+				//   ON w.watched_user_id = u.id
+				// WHERE u.username = 'tgroveham8'
+				connection.query('SELECT u.*, COUNT(l.id) likes, COUNT(w.id) watches \
 FROM users u \
 LEFT JOIN likes l \
 ON l.liked_user_id = u.id \
 LEFT JOIN watches w \
 ON w.watched_user_id = u.id \
 WHERE u.username = ?', [this.username], async (error, results, fields) => {
-			if (error) {
-				console.log("Error occured finding user in users table");
-				console.log(error);
-				ret(error, null);
-			}
-			else {
-				if (results.length > 0) {
-					this.user_id = results[0].id;
-					ret(null, results);
-				}
-				else
-					ret("No results", null);
+					if (error) {
+						console.log("Error occured finding user in users table");
+						console.log(error);
+						ret(error, null);
+					}
+					else {
+						if (results.length > 0) {
+							this.user_id = results[0].id;
+							ret(null, results);
+						}
+						else
+							ret("No results", null);
+					}
+				});
 			}
 		});
 	};

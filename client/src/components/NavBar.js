@@ -3,7 +3,7 @@ import React from 'react';
 import { IconButton, Button, Box, Badge, Tooltip } from '@mui/material';
 import { Notifications as NotificationsIcon, Chat as ChatIcon } from '@mui/icons-material';
 
-import { Switch, Route, Link, useHistory } from "react-router-dom";
+import { Switch, Route, Link } from "react-router-dom";
 
 import '../assets/stylesheets/Components.css';
 
@@ -12,12 +12,12 @@ import { ReactComponent as LogoutIcon } from "../assets/images/logout.svg";
 
 function NavBar(props) {
 
-  const history = useHistory();
+  // const history = useHistory();
 
   const handleLogout = () => {
     props.logout();
-    let path = `/`; 
-    history.push(path);
+    // let path = `/`; 
+    // history.push(path);
   }
 
   return (
@@ -27,7 +27,7 @@ function NavBar(props) {
       </IconButton>
       <Switch>
         <Route path="/">
-          { props.auth ? 
+          {props.auth ?
             <Switch>
               <Route path="/login">
                 <></>
@@ -56,15 +56,15 @@ function NavBar(props) {
                       <ProfileIcon />
                     </Tooltip>
                   </IconButton>
-                    <IconButton aria-label="log out" color="inherit" onClick={handleLogout} style={{ height: "48px" }}>
-                      <Tooltip title="logout">
-                        <LogoutIcon />
-                      </Tooltip>
-                    </IconButton>
+                  <IconButton aria-label="log out" color="inherit" onClick={handleLogout} style={{ height: "48px" }}>
+                    <Tooltip title="logout">
+                      <LogoutIcon />
+                    </Tooltip>
+                  </IconButton>
                 </Box>
               </Route>
             </Switch>
-          :
+            :
             <Button variant="contained" color="primary" component={Link} to="/login" style={{ margin: "6px 8px" }}>
               Sign in
             </Button>

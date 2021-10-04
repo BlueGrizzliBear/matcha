@@ -6,6 +6,9 @@ import { Visibility as VisibilityIcon, Favorite as FavoriteIcon, LocationOn as L
 
 import calculateAge from '../utility/utilities'
 
+import { useState, useEffect } from 'react';
+
+
 const useStyles = makeStyles((theme) => ({
 	root: {
 		display: 'flex',
@@ -15,6 +18,9 @@ const useStyles = makeStyles((theme) => ({
 		margin: '0px 11px',
 		'@media screen and (min-width: 768px)': {
 			margin: '0px 18px',
+		},
+		'@media screen and (min-width: 1552px)': {
+			margin: '0px auto',
 		}
 	},
 	LeftRoot: {
@@ -49,13 +55,18 @@ function Figures(props) {
 
 	const classes = useStyles();
 
+	const [user, setUser] = useState(props.user);
 	const locationMode = 'Manual';
 	const locationAdress = 'Lyon, France';
+
+	useEffect(() => {
+		setUser(props.user);
+	}, [props.user]);
 
 	return (
 		<Box sx={{ maxWidth: 1552 }} className={classes.root}>
 			<Stack direction="column" spacing={1}>
-				<h2 style={{ 'margin': '4px' }} >{props.firstname} {props.lastname}{props.birth_date ? ", " + calculateAge(props.birth_date) : ''}</h2>
+				<h2 style={{ 'margin': '4px' }} >{user.firstname} {user.lastname}{user.birth_date ? ", " + calculateAge(user.birth_date) : ''}</h2>
 				<Box className={classes.FigureRoot} style={{ 'margin': '4px' }}>
 					<Tooltip title={locationMode}>
 						<LocationOnIcon />
@@ -66,10 +77,10 @@ function Figures(props) {
 
 			<Stack direction="row" spacing={2} justifyContent='flex-start' alignItems="center">
 				<Tooltip title="Who liked you">
-					<Chip icon={<FavoriteIcon />} color="primary" label={props.likes} clickable sx={{fontSize: "20px"}}/>
+					<Chip icon={<FavoriteIcon />} color="primary" label={user.likes} clickable sx={{ fontSize: "20px" }} />
 				</Tooltip>
 				<Tooltip title="Who saw your profile">
-					<Chip icon={<VisibilityIcon />} color="secondary" label={props.watches} clickable sx={{fontSize: "20px"}}/>
+					<Chip icon={<VisibilityIcon />} color="secondary" label={user.watches} clickable sx={{ fontSize: "20px" }} />
 				</Tooltip>
 			</Stack>
 		</Box>

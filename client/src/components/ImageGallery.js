@@ -128,20 +128,20 @@ function ImageGallery() {
 			method: 'DELETE',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
-		.then(res => {
-			let tempImgArr = itemData.slice();
-			tempImgArr[itemData.findIndex(x => x.title === imgTitle)]["img"] = placeholder;
-			setImageArr(tempImgArr);
-		})
-		.catch(error => {
-			console.log(error);
-			console.log("Fail to POST image to server");
-		})
+			.then(res => {
+				let tempImgArr = itemData.slice();
+				tempImgArr[itemData.findIndex(x => x.title === imgTitle)]["img"] = placeholder;
+				setImageArr(tempImgArr);
+			})
+			.catch(error => {
+				console.log(error);
+				console.log("Fail to POST image to server");
+			})
 	};
 
 	return (
 		<Box className={classes.root} >
-			<ImageList sx={{ width: '100%', height: 576, maxWidth: 1552 }} rowHeight={'auto'} gap={8} cols={3} >
+			<ImageList sx={{ height: 576, maxWidth: 1552 }} rowHeight={'auto'} gap={8} cols={3} >
 				{imageArr.map((item, i) => (
 					<ImageListItem
 						key={i}

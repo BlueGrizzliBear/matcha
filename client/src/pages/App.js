@@ -53,6 +53,7 @@ class App extends Component {
       isAuth: false,
       isActivated: false,
       isProfileComplete: false,
+      isSent: false,
       user: {}
     };
     this.login = this.login.bind(this);
@@ -126,8 +127,8 @@ class App extends Component {
             <>
               <Switch>
                 <Route exact path="/" component={PublicHomepage} />
-                <Route exact push path="/login"><Login auth={this.state.isAuth} login={this.login} /></Route>
-                <Route exact push path="/register" component={Register} />
+                <Route exact push path="/login"><Login auth={this.state.isAuth} login={this.login} isSent={this.state.isSent} /></Route>
+                <Route exact push path="/register"><Register setValue={this.setValue} /></Route>
                 <ProtectedRoute path='/' component={NotFound} toRedirect="/" condition={!this.state.isAuth} />
               </Switch>
             </>

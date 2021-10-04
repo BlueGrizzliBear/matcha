@@ -8,9 +8,10 @@ import InputForm, { PasswordInputForm } from '../components/InputForm';
 function Login(props) {
 
 	// const history = useHistory();
-
+	// console.log(props);
+	// console.log(props.location.state.sent);
 	const [error, setError] = useState(false);
-	const [sent, setSent] = useState(false);
+	const [sent, setSent] = useState(props.isSent);
 	const [verification, setVerification] = useState(false);
 
 	const [values, setValues] = useState({
@@ -101,14 +102,15 @@ function Login(props) {
 				<Box component="form" noValidate={true} autoComplete="off" onSubmit={handleLogin}>
 					<InputForm disabled={verification} error={error} helperText={error && !verification && "Incorrect username or password"} label="Username" value={values.username} autoFocus={true} onChange={handleChange('username')} />
 					<PasswordInputForm
-						error={sent ? sent : error}
+						error={error}
+						sent={sent}
 						helpertext={sent ? "A link has been sent to your email" : (verification ? "Your account email is not verified" : "Incorrect username or password")}
 						filledInputProps={{
-							disabled: verification,
 							label: "Password",
 							value: values.password,
 							type: showPassword ? 'text' : 'password',
-							onChange: handleChange('password')
+							onChange: handleChange('password'),
+							disabled: verification
 						}}
 						iconButtonProps={{
 							onClick: handleClickShowPassword,

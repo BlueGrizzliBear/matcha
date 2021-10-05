@@ -71,7 +71,7 @@ class User {
 				error("Invalid bio format");
 				return;
 			}
-			else if (i == 'address' && !validators.isAlpha(set[i])) {
+			else if (i == 'address' && !validators.isAddress(set[i])) {
 				error("Invalid address format");
 				return;
 			}
@@ -133,7 +133,7 @@ class User {
 		/* Validate set and insert into database */
 		if (keyValidation == true) {
 			for (let i in set) {
-				if (i == 'bio')
+				if (i == 'bio' || i == 'address')
 					set[i] = validators.escapeHTML(set[i]);
 				if (!validators.validateKey(i, ['email', 'password', 'firstname', 'lastname', 'birth_date', 'gender', 'preference', 'bio', 'gps_long', 'gps_lat', 'address', 'location_mode'])) {
 					ret('Validation failed: Unauthorized key', null);

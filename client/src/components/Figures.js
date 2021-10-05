@@ -56,8 +56,8 @@ function Figures(props) {
 	const classes = useStyles();
 
 	const [user, setUser] = useState(props.user);
-	const locationMode = 'Manual';
-	const locationAdress = 'Lyon, France';
+	// const locationMode = 'Manual';
+	// const locationAdress = 'Lyon, France';
 
 	useEffect(() => {
 		setUser(props.user);
@@ -68,10 +68,10 @@ function Figures(props) {
 			<Stack direction="column" spacing={1}>
 				<h2 style={{ 'margin': '4px' }} >{user.firstname} {user.lastname}{user.birth_date ? ", " + calculateAge(user.birth_date) : ''}</h2>
 				<Box className={classes.FigureRoot} style={{ 'margin': '4px' }}>
-					<Tooltip title={locationMode}>
+					<Tooltip title={user.location_mode ? "Automatic" : "Manual"}>
 						<LocationOnIcon />
 					</Tooltip>
-					<Box style={{ 'marginLeft': '8px' }}>{locationAdress}</Box>
+					<Box style={{ 'marginLeft': '8px' }}>{user.address}</Box>
 				</Box>
 			</Stack>
 

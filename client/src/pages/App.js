@@ -39,7 +39,7 @@ class ProtectedRoute extends Component {
       <Route
         {...props}
         render={props => (
-          this.props.condition ? <Redirect to={this.props.toRedirect} /> : <Component {...props} />
+          this.props.condition ? <Redirect to={this.props.toRedirect} /> : <Component {...this.props} />
         )}
       />
     )
@@ -49,49 +49,52 @@ class ProtectedRoute extends Component {
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { isAuth: false, isActivated: false, isProfileComplete: false };
-    this.logout = this.logout.bind(this);
+    this.state = {
+      isAuth: false,
+      isActivated: false,
+      isProfileComplete: false,
+      user: {}
+    };
     this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
+    this.setValue = this.setValue.bind(this);
   }
 
   login() {
-    this.setState({ isAuth: true });
+    this.fetchUser();
   }
 
   logout() {
     localStorage.removeItem("token");
-    this.setState({ isAuth: false });
+    this.cleanUser();
   }
 
-  callUserIsAuth() {
-    console.log("Inside CallUserisAuth");
-    // catch the username if exist or null
+  setValue(key, value) {
+    this.setState({ [key]: value });
+  }
+
+  cleanUser() {
+    this.setState({ isAuth: false });
+    this.setState({ isActivated: false });
+    this.setState({ isProfileComplete: false });
+    this.setState({ user: {} });
+  }
+
+  fetchUser() {
     fetch("http://localhost:9000/user", {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })
-
       .then(res => {
         if (res.ok && res.status === 200) {
           return res.json().then((data) => {
             this.setState({ isAuth: data.isAuth });
             this.setState({ isActivated: data.isActivated });
             this.setState({ isProfileComplete: data.isProfileComplete });
-					})
+            this.setState({ user: data });
+          })
         }
-        // else {
-          // console.log("Username or email already exists");
-          // console.log("code: " + res.status + ", status: " + res.statusText);
-        // }
       })
-      // .then(res => res.json())
-      // .then(data => {
-      //   if (data.status === "200") {
-      //     this.setState({ isAuth: data.isAuth });
-      //     this.setState({ isActivated: data.isActivated });
-      //     this.setState({ isProfileComplete: data.isProfileComplete });
-      //   }
-      // })
       .catch(error => {
         console.log(error);
         console.log("Fail to fetch");
@@ -99,7 +102,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.callUserIsAuth();
+    this.fetchUser();
   }
 
   render() {
@@ -115,7 +118,7 @@ class App extends Component {
                 <ProtectedRoute exact path='/' component={UserHomepage} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                 <ProtectedRoute exact path='/notifications' component={Notifications} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                 <ProtectedRoute exact path='/chat' component={Chat} toRedirect="/profile" condition={!this.state.isProfileComplete} />
-                <ProtectedRoute exact path='/profile' component={Profile} />
+                <ProtectedRoute exact path='/profile' component={Profile} user={this.state.user} setValue={this.setValue} />
                 <ProtectedRoute path='/' component={NotFound} toRedirect="/profile" condition={!this.state.isProfileComplete} />
               </Switch>
             </>

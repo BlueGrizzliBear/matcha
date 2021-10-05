@@ -240,7 +240,7 @@ WHERE u.username = ?', [this.username], async (error, results, fields) => {
 					}
 					else {
 						this.profileIsComplete((picerr, picres) => {
-							ret(null, results);
+							ret(null, (picerr === null));
 						});
 					}
 				});
@@ -267,10 +267,11 @@ WHERE u.username = ?', [this.username], async (error, results, fields) => {
 						else {
 							if (key == "img0_path") {
 								this.profileIsComplete((picerr, picres) => {
-									ret(null, results);
+									ret(null, (picerr === null));
 								});
 							}
-							ret(null, results);
+							else
+								ret(null, false);
 						}
 					});
 				}

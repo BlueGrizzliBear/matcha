@@ -3,11 +3,11 @@ import { Button, Box } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import InputForm, { PasswordInputForm } from '../components/InputForm';
 
-import { useHistory } from "react-router-dom";
+// import { useHistory } from "react-router-dom";
 
 function Login(props) {
 
-	const history = useHistory();
+	// const history = useHistory();
 
 	const [error, setError] = useState(false);
 
@@ -34,7 +34,7 @@ function Login(props) {
 					return res.json().then((data) => {
 						localStorage.setItem("token", data.token);
 						props.login();
-						history.push(`/`);
+						// history.push(`/`);
 					})
 				}
 				else if (res.status === 403) {

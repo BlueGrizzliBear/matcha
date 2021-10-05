@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
 		flexWrap: 'wrap',
 		justifyContent: 'space-around',
 		overflow: 'hidden',
+		'@media screen and (min-width: 804px)': {
+			margin: '0px 18px',
+		}
 	},
 }));
 
@@ -49,7 +52,7 @@ const itemData = [
 	},
 ]
 
-function ImageGallery() {
+function ImageGallery(props) {
 
 	const classes = useStyles();
 	const [imageArr, setImageArr] = useState(itemData);
@@ -63,7 +66,7 @@ function ImageGallery() {
 			// Error handling if not any success code
 			.then(res => {
 				if (!res.ok)
-					throw new Error('Reques: did not receive success code between 200-299.');
+					throw new Error('Request: did not receive success code between 200-299.');
 				return res.blob();
 			})
 			.then(res => {
@@ -110,6 +113,7 @@ function ImageGallery() {
 			})
 				.then(res => res.json())
 				.then(res => {
+					props.setValue('isProfileComplete', res.isProfileComplete);
 					fetchImage('http://localhost:9000/upload/' + res.image, e.target.title);
 				})
 				.catch(error => {
@@ -125,20 +129,21 @@ function ImageGallery() {
 			method: 'DELETE',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
-		.then(res => {
-			let tempImgArr = itemData.slice();
-			tempImgArr[itemData.findIndex(x => x.title === imgTitle)]["img"] = placeholder;
-			setImageArr(tempImgArr);
-		})
-		.catch(error => {
-			console.log(error);
-			console.log("Fail to POST image to server");
-		})
+			.then(res => {
+				props.setValue('isProfileComplete', res.isProfileComplete);
+				let tempImgArr = itemData.slice();
+				tempImgArr[itemData.findIndex(x => x.title === imgTitle)]["img"] = placeholder;
+				setImageArr(tempImgArr);
+			})
+			.catch(error => {
+				console.log(error);
+				console.log("Fail to POST image to server");
+			})
 	};
 
 	return (
 		<Box className={classes.root} >
-			<ImageList sx={{ width: '100%', height: 576, maxWidth: 1552 }} rowHeight={'auto'} gap={8} cols={3} >
+			<ImageList sx={{ height: 576, maxWidth: 1552 }} rowHeight={'auto'} gap={8} cols={3} >
 				{imageArr.map((item, i) => (
 					<ImageListItem
 						key={i}

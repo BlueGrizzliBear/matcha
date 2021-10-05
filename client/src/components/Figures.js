@@ -80,7 +80,6 @@ function Figures(props) {
 				<h2 style={{ 'margin': '4px', 'textAlign': 'left', 'paddingLeft': '8px' }} >{user.firstname} {user.lastname}{user.birth_date ? ", " + calculateAge(user.birth_date) : ''}</h2>
 				<Box className={classes.FigureRoot} style={{ 'margin': '4px' }}>
 					<Tooltip title={user.location_mode ? "Automatic" : "Manual"}>
-						{/* <LocationOnIcon /> */}
 						<IconButton sx={{ 'padding': '2px 8px' }} aria-label="Activate/Desactive Automatic Location" color={user.location_mode ? "primary" : "inherit"} clickable="true" onClick={handleLocation}>
 							<LocationOnIcon />
 						</IconButton>

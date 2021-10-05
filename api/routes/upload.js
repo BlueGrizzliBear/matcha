@@ -35,8 +35,12 @@ router.post('/', checkToken, function (req, res, next) {
                         console.log(error);
                         res.status(400).end();
                     }
-                    else
-                        res.status(200).json({ image: req.file.filename }).end();
+                    else {
+                        res.status(200).json({
+                            image: req.file.filename,
+                            isProfileComplete: results
+                        }).end();
+                    }
                 });
             }
         });
@@ -64,7 +68,9 @@ router.delete('/', checkToken, function (req, res, next) {
                 res.status(400).end();
             }
             else
-                res.status(200).end();
+                res.status(200).json({
+                    isProfileComplete: results
+                }).end();
         });
     }
 })

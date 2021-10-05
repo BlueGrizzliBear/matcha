@@ -52,7 +52,7 @@ const itemData = [
 	},
 ]
 
-function ImageGallery() {
+function ImageGallery(props) {
 
 	const classes = useStyles();
 	const [imageArr, setImageArr] = useState(itemData);
@@ -66,7 +66,7 @@ function ImageGallery() {
 			// Error handling if not any success code
 			.then(res => {
 				if (!res.ok)
-					throw new Error('Reques: did not receive success code between 200-299.');
+					throw new Error('Request: did not receive success code between 200-299.');
 				return res.blob();
 			})
 			.then(res => {
@@ -113,6 +113,7 @@ function ImageGallery() {
 			})
 				.then(res => res.json())
 				.then(res => {
+					props.setValue('isProfileComplete', res.isProfileComplete);
 					fetchImage('http://localhost:9000/upload/' + res.image, e.target.title);
 				})
 				.catch(error => {
@@ -129,6 +130,7 @@ function ImageGallery() {
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
 			.then(res => {
+				props.setValue('isProfileComplete', res.isProfileComplete);
 				let tempImgArr = itemData.slice();
 				tempImgArr[itemData.findIndex(x => x.title === imgTitle)]["img"] = placeholder;
 				setImageArr(tempImgArr);

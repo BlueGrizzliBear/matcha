@@ -55,22 +55,32 @@ class App extends Component {
       isProfileComplete: false,
       user: {}
     };
-    this.logout = this.logout.bind(this);
     this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
+    this.setValue = this.setValue.bind(this);
   }
 
   login() {
-    this.dataFetch();
-    return (<Redirect to={"/"} />);
+    this.fetchUser();
   }
 
   logout() {
     localStorage.removeItem("token");
-    this.setState({ isAuth: false });
-    return (<Redirect to={"/"} />);
+    this.cleanUser();
   }
 
-  dataFetch() {
+  setValue(key, value) {
+    this.setState({ [key]: value });
+  }
+
+  cleanUser() {
+    this.setState({ isAuth: false });
+    this.setState({ isActivated: false });
+    this.setState({ isProfileComplete: false });
+    this.setState({ user: {} });
+  }
+
+  fetchUser() {
     fetch("http://localhost:9000/user", {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
@@ -92,7 +102,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.dataFetch();
+    this.fetchUser();
   }
 
   render() {
@@ -108,7 +118,7 @@ class App extends Component {
                 <ProtectedRoute exact path='/' component={UserHomepage} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                 <ProtectedRoute exact path='/notifications' component={Notifications} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                 <ProtectedRoute exact path='/chat' component={Chat} toRedirect="/profile" condition={!this.state.isProfileComplete} />
-                <ProtectedRoute exact path='/profile' component={Profile} user={this.state.user} />
+                <ProtectedRoute exact path='/profile' component={Profile} user={this.state.user} setValue={this.setValue} />
                 <ProtectedRoute path='/' component={NotFound} toRedirect="/profile" condition={!this.state.isProfileComplete} />
               </Switch>
             </>

@@ -13,6 +13,10 @@ function Profile(props) {
 
 	// const classes = useStyles();
 
+	// console.log(props.match);
+	if (props.match && props.match.params)
+		console.log(props.match.params.username);
+
 	return (
 		<>
 			<Figures {...props} />

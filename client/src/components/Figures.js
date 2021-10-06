@@ -33,8 +33,11 @@ function Figures(props) {
 	const classes = useStyles();
 
 	const [user, setUser] = useState(props.user);
+	const [editable, setEditable] = useState(false);
 
 	useEffect(() => {
+		if (props.user.isAuth === true)
+			setEditable(true);
 		setUser(props.user);
 	}, [props.user]);
 
@@ -71,7 +74,6 @@ function Figures(props) {
 			.catch(() => {
 				console.log("Fail to register user to server");
 			})
-
 	}
 
 	return (
@@ -84,7 +86,7 @@ function Figures(props) {
 							<LocationOnIcon />
 						</IconButton>
 					</Tooltip>
-					<Box style={{ 'marginLeft': '8px' }}>{user.address}</Box>
+					<Box>{user.address}</Box>
 				</Box>
 			</Stack>
 			<Stack direction="row" spacing={2} justifyContent='flex-start' alignItems="center">

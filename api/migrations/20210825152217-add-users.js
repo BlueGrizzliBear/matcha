@@ -51,9 +51,6 @@ exports.up = function (db) {
       notNull: true
     },
     bio: 'string',
-    img0_path: {
-      type: 'string'
-    },
     gps_long: {
       type: 'decimal',
     },
@@ -67,6 +64,9 @@ exports.up = function (db) {
       type: 'boolean',
       defaultValue: false,
       notNull: true
+    },
+    img0_path: {
+      type: 'string'
     },
     img1_path: {
       type: 'string'

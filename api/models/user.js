@@ -257,7 +257,7 @@ WHERE u.username = ?', [this.username], async (error, results, fields) => {
 			}
 			else {
 				if (res[0][Object.keys(res[0])[0]]) {
-					deleteImage("user_images/" + res[0][Object.keys(res[0])[0]]);
+					deleteImage("user_images/" + res[0][Object.keys(res[0])[0]].substring("http://localhost:9000/upload/".length));
 					connection.query('UPDATE users SET ?? = NULL WHERE username = ?', [key, this.username], async (error, results, fields) => {
 						if (error) {
 							console.log("Error connecting with database");

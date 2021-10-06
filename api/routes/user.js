@@ -73,7 +73,7 @@ router.post('/', checkToken, function (req, res, next) {
           address: results[0].address,
           location_mode: results[0].location_mode,
           images: {
-            profile: results[0].img0_path,
+            img0: results[0].img0_path,
             img1: results[0].img1_path,
             img2: results[0].img2_path,
             img3: results[0].img3_path,
@@ -214,7 +214,7 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
                   preference: results[0].preference,
                   bio: results[0].bio,
                   images: {
-                    profile: results[0].img0_path,
+                    img0: results[0].img0_path,
                     img1: results[0].img1_path,
                     img2: results[0].img2_path,
                     img3: results[0].img3_path,

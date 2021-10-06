@@ -10,14 +10,15 @@ import '../assets/stylesheets/Components.css';
 import { ReactComponent as ProfileIcon } from "../assets/images/profile.svg";
 import { ReactComponent as LogoutIcon } from "../assets/images/logout.svg";
 
+import { useHistory } from "react-router-dom";
+
 function NavBar(props) {
 
-  // const history = useHistory();
+  const history = useHistory();
 
   const handleLogout = () => {
     props.logout();
-    // let path = `/`; 
-    // history.push(path);
+    history.push(`/`);
   }
 
   return (

@@ -13,7 +13,7 @@ const watchedUser = function (req, res, next) {
             const watch = new Models.Watch(res.locals.results.id, results[0].id);
             watch.create((watcherr, watchres) => {
                 if (watcherr) {
-                    console.log(watcherr);
+                    // console.log(watcherr);
                     next();
                 }
                 else {

@@ -58,10 +58,10 @@ function ImageGallery(props) {
 	const [imageArr, setImageArr] = useState(itemData);
 	const inputFile = useRef(itemData.map(() => React.createRef()));
 
-	const fetchImage = (path, tag) => {
+	const fetchImage = (path, tag, link) => {
 		fetch(path, {
 			method: 'GET',
-			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+			headers: (link ? {} : { 'Authorization': "Bearer " + localStorage.getItem("token") }),
 		})
 			// Error handling if not any success code
 			.then(res => {
@@ -71,7 +71,7 @@ function ImageGallery(props) {
 			})
 			.then(res => {
 				let tempImgArr = itemData.slice();
-				tempImgArr[itemData.findIndex(x => x.title === tag)]["img"] = URL.createObjectURL(res);
+				tempImgArr[itemData.findIndex(x => x.title === tag)]['img'] = URL.createObjectURL(res);
 				setImageArr(tempImgArr);
 			})
 			// Error handling if not any success code
@@ -82,7 +82,7 @@ function ImageGallery(props) {
 	}
 
 	useEffect(() => {
-		fetch('http://localhost:9000/user', {
+		fetch('http://localhost:9000/user/' + (props.user ? props.user.username : ''), {
 			method: 'GET',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
@@ -90,7 +90,12 @@ function ImageGallery(props) {
 			.then(data => {
 				for (let tag in data.images) {
 					if (data.images[tag]) {
-						fetchImage('http://localhost:9000/upload/' + data.images[tag], tag);
+						if (data.images[tag].substring(0, 4) === 'http') {
+							console.log(data.images[tag]);
+							fetchImage(data.images[tag], tag, true);
+						}
+						else
+							fetchImage('http://localhost:9000/upload/' + data.images[tag], tag, false);
 					}
 				}
 			})
@@ -99,7 +104,7 @@ function ImageGallery(props) {
 				console.log("Fail to GET user from server");
 			})
 		// .then(setisLoading(false));
-	}, []);
+	}, [props.computedMatch]);
 
 	const handleFileUpload = (e) => {
 		const { files } = e.target;

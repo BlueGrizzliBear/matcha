@@ -62,8 +62,14 @@ const isJWT = function (value) {
 	return false;
 }
 
+const isAddress = function (value) {
+	if (regexMatch(value, /^.+\, .+$/))
+		return true;
+	return false;
+}
+
 const isBool = function (value) {
-	if (value === 1 || value === 0)
+	if (value == 1 || value == 0)
 		return true;
 	return false;
 }
@@ -106,5 +112,6 @@ module.exports = {
 	isImageKey,
 	validateKey,
 	isDate,
-	escapeHTML
+	escapeHTML,
+	isAddress
 };

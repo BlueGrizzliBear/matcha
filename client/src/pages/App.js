@@ -11,11 +11,10 @@ import PublicHomepage from './PublicHomepage';
 import Login from './Login';
 import Register from './Register';
 import NavBar from '../components/NavBar';
+import Loading from '../components/Loading'
 
-import ReactLoading from 'react-loading';
 // import { sleep } from '../utility/utilities'
 
-import { Box } from '@mui/material';
 
 function Status({ code, children }) {
   return (
@@ -28,18 +27,18 @@ function Status({ code, children }) {
   );
 }
 
-function Loading() {
-  return (
-    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-      <ReactLoading
-        type={"spinningBubbles"}
-        color={"#ffffff"}
-        height={100}
-        width={100}
-      />
-    </Box>
-  );
-}
+// function Loading() {
+//   return (
+//     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+//       <ReactLoading
+//         type={"spinningBubbles"}
+//         color={"#ffffff"}
+//         height={100}
+//         width={100}
+//       />
+//     </Box>
+//   );
+// }
 
 function NotFound() {
   return (
@@ -53,10 +52,10 @@ class ProtectedRoute extends Component {
   render() {
     const { component: Component, ...props } = this.props
 
-    console.log("GOING TO ");
-    console.log(this.props.path);
-    console.log("Inside protected route");
-    console.log(this.props.toRedirect);
+    // console.log("GOING TO ");
+    // console.log(this.props.path);
+    // console.log("Inside protected route");
+    // console.log(this.props.toRedirect);
 
     return (
       <Route
@@ -145,10 +144,10 @@ class App extends Component {
         .catch(error => {
           console.log(error);
           console.log("Fail to fetch");
+          localStorage.removeItem("token");
+          this.setState({ isLoading: false, hasToken: null });
         })
-
     });
-    console.log("End off fetchUser");
   }
 
   componentDidMount() {
@@ -173,8 +172,8 @@ class App extends Component {
                   <ProtectedRoute exact path='/' component={UserHomepage} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute exact path='/notifications' component={Notifications} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute exact path='/chat' component={Chat} toRedirect="/profile" condition={!this.state.isProfileComplete} />
-                  <ProtectedRoute exact path='/profile' component={Profile} user={this.state.user} setValue={this.setValue} />
-                  <ProtectedRoute exact path='/profile/:username' component={Profile} toRedirect="/profile" condition={!this.state.isProfileComplete} />
+                  <ProtectedRoute exact path='/profile' component={Profile} setValue={this.setValue} />
+                  <ProtectedRoute path='/profile/:username' component={Profile} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute path='/' component={NotFound} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                 </Switch>
               </>

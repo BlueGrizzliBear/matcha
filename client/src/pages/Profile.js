@@ -1,30 +1,65 @@
+import React from 'react';
+import { useState, useEffect } from 'react';
+
+import { useHistory } from "react-router-dom";
+
 import Figures from '../components/Figures'
 import ImageGallery from '../components/ImageGallery'
 import Interests from '../components/Interests'
 import Biography from '../components/Biography'
 import Gender from '../components/Gender'
 import SexualPreferences from '../components/SexualPreferences'
+import Loading from '../components/Loading'
 
-// const useStyles = makeStyles((theme) => ({
-
-// }));
 
 function Profile(props) {
 
-	// const classes = useStyles();
+	const history = useHistory();
+	const [user, setUser] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
-	// console.log(props.match);
-	if (props.match && props.match.params)
-		console.log(props.match.params.username);
+	useEffect(() => {
+		setIsLoading(true);
+		fetch("http://localhost:9000/user/" + (props.path === '/profile' ? '' : props.computedMatch.params.username), {
+			method: 'GET',
+			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+		})
+			.then(res => {
+				if (res.ok && res.status === 200) {
+					return res.json().then((data) => {
+						setUser(data);
+						setIsLoading(false);
+					})
+				}
+				else {
+					localStorage.removeItem("token");
+					setIsLoading(false);
+					history.push(`/`);
+				}
+			})
+			.catch(error => {
+				console.log(error);
+				console.log("Fail to fetch");
+				setIsLoading(false);
+				history.push(`/`);
+			})
+	}, [props.path, props.computedMatch, history]);
 
 	return (
 		<>
-			<Figures {...props} />
-			<ImageGallery {...props} />
-			<Interests />
-			<Biography />
-			<Gender />
-			<SexualPreferences />
+			{
+				isLoading === true ?
+					Loading()
+					:
+					<>
+						<Figures {...props} user={user} />
+						<ImageGallery {...props} user={user} />
+						<Interests />
+						<Biography />
+						<Gender />
+						<SexualPreferences />
+					</>
+			}
 		</>
 	);
 }

@@ -29,7 +29,7 @@ router.post('/', checkToken, function (req, res, next) {
             }
             else {
                 const user = new Models.User(res.locals.results.id, res.locals.results.username);
-                user.updateImage(req.query.img + '_path', "http://localhost:9000/upload/" + req.file.filename, (error, results) => {
+                user.updateImage(req.query.img + '_path', "http://" + req.get('host') + "/upload/" + req.file.filename, (error, results) => {
                     if (error) {
                         console.log("Error on updating image");
                         console.log(error);
@@ -61,7 +61,7 @@ router.delete('/', checkToken, function (req, res, next) {
         res.status(400).end();
     else {
         const user = new Models.User(res.locals.results.id, res.locals.results.username);
-        user.deleteImage(req.query.img + '_path', (error, results) => {
+        user.deleteImage(req.query.img + '_path', req, (error, results) => {
             if (error) {
                 console.log("Error on updating image");
                 console.log(error);

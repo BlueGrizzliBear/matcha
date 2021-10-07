@@ -25,7 +25,8 @@ router.get('/', checkToken, function (req, res, next) {
       long: res.locals.results.gps_long,
       lat: res.locals.results.gps_lat
     },
-    address: res.locals.results.address,
+    city: res.locals.results.city,
+    country: res.locals.results.country,
     location_mode: res.locals.results.location_mode,
     images: {
       img0: res.locals.results.img0_path,
@@ -35,7 +36,8 @@ router.get('/', checkToken, function (req, res, next) {
       img4: res.locals.results.img4_path
     },
     likes: res.locals.results.likes,
-    watches: res.locals.results.watches
+    watches: res.locals.results.watches,
+    fake: res.locals.results.fake
   }).end();
 });
 
@@ -69,7 +71,8 @@ router.post('/', checkToken, function (req, res, next) {
             long: results[0].gps_long,
             lat: results[0].gps_lat
           },
-          address: results[0].address,
+          city: results[0].city,
+          country: results[0].country,
           location_mode: results[0].location_mode,
           images: {
             img0: results[0].img0_path,
@@ -79,7 +82,8 @@ router.post('/', checkToken, function (req, res, next) {
             img4: results[0].img4_path
           },
           likes: results[0].likes,
-          watches: results[0].watches
+          watches: results[0].watches,
+          fake: results[0].fake
         }).end();
       });
     }
@@ -212,6 +216,8 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
                   gender: results[0].gender,
                   preference: results[0].preference,
                   bio: results[0].bio,
+                  city: results[0].city,
+                  country: results[0].country,
                   images: {
                     img0: results[0].img0_path,
                     img1: results[0].img1_path,
@@ -222,7 +228,8 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
                   likes: results[0].likes,
                   liking: likeres,
                   watches: results[0].watches,
-                  blocked: blockres
+                  blocked: blockres,
+                  fake: results[0].fake
                 }).end();
               }
             }

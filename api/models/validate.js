@@ -36,14 +36,14 @@ const isDate = function (value) {
 	return false;
 }
 
-// const isGender = function (value) {
-// 	if (set[i] === "Male" || set[i] === 'Female' || set[i] === 'Other')
-// 		return true;
-// 	return false;
-// }
+const isGender = function (value) {
+	if (set[i] === "Male" || set[i] === 'Female' || set[i] === 'Non-binary')
+		return true;
+	return false;
+}
 
 const isPreference = function (value) {
-	if (set[i] === "Male" || set[i] === 'Female' || set[i] === 'Both')
+	if (set[i] === "Heterosexual" || set[i] === 'Gay' || set[i] === 'Bisexual')
 		return true;
 	return false;
 }
@@ -63,7 +63,7 @@ const isJWT = function (value) {
 }
 
 const isAddress = function (value) {
-	if (regexMatch(value, /^.+\, .+$/))
+	if (regexMatch(value, /^[a-zA-Z'-éèêëēėęÿûüùúūîïíīįìôöòóœøōõ:àáâäæãåāßśšłžźżçćčñń.;, &]+$/))
 		return true;
 	return false;
 }
@@ -113,5 +113,7 @@ module.exports = {
 	validateKey,
 	isDate,
 	escapeHTML,
-	isAddress
+	isAddress,
+	isGender,
+	isPreference
 };

@@ -57,7 +57,10 @@ exports.up = function (db) {
     gps_lat: {
       type: 'decimal',
     },
-    address: {
+    city: {
+      type: 'string',
+    },
+    country: {
       type: 'string',
     },
     location_mode: {
@@ -86,6 +89,11 @@ exports.up = function (db) {
       notNull: true
     },
     complete: {
+      type: 'boolean',
+      defaultValue: false,
+      notNull: true
+    },
+    fake: {
       type: 'boolean',
       defaultValue: false,
       notNull: true

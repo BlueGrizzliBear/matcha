@@ -9,7 +9,7 @@ function isProfileComplete(results) {
 	return false;
 }
 
-function deleteImage(path) {
+function unlinkImage(path) {
 	fs.unlink(path, (err => {
 		if (err) console.log(err);
 		// else
@@ -59,7 +59,7 @@ class User {
 				error("Invalid date format");
 				return;
 			}
-			else if (i == 'gender' && !validators.isAlpha(set[i])) {
+			else if (i == 'gender' && !validators.isGender(set[i])) {
 				error("Invalid gender format");
 				return;
 			}
@@ -71,8 +71,12 @@ class User {
 				error("Invalid bio format");
 				return;
 			}
-			else if (i == 'address' && !validators.isAddress(set[i])) {
-				error("Invalid address format");
+			else if (i == 'city' && !validators.isAddress(set[i])) {
+				error("Invalid city format");
+				return;
+			}
+			else if (i == 'country' && !validators.isAddress(set[i])) {
+				error("Invalid country format");
 				return;
 			}
 			else if ((i == 'gps_long' || i == 'gps_lat') && !Number.isFinite(set[i])) {
@@ -133,9 +137,9 @@ class User {
 		/* Validate set and insert into database */
 		if (keyValidation == true) {
 			for (let i in set) {
-				if (i == 'bio' || i == 'address')
+				if (i == 'bio')
 					set[i] = validators.escapeHTML(set[i]);
-				if (!validators.validateKey(i, ['email', 'password', 'firstname', 'lastname', 'birth_date', 'gender', 'preference', 'bio', 'gps_long', 'gps_lat', 'address', 'location_mode'])) {
+				if (!validators.validateKey(i, ['email', 'password', 'firstname', 'lastname', 'birth_date', 'gender', 'preference', 'bio', 'gps_long', 'gps_lat', 'city', 'country', 'location_mode'])) {
 					ret('Validation failed: Unauthorized key', null);
 					return;
 				}
@@ -225,17 +229,17 @@ WHERE u.username = ?', [this.username], async (error, results, fields) => {
 		this.findKey(key, (err, res) => {
 			if (err) {
 				console.log("Error on finding user image");
-				deleteImage("user_images/" + newfilename);
+				unlinkImage("user_images/" + newfilename);
 				ret(err, null);
 			}
 			else {
 				if (res[0][Object.keys(res[0])[0]]) {
-					deleteImage("user_images/" + res[0][Object.keys(res[0])[0]]);
+					unlinkImage("user_images/" + res[0][Object.keys(res[0])[0]]);
 				}
 				connection.query('UPDATE users SET ?? = ? WHERE username = ?', [key, newfilename, this.username], async (error, results, fields) => {
 					if (error) {
 						console.log("Error in updating user image");
-						deleteImage("user_images/" + newfilename);
+						unlinkImage("user_images/" + newfilename);
 						ret(error, null);
 					}
 					else {
@@ -248,7 +252,7 @@ WHERE u.username = ?', [this.username], async (error, results, fields) => {
 		});
 	}
 
-	deleteImage(key, ret) {
+	deleteImage(key, req, ret) {
 		connection.query('SELECT ?? FROM users WHERE username = ?', [key, this.username], async (err, res, fields) => {
 			if (err) {
 				console.log("Error connecting with database");
@@ -257,7 +261,7 @@ WHERE u.username = ?', [this.username], async (error, results, fields) => {
 			}
 			else {
 				if (res[0][Object.keys(res[0])[0]]) {
-					deleteImage("user_images/" + res[0][Object.keys(res[0])[0]].substring("http://localhost:9000/upload/".length));
+					unlinkImage("user_images/" + res[0][Object.keys(res[0])[0]].substring(("http://" + req.get('host') + "/upload/").length));
 					connection.query('UPDATE users SET ?? = NULL WHERE username = ?', [key, this.username], async (error, results, fields) => {
 						if (error) {
 							console.log("Error connecting with database");

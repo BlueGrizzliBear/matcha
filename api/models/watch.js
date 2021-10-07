@@ -37,16 +37,21 @@ class Watch {
 	};
 
 	create(ret) {
-		connection.query('INSERT INTO watches SET ?', [{ watching_user_id: this.watching_user_id, watched_user_id: this.watched_user_id }], async (error, results, fields) => {
-			if (error) {
-				console.log("Error occured on watch creation inside model");
-				ret(error, results);
-			}
-			else {
-				// console.log("Watch registered sucessfully inside model");
-				ret(error, results);
-			}
-		});
+		if (this.watching_user_id != this.watched_user_id) {
+			connection.query('INSERT INTO watches SET ?', [{ watching_user_id: this.watching_user_id, watched_user_id: this.watched_user_id }], async (error, results, fields) => {
+				if (error) {
+					console.log("Error occured on watch creation inside model");
+					ret(error, results);
+				}
+				else {
+					// console.log("Watch registered sucessfully inside model");
+					ret(error, results);
+				}
+			});
+		}
+		else {
+			ret("Can't watch own page", null);
+		}
 	};
 
 	find(ret) {

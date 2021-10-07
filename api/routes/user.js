@@ -1,8 +1,10 @@
+var fetch = require('cross-fetch');
 var express = require('express');
 var router = express.Router();
 var checkToken = require('../middleware/token');
 var watchedUser = require('../middleware/watch');
 var Models = require('../models/models');
+const connection = require('../config/db');
 const websocket = require('../websockets/websocket.js');
 
 /* GET /user - Send user profile informations */
@@ -175,6 +177,40 @@ router.get('/:username/unlike', checkToken, function (req, res, next) {
   });
 });
 
+const fetchProfileImageURL = function (results, user, ret) {
+  if (results.fake && results.img0_path === null) {
+    let path = 'https://source.unsplash.com/featured/?' + (results.gender === 'Male' ? 'man' : (results.gender === 'Female' ? 'woman' : 'nonbinary'));
+    fetch(path, {
+      method: 'GET',
+    })
+      .then(res => {
+        if (!res.ok)
+          throw new Error('Request: did not receive success code between 200-299.');
+        console.log(res.url)
+        console.log(user.getUsername())
+        connection.query('UPDATE users SET img0_path = ? WHERE username = ?', [res.url, user.getUsername()], async (uperr, upres, fields) => {
+          if (uperr) {
+            console.log(uperr)
+            console.log("Error in updating user image");
+            ret(results.img0_path);
+          }
+          else {
+            console.log("Je suis ici");
+            ret(res.url);
+          }
+        });
+      })
+      .catch(error => {
+        console.log(error);
+        console.log("Fail to GET image from unsplash");
+        ret(results.img0_path);
+      })
+  }
+  else {
+    ret(results.img0_path);
+  }
+}
+
 /* GET /user/username - Send username profile informations */
 router.get('/:username', checkToken, watchedUser, function (req, res, next) {
   const user = new Models.User(null, req.params['username']);
@@ -203,34 +239,38 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
                 res.status(200).json({ blocked: blockres }).end();
               else {
                 websocket.sendNotification(results[0].id, 3);
-                res.status(200).json({
-                  status: "200",
-                  isProfileComplete: results[0].complete,
-                  id: results[0].id,
-                  username: results[0].username,
-                  email: results[0].email,
-                  firstname: results[0].firstname,
-                  lastname: results[0].lastname,
-                  birth_date: results[0].birth_date,
-                  isActivated: results[0].activated,
-                  gender: results[0].gender,
-                  preference: results[0].preference,
-                  bio: results[0].bio,
-                  city: results[0].city,
-                  country: results[0].country,
-                  images: {
-                    img0: results[0].img0_path,
-                    img1: results[0].img1_path,
-                    img2: results[0].img2_path,
-                    img3: results[0].img3_path,
-                    img4: results[0].img4_path
-                  },
-                  likes: results[0].likes,
-                  liking: likeres,
-                  watches: results[0].watches,
-                  blocked: blockres,
-                  fake: results[0].fake
-                }).end();
+                fetchProfileImageURL(results[0], user, (imageUrl) => {
+                  if (imageUrl)
+                    results[0].img0_path = imageUrl;
+                  res.status(200).json({
+                    status: "200",
+                    isProfileComplete: results[0].complete,
+                    id: results[0].id,
+                    username: results[0].username,
+                    email: results[0].email,
+                    firstname: results[0].firstname,
+                    lastname: results[0].lastname,
+                    birth_date: results[0].birth_date,
+                    isActivated: results[0].activated,
+                    gender: results[0].gender,
+                    preference: results[0].preference,
+                    bio: results[0].bio,
+                    city: results[0].city,
+                    country: results[0].country,
+                    images: {
+                      img0: results[0].img0_path,
+                      img1: results[0].img1_path,
+                      img2: results[0].img2_path,
+                      img3: results[0].img3_path,
+                      img4: results[0].img4_path
+                    },
+                    likes: results[0].likes,
+                    liking: likeres,
+                    watches: results[0].watches,
+                    blocked: blockres,
+                    fake: results[0].fake
+                  }).end();
+                });
               }
             }
           });

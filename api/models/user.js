@@ -67,10 +67,10 @@ class User {
 				error("Invalid preference format");
 				return;
 			}
-			else if (i == 'bio' && !validators.isAlpha(set[i])) {
-				error("Invalid bio format");
-				return;
-			}
+			// else if (i == 'bio' && !validators.isAlpha(set[i])) {
+			// 	error("Invalid bio format");
+			// 	return;
+			// }
 			else if (i == 'city' && !validators.isAddress(set[i])) {
 				error("Invalid city format");
 				return;

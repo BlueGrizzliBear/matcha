@@ -41,17 +41,13 @@ function Figures(props) {
 		setUser(props.user);
 	}, [props.user]);
 
-	const changeAdress = (locationMode) => {
+	const changeAddress = (locationMode, tag) => {
 		if (locationMode === true)
-			return ("Ecully, France");
-		return ("Lyon 7eme, France");
+			return (tag === 'city' ? 'Ecully' : 'France');
+		return (tag === 'country' ? 'France' : 'Lyon');
 	}
 
 	const handleLocation = (e) => {
-		// console.log(typeof user.location_mode);
-		// console.log(user.location_mode);
-		// console.log(!user.location_mode);
-
 		fetch('http://localhost:9000/user', {
 			method: 'POST',
 			headers: {
@@ -60,7 +56,8 @@ function Figures(props) {
 			},
 			body: JSON.stringify({
 				location_mode: !user.location_mode,
-				address: changeAdress(!user.location_mode)
+				city: changeAddress(!user.location_mode, 'city'),
+				country: changeAddress(!user.location_modem, 'country')
 			})
 		})
 			.then(res => {
@@ -88,7 +85,7 @@ function Figures(props) {
 								<LocationOnIcon />
 							</IconButton>
 						</Tooltip>
-						<Box>{user.address}</Box>
+						<Box>{user.city}, {user.country}</Box>
 					</Box>
 				</Stack>
 				<Stack direction="row" spacing={2} justifyContent='flex-start' alignItems="center">

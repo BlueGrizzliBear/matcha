@@ -6,10 +6,6 @@ import { Box, ImageList, ImageListItem, ImageListItemBar } from '@mui/material';
 import OptionButton from '../components/OptionButton'
 
 import placeholder from '../assets/images/no_img.svg';
-// import selfy from '../assets/images/selfy_example.jpg';
-// import selfy2 from '../assets/images/selfy2_example.jpg';
-// import selfy3 from '../assets/images/selfy3_example.jpg';
-// import selfy4 from '../assets/images/selfy4_example.jpg';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -93,19 +89,14 @@ function ImageGallery(props) {
 			.then(data => {
 				for (let tag in data.images) {
 					if (data.images[tag]) {
-						if (data.username !== 'clem') {
-							console.log(data.images[tag]);
-							fetchImage(data.images[tag], tag, true, mounted);
-						}
-						else
-							fetchImage(data.images[tag], tag, false, mounted);
+						fetchImage(data.images[tag], tag, false, mounted);
 					}
 					else {
 						if (mounted) {
 							let tempImgArr = itemData.slice();
 							tempImgArr[itemData.findIndex(x => x.title === tag)]['img'] = placeholder;
 							setImageArr(tempImgArr);
-						}		
+						}
 					}
 				}
 			})
@@ -144,7 +135,6 @@ function ImageGallery(props) {
 	};
 
 	const handleFileDelete = (imgTitle) => {
-		console.log(imgTitle);
 		fetch('http://localhost:9000/upload?img=' + imgTitle, {
 			method: 'DELETE',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },

@@ -50,7 +50,6 @@ exports.up = function (db) {
       defaultValue: "Bisexual",
       notNull: true
     },
-    bio: 'string',
     gps_long: {
       type: 'decimal',
     },
@@ -68,21 +67,6 @@ exports.up = function (db) {
       defaultValue: false,
       notNull: true
     },
-    img0_path: {
-      type: 'string'
-    },
-    img1_path: {
-      type: 'string'
-    },
-    img2_path: {
-      type: 'string'
-    },
-    img3_path: {
-      type: 'string'
-    },
-    img4_path: {
-      type: 'string'
-    },
     activated: {
       type: 'boolean',
       defaultValue: false,
@@ -98,7 +82,19 @@ exports.up = function (db) {
       defaultValue: false,
       notNull: true
     },
-  });
+  })
+    .then(
+      function (result) {
+        return db.runSql('ALTER TABLE users ADD COLUMN bio LONGTEXT, ADD COLUMN img0_path LONGTEXT, ADD COLUMN img1_path LONGTEXT, ADD COLUMN img2_path LONGTEXT, ADD COLUMN img3_path LONGTEXT, ADD COLUMN img4_path LONGTEXT',
+          (err) => {
+            if (err)
+              console.log(err);
+          });
+      },
+      function (err) {
+        return;
+      }
+    );
 };
 
 exports.down = function (db) {

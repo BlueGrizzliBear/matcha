@@ -29,6 +29,34 @@
   content: url(../images/short_logo.svg);
 }
 
+@keyframes heartbeat
+{
+  0%
+  {
+    transform: scale( 1 );
+  }
+  20%
+  {
+    transform: scale( 1.125 );
+  }
+  40%
+  {
+    transform: scale( 1 );
+  }
+  60%
+  {
+    transform: scale( 1.125 );
+  }
+  80%
+  {
+    transform: scale( 1 );
+  }
+  100%
+  {
+    transform: scale( 1 );
+  }
+}
+
 /* At the top level of your code */
 @media screen and (min-width: 768px) {
   #NavBar {

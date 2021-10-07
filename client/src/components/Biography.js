@@ -16,7 +16,7 @@ function Biography() {
 
   return (
     <Box className={classes.root}>
-      <p>Biography</p>
+      <h3>Biography</h3>
     </Box>
   );
 }

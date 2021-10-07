@@ -16,7 +16,7 @@ function Gender() {
 
   return (
     <Box className={classes.root}>
-      <p>Gender</p>
+      <h3>Gender</h3>
     </Box>
   );
 }

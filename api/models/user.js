@@ -174,21 +174,32 @@ class User {
 				ret('Validation failed: ' + verr, null);
 			}
 			else {
-
-				// SELECT u.*, COUNT(l.id) likes, COUNT(w.id) watches
-				// FROM users u
-				// LEFT JOIN likes l
-				//   ON l.liked_user_id = u.id
-				// LEFT JOIN watches w
-				//   ON w.watched_user_id = u.id
-				// WHERE u.username = 'tgroveham8'
-				connection.query('SELECT u.*, COUNT(l.id) likes, COUNT(w.id) watches \
+				// SELECT u2.*
+				// FROM (
+				//   SELECT u1.*, COUNT(w.id) watches
+				//   FROM (
+				// 	SELECT u.*,COUNT(l.id) likes
+				// 	FROM users u
+				// 	LEFT JOIN likes l
+				// 	ON u.id = l.liked_user_id
+				// 	WHERE u.username = ?) u1
+				//   LEFT JOIN watches w
+				//   ON u1.id = w.watched_user_id
+				//   WHERE u1.username = ?) u2
+				// WHERE u2.username = ?
+				connection.query('SELECT u2.* \
+				FROM (\
+SELECT u1.*, COUNT(w.id) watches \
+FROM (\
+SELECT u.*,COUNT(l.id) likes \
 FROM users u \
 LEFT JOIN likes l \
-ON l.liked_user_id = u.id \
+ON u.id = l.liked_user_id \
+WHERE u.username = ?) u1 \
 LEFT JOIN watches w \
-ON w.watched_user_id = u.id \
-WHERE u.username = ?', [this.username], async (error, results, fields) => {
+ON u1.id = w.watched_user_id \
+WHERE u1.username = ?) u2 \
+WHERE u2.username = ?', [this.username, this.username, this.username], async (error, results, fields) => {
 					if (error) {
 						console.log("Error occured finding user in users table");
 						console.log(error);

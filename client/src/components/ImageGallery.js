@@ -58,7 +58,7 @@ function ImageGallery(props) {
 	const [imageArr, setImageArr] = useState(itemData);
 	const inputFile = useRef(itemData.map(() => React.createRef()));
 
-	const fetchImage = (path, tag, link) => {
+	const fetchImage = (path, tag, link, mounted) => {
 		fetch(path, {
 			method: 'GET',
 			headers: (link ? {} : { 'Authorization': "Bearer " + localStorage.getItem("token") }),
@@ -70,9 +70,11 @@ function ImageGallery(props) {
 				return res.blob();
 			})
 			.then(res => {
-				let tempImgArr = itemData.slice();
-				tempImgArr[itemData.findIndex(x => x.title === tag)]['img'] = URL.createObjectURL(res);
-				setImageArr(tempImgArr);
+				if (mounted) {
+					let tempImgArr = itemData.slice();
+					tempImgArr[itemData.findIndex(x => x.title === tag)]['img'] = URL.createObjectURL(res);
+					setImageArr(tempImgArr);
+				}
 			})
 			// Error handling if not any success code
 			.catch(error => {
@@ -82,7 +84,8 @@ function ImageGallery(props) {
 	}
 
 	useEffect(() => {
-		fetch('http://localhost:9000/user/' + (props.user ? props.user.username : ''), {
+		let mounted = true;
+		fetch('http://localhost:9000/user/' + (props.path === '/profile' ? '' : props.user.username), {
 			method: 'GET',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
@@ -90,12 +93,19 @@ function ImageGallery(props) {
 			.then(data => {
 				for (let tag in data.images) {
 					if (data.images[tag]) {
-						if (data.images[tag].substring(0, 4) === 'http') {
+						if (data.username !== 'clem') {
 							console.log(data.images[tag]);
-							fetchImage(data.images[tag], tag, true);
+							fetchImage(data.images[tag], tag, true, mounted);
 						}
 						else
-							fetchImage('http://localhost:9000/upload/' + data.images[tag], tag, false);
+							fetchImage(data.images[tag], tag, false, mounted);
+					}
+					else {
+						if (mounted) {
+							let tempImgArr = itemData.slice();
+							tempImgArr[itemData.findIndex(x => x.title === tag)]['img'] = placeholder;
+							setImageArr(tempImgArr);
+						}		
 					}
 				}
 			})
@@ -104,7 +114,12 @@ function ImageGallery(props) {
 				console.log("Fail to GET user from server");
 			})
 		// .then(setisLoading(false));
-	}, [props.computedMatch]);
+
+		// Anything in here is fired on component unmount.
+		return () => {
+			mounted = false;
+        }
+	}, [props.path, props.user]);
 
 	const handleFileUpload = (e) => {
 		const { files } = e.target;
@@ -177,7 +192,6 @@ function ImageGallery(props) {
 							position="top"
 							actionposition="right"
 							style={{ background: 'rgba(0,0,0,0)' }}
-							className={classes.titleBar}
 							actionIcon={<OptionButton item={item} ref={inputFile.current[i]} handleFileDelete={handleFileDelete} />}
 						/>
 					</ImageListItem>

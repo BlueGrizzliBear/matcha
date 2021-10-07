@@ -16,7 +16,7 @@ function SexualPreferences() {
 
   return (
     <Box className={classes.root}>
-      <p>Sexual preferences</p>
+      <h3>Sexual Preferences</h3>
     </Box>
   );
 }

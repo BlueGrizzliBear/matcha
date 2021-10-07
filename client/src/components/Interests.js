@@ -16,7 +16,7 @@ function Interests() {
 
   return (
     <Box className={classes.root}>
-      Interests
+      <h3>Interests</h3>
     </Box>
   );
 }

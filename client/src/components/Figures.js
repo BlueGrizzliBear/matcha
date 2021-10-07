@@ -48,9 +48,9 @@ function Figures(props) {
 	}
 
 	const handleLocation = (e) => {
-		console.log(typeof user.location_mode);
-		console.log(user.location_mode);
-		console.log(!user.location_mode);
+		// console.log(typeof user.location_mode);
+		// console.log(user.location_mode);
+		// console.log(!user.location_mode);
 
 		fetch('http://localhost:9000/user', {
 			method: 'POST',

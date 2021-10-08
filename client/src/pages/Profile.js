@@ -11,7 +11,6 @@ import Gender from '../components/Gender'
 import SexualPreferences from '../components/SexualPreferences'
 import Loading from '../components/Loading'
 
-
 function Profile(props) {
 
 	const history = useHistory();
@@ -20,6 +19,7 @@ function Profile(props) {
 
 	useEffect(() => {
 		setIsLoading(true);
+
 		fetch("http://localhost:9000/user/" + (props.path === '/profile' ? '' : props.computedMatch.params.username), {
 			method: 'GET',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
@@ -49,7 +49,7 @@ function Profile(props) {
 		<>
 			{
 				isLoading === true ?
-					Loading()
+					<Loading />
 					:
 					<>
 						<Figures {...props} user={user} />

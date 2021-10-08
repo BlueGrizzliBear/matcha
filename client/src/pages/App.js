@@ -112,8 +112,6 @@ class App extends Component {
 
   fetchUser() {
     this.setState({ isLoading: true }, () => {
-      console.log("Inside setState isLoading True");
-
       fetch("http://localhost:9000/user", {
         method: 'GET',
         headers: { 'Authorization': "Bearer " + this.state.hasToken },

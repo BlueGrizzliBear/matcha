@@ -87,7 +87,7 @@ class App extends Component {
       isActivated: false,
       isProfileComplete: false,
       user: {}
-    }, console.log("Finished cleaning values"));
+    });
   }
 
   fetchUser() {

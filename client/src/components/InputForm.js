@@ -45,7 +45,7 @@ export function PasswordInputForm(props) {
 				variant="filled"
 				style={{ width: '90%', margin: "8px" }}
 			>
-				<InputLabel error={props.error} htmlFor="filled-adornment-password" required>Password</InputLabel>
+				<InputLabel error={props.error} htmlFor="filled-adornment-password" required>{props.filledInputProps.label}</InputLabel>
 				<FilledInput
 					{...props.filledInputProps}
 					classes={classes}

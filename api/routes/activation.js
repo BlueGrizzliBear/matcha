@@ -40,7 +40,7 @@ const sendPasswordResetLink = function (req, res) {
 		}
 		else {
 			// A CHANGER PAR LIEN POINTANT SUR LE FRONT
-			link = "http://" + req.get('host') + "/user/reset_password?id=" + token.getToken();
+			link = "http://localhost:3000/reset_password/" + token.getToken();
 			var mailOptions = {
 				to: req.body.email,
 				subject: "Matcha : reset account password",

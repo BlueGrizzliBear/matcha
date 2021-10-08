@@ -65,28 +65,29 @@ const verifyLink = function (req, res) {
 	token.verify(function (err, decoded) {
 		if (err) {
 			console.log("email is not verified");
-			res.end("<h1>Bad Request</h1>");
+			res.end("<h1>Link is not valid anymore</h1><meta http-equiv=\"refresh\" content=\"2; URL=http://localhost:3000/login\" />");
 		}
 		else {
+			console.log(req);
 			if ((req.protocol + "://" + req.get('host')) == ("http://" + decoded.host))
 				console.log("Domain is matched. Information is from Authentic email");
 			else
-				res.end("<h1>Request is from unknown source</h1>");
+				res.end("<h1>Request is from unknown source</h1><meta http-equiv=\"refresh\" content=\"2; URL=http://localhost:3000/login\" />");
 			token.find(function (findError, results) {
 				if (findError) {
-					console.log("Email is not verified, token already used");
-					res.end("<h1>Bad Request</h1>");
+					console.log("Email is already verified, token already used");
+					res.end("<h1>Email " + decoded.email + " is already verified</h1><meta http-equiv=\"refresh\" content=\"2; URL=http://localhost:3000/login\" />");
 				}
 				else {
 					const user = new Models.User(decoded.id, decoded.username);
 					user.update({ activated: 1 }, false, function (updateError, results) {
 						if (updateError) {
 							console.log("error updating database");
-							res.end("<h1>Bad Request</h1>");
+							res.end("<h1>An error occured please try again later</h1><meta http-equiv=\"refresh\" content=\"2; URL=http://localhost:3000/login\" />");
 						}
 						else {
 							if (results.changedRows === 1) {
-								res.end("<h1>Email " + decoded.email + " is been Successfully verified</h1>");
+								res.end("<h1>Email " + decoded.email + " is been Successfully verified</h1><meta http-equiv=\"refresh\" content=\"2; URL=http://localhost:3000/login\" />");
 								token.delete(function (deleteError, results) {
 									if (deleteError)
 										console.log("Token already deleted");
@@ -94,7 +95,7 @@ const verifyLink = function (req, res) {
 							}
 							else {
 								console.log("email already verified, id:" + decoded.id);
-								res.end("<h1>Email " + decoded.email + " is already verified</h1>");
+								res.end("<h1>Email " + decoded.email + " is already verified</h1><meta http-equiv=\"refresh\" content=\"2; URL=http://localhost:3000/login\" />");
 							}
 						}
 					});

@@ -34,7 +34,6 @@ function LikeButton({ firstColor = 'primary', secondColor = 'secondary', ...prop
     console.log(props);
     console.log(props.location);
     // fetchUnlike();
-    // testing
   }
 
   return (

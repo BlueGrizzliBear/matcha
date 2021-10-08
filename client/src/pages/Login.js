@@ -84,7 +84,26 @@ function Login(props) {
 					console.log("Fail to send verification link");
 				})
 		}
-	}
+	};
+
+	const handleForgotPassword = (e) => {
+		fetch('http://localhost:9000/login/forgot_password', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			credentials: 'same-origin',
+			body: JSON.stringify({
+				username: values.username,
+			}),
+		})
+			.then(res => {
+				setSent(true);
+				setVerification(false);
+				setError(false);
+			})
+			.catch(() => {
+				console.log("Fail to send password reset link to email");
+			})
+	};
 
 	const handleChange = (prop) => (event) => {
 		setValues({ ...values, [prop]: event.target.value });
@@ -120,13 +139,23 @@ function Login(props) {
 						}}
 						visibility={showPassword ? <Visibility /> : <VisibilityOff />}
 					/>
-					<Button id="createAccount"
-						variant="contained"
-						type="submit"
-						style={{ margin: "16px 0px 4px 0px" }}
-					>
-						{verification ? 'Send Link' : 'Sign in'}
-					</Button>
+					<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: error && !verification ? 'space-between' : 'center' }} style={{ margin: "0px 20px" }}>
+						<Button id="createAccount"
+							variant="contained"
+							type="submit"
+							style={{ margin: "16px 0px 4px 0px" }}
+						>
+							{verification ? 'Send Link' : 'Sign in'}
+						</Button>
+						<Button href="#text-buttons"
+							onClick={handleForgotPassword}
+							size='small'
+							sx={{ display: error && !verification ? 'block' : 'none' }}
+							style={{ margin: "16px 0px 4px 0px" }}
+						>
+							Forgot Password ?
+						</Button>
+					</Box>
 					{/* Ajouter etat pour mettre texte "Email not verified" et bouton pour renvoyer un mail de verification */}
 				</Box>
 			</Box>

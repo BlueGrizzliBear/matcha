@@ -3,6 +3,7 @@ import '../assets/stylesheets/Components.css';
 import { Switch, Route, Redirect } from "react-router-dom";
 
 import UserHomepage from './UserHomepage';
+import ResetPassword from './ResetPassword';
 import Notifications from './Notifications';
 import Chat from './Chat';
 import Profile from './Profile';
@@ -173,6 +174,7 @@ class App extends Component {
                   <ProtectedRoute exact path='/notifications' component={Notifications} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute exact path='/chat' component={Chat} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute exact path='/profile' component={Profile} setValue={this.setValue} />
+                  <ProtectedRoute path='/reset_password/:token' component={ResetPassword} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute path='/profile/:username' component={Profile} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute path='/' component={NotFound} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                 </Switch>
@@ -181,6 +183,7 @@ class App extends Component {
               <>
                 <Switch>
                   <Route exact path='/' component={PublicHomepage} />
+                  <ProtectedRoute path='/reset_password/:token' component={ResetPassword} />
                   <Route exact push path='/login'><Login auth={this.state.isAuth} login={this.login} isSent={this.state.isSent} /></Route>
                   <Route exact push path='/register'><Register setValue={this.setValue} /></Route>
                   {/* <Route push path='/'><Redirect to={"/"} /></Route> */}

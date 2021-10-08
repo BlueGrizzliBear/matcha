@@ -222,56 +222,65 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
     else {
       /* return user profile with new changed informations */
       const like = new Models.Like(res.locals.results.id, user.getUserId());
-      like.liking((likeerr, likeres) => {
-        if (likeerr) {
-          console.log(likeerr);
+      like.liking((likingerr, likingres) => {
+        if (likingerr) {
+          console.log(likingerr);
           res.status(400).end();
         }
         else {
-          const block = new Models.Block(res.locals.results.id, user.getUserId());
-          block.blocked((blockerr, blockres) => {
-            if (blockerr) {
-              console.log(blockerr);
+          like.liked((likederr, likedres) => {
+            if (likederr) {
+              console.log(likederr);
               res.status(400).end();
             }
             else {
-              if (blockres == true)
-                res.status(200).json({ blocked: blockres }).end();
-              else {
-                websocket.sendNotification(results[0].id, 3);
-                fetchProfileImageURL(results[0], user, (imageUrl) => {
-                  if (imageUrl)
-                    results[0].img0_path = imageUrl;
-                  res.status(200).json({
-                    status: "200",
-                    isProfileComplete: results[0].complete,
-                    id: results[0].id,
-                    username: results[0].username,
-                    email: results[0].email,
-                    firstname: results[0].firstname,
-                    lastname: results[0].lastname,
-                    birth_date: results[0].birth_date,
-                    isActivated: results[0].activated,
-                    gender: results[0].gender,
-                    preference: results[0].preference,
-                    bio: results[0].bio,
-                    city: results[0].city,
-                    country: results[0].country,
-                    images: {
-                      img0: results[0].img0_path,
-                      img1: results[0].img1_path,
-                      img2: results[0].img2_path,
-                      img3: results[0].img3_path,
-                      img4: results[0].img4_path
-                    },
-                    likes: results[0].likes,
-                    liking: likeres,
-                    watches: results[0].watches,
-                    blocked: blockres,
-                    fake: results[0].fake
-                  }).end();
-                });
-              }
+              const block = new Models.Block(res.locals.results.id, user.getUserId());
+              block.blocked((blockerr, blockres) => {
+                if (blockerr) {
+                  console.log(blockerr);
+                  res.status(400).end();
+                }
+                else {
+                  if (blockres == true)
+                    res.status(200).json({ blocked: blockres }).end();
+                  else {
+                    websocket.sendNotification(results[0].id, 3);
+                    fetchProfileImageURL(results[0], user, (imageUrl) => {
+                      if (imageUrl)
+                        results[0].img0_path = imageUrl;
+                      res.status(200).json({
+                        status: "200",
+                        isProfileComplete: results[0].complete,
+                        id: results[0].id,
+                        username: results[0].username,
+                        email: results[0].email,
+                        firstname: results[0].firstname,
+                        lastname: results[0].lastname,
+                        birth_date: results[0].birth_date,
+                        isActivated: results[0].activated,
+                        gender: results[0].gender,
+                        preference: results[0].preference,
+                        bio: results[0].bio,
+                        city: results[0].city,
+                        country: results[0].country,
+                        images: {
+                          img0: results[0].img0_path,
+                          img1: results[0].img1_path,
+                          img2: results[0].img2_path,
+                          img3: results[0].img3_path,
+                          img4: results[0].img4_path
+                        },
+                        likes: results[0].likes,
+                        liking: likingres,
+                        liked: likedres,
+                        watches: results[0].watches,
+                        blocked: blockres,
+                        fake: results[0].fake
+                      }).end();
+                    });
+                  }
+                }
+              });
             }
           });
         }

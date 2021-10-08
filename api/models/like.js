@@ -78,6 +78,22 @@ class Like {
 		});
 	};
 
+	liked(ret) {
+		connection.query('SELECT * FROM likes WHERE liked_user_id = ? AND liking_user_id = ?', [this.liking_user_id, this.liked_user_id], async (error, results, fields) => {
+			if (error) {
+				console.log("Error occured finding liked_user_id and liking_user_id in likes table");
+				console.log(error);
+				ret(error, null);
+			}
+			else {
+				if (results.length > 0)
+					ret(null, true);
+				else
+					ret(null, false);
+			}
+		});
+	};
+
 	delete(ret) {
 		connection.query('DELETE FROM likes WHERE liking_user_id = ? AND liked_user_id = ?', [this.liking_user_id, this.liked_user_id], async (error, results, fields) => {
 			if (error) {

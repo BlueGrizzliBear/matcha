@@ -108,8 +108,6 @@ class App extends Component {
               });
               // }, () => {
               //   sleep(2000).then(() => {
-              //     console.log("Profile is complete ? :");
-              //     console.log(this.state.isProfileComplete);
               //     this.setState({ isLoading: false });
               //   });
               // });

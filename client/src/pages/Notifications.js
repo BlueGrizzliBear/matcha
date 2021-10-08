@@ -33,6 +33,7 @@ function Notifications() {
 		<>
 			<p>THIS IS YOUR NOTIFICATIONS</p>
 			<p>ADD notification list here</p>
+			<p>ADD notification list here</p>
 
 			{
 				isLoading === true ?

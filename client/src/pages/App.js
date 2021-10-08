@@ -16,7 +16,6 @@ import Loading from '../components/Loading'
 
 // import { sleep } from '../utility/utilities'
 
-
 function Status({ code, children }) {
   return (
     <Route
@@ -27,19 +26,6 @@ function Status({ code, children }) {
     />
   );
 }
-
-// function Loading() {
-//   return (
-//     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-//       <ReactLoading
-//         type={"spinningBubbles"}
-//         color={"#ffffff"}
-//         height={100}
-//         width={100}
-//       />
-//     </Box>
-//   );
-// }
 
 function NotFound() {
   return (
@@ -52,12 +38,6 @@ function NotFound() {
 class ProtectedRoute extends Component {
   render() {
     const { component: Component, ...props } = this.props
-
-    // console.log("GOING TO ");
-    // console.log(this.props.path);
-    // console.log("Inside protected route");
-    // console.log(this.props.toRedirect);
-
     return (
       <Route
         {...props}
@@ -112,7 +92,7 @@ class App extends Component {
 
   fetchUser() {
     this.setState({ isLoading: true }, () => {
-      fetch("http://localhost:9000/user", {
+      fetch(process.env.REACT_APP_API_URL + 'user', {
         method: 'GET',
         headers: { 'Authorization': "Bearer " + this.state.hasToken },
       })

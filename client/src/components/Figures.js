@@ -57,7 +57,7 @@ function Figures(props) {
 	}
 
 	const handleLocation = (e) => {
-		fetch('http://localhost:9000/user', {
+		fetch(process.env.REACT_APP_API_URL + 'user', {
 			method: 'POST',
 			headers: {
 				'Authorization': "Bearer " + localStorage.getItem("token"),

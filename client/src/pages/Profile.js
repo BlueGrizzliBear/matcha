@@ -20,7 +20,7 @@ function Profile(props) {
 	useEffect(() => {
 		setIsLoading(true);
 
-		fetch("http://localhost:9000/user/" + (props.path === '/profile' ? '' : props.computedMatch.params.username), {
+		fetch(process.env.REACT_APP_API_URL + 'user/' + (props.path === '/profile' ? '' : props.computedMatch.params.username), {
 			method: 'GET',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})

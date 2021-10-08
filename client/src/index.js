@@ -14,6 +14,12 @@ const theme = createTheme({
     secondary: {
       main: '#fcddec',
     },
+    match: {
+      main: '#ef5c66',
+    },
+    placeholder: {
+      main: '#c4c4c4',
+    },
   },
 });
 

@@ -2,11 +2,10 @@ import * as React from 'react';
 import ToggleButton from '@mui/material/ToggleButton';
 import { Favorite as FavoriteIcon } from '@mui/icons-material';
 
-function LikeButton({ firstColor = 'primary', secondColor = 'secondary', ...props }) {
+function LikeButton({ match = 'match', isLiked = 'primary', standard = 'secondary', ...props }) {
   const [selected, setSelected] = React.useState(props.liking);
 
 	const fetchLike = (path) => {
-    console.log(path);
 		fetch(path, {
 			method: 'GET',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
@@ -26,14 +25,11 @@ function LikeButton({ firstColor = 'primary', secondColor = 'secondary', ...prop
   }
 
 	const likeProfile = () => {
-    console.log(process.env.API);
-    fetchLike(process.env.API + props.computedMatch.params.username + '/like');
+    fetchLike(process.env.REACT_APP_API_URL + 'user/' + props.computedMatch.params.username + '/like');
   }
 
 	const unlikeProfile = () => {
-    console.log(props);
-    console.log(props.location);
-    // fetchLike();
+    fetchLike(process.env.REACT_APP_API_URL + 'user/' + props.computedMatch.params.username + '/unlike');
   }
 
   return (
@@ -41,7 +37,7 @@ function LikeButton({ firstColor = 'primary', secondColor = 'secondary', ...prop
     value="check"
     selected={true}
     size='large'
-    color={selected ? firstColor : secondColor }
+    color={selected ? match : (props.user.liked ? isLiked : standard) }
     sx={{ borderRadius: '50%' }}
     onChange={() => {
       if (!selected)
@@ -54,7 +50,7 @@ function LikeButton({ firstColor = 'primary', secondColor = 'secondary', ...prop
     >
       <FavoriteIcon sx={{
         fontSize: '36px',
-        animation: (selected ? 'heartbeat 2s infinite' : '')
+        animation: (selected ? 'heartbeat 1.5s infinite' : '')
         }} />
     </ToggleButton>
   );

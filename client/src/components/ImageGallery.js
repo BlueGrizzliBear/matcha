@@ -7,6 +7,7 @@ import OptionButton from '../components/OptionButton'
 import Loading from '../components/Loading'
 
 import placeholder from '../assets/images/no_img.svg';
+import { sleep } from '../utility/utilities'
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -44,7 +45,7 @@ function ImageGallery(props) {
 	const classes = useStyles();
 	const [mounted, setMounted] = useState(true);
 	const [imageArr, setImageArr] = useState(itemData);
-	const [isLoading, setIsLoading] = useState(itemData.map(() => false));
+	const [isLoading, setIsLoading] = useState(itemData.map(() => true));
 	const inputFile = useRef(itemData.map(() => createRef()));
 
 	const fetchImage = useCallback(
@@ -79,23 +80,34 @@ function ImageGallery(props) {
 
 	useEffect(() => {
 		if (mounted) {
-			for (const tag in props.user.images) {
-				const index = itemData.findIndex(x => x.title === tag);
-				if (props.user.images[tag]) {
-					setIsLoading((arr) => {
-						let tmpArr = arr.slice();
-						tmpArr[index] = true;
-						return (tmpArr);
-					});
-					fetchImage(props.user.images[tag], index, props.user.fake);
+			sleep(2000).then(() => {
+
+				for (const tag in props.user.images) {
+					const index = itemData.findIndex(x => x.title === tag);
+					if (props.user.images[tag]) {
+						// setIsLoading((arr) => {
+						// 	let tmpArr = arr.slice();
+						// 	tmpArr[index] = true;
+						// 	return (tmpArr);
+						// });
+						fetchImage(props.user.images[tag], index, props.user.fake);
+					}
+					else {
+						setImageArr((imgArr) => {
+							imgArr[index]['img'] = placeholder;
+							return (imgArr);
+						});
+						setIsLoading((arr) => {
+							let tmpArr = arr.slice();
+							tmpArr[index] = false;
+							return (tmpArr);
+						});
+					}
 				}
-				else {
-					setImageArr((imgArr) => {
-						imgArr[index]['img'] = placeholder;
-						return (imgArr);
-					});
-				}
-			}
+
+			});
+
+
 		}
 		// Anything in here is fired on component unmount.
 		return () => {
@@ -109,7 +121,7 @@ function ImageGallery(props) {
 		if (files && files.length) {
 			const formData = new FormData()
 			formData.append('uploadedImage', files[0], files[0].name);
-			fetch('http://localhost:9000/upload?img=' + e.target.title, {
+			fetch(process.env.REACT_APP_API_URL + 'upload?img=' + e.target.title, {
 				method: 'POST',
 				headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 				body: formData
@@ -118,7 +130,7 @@ function ImageGallery(props) {
 				.then(res => {
 					props.setValue('isProfileComplete', res.isProfileComplete);
 					const index = itemData.findIndex(x => x.title === e.target.title);
-					fetchImage('http://localhost:9000/upload/' + res.image, index, props.user.fake);
+					fetchImage(process.env.REACT_APP_API_URL + 'upload/' + res.image, index, props.user.fake);
 				})
 				.catch(error => {
 					console.log(error);
@@ -128,7 +140,7 @@ function ImageGallery(props) {
 	};
 
 	const handleFileDelete = (imgTitle) => {
-		fetch('http://localhost:9000/upload?img=' + imgTitle, {
+		fetch(process.env.REACT_APP_API_URL + 'upload?img=' + imgTitle, {
 			method: 'DELETE',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
@@ -156,6 +168,7 @@ function ImageGallery(props) {
 							width: '100vw',
 							justifyContent: 'center',
 							alignContent: 'center',
+							backgroundColor: 'placeholder.main',
 							overflow: 'hidden',
 							'@media screen and (min-width: 768px)': {
 								width: (item.profile ? 768 : 384),

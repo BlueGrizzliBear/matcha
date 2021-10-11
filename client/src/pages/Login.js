@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Box } from '@mui/material';
+import { Button, Box, Link, FormHelperText } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import InputForm, { PasswordInputForm } from '../components/InputForm';
 
@@ -139,23 +139,21 @@ function Login(props) {
 						}}
 						visibility={showPassword ? <Visibility /> : <VisibilityOff />}
 					/>
-					<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: error && !verification ? 'space-between' : 'center' }} style={{ margin: "0px 20px" }}>
-						<Button id="createAccount"
-							variant="contained"
-							type="submit"
-							style={{ margin: "16px 0px 4px 0px" }}
-						>
-							{verification ? 'Send Link' : 'Sign in'}
-						</Button>
-						<Button href="#text-buttons"
+					<FormHelperText style={{ margin: "0px 0px 0px 22px" }}>
+						<Link href="#text-buttons"
 							onClick={handleForgotPassword}
-							size='small'
-							sx={{ display: error && !verification ? 'block' : 'none' }}
-							style={{ margin: "16px 0px 4px 0px" }}
+							sx={{ fontWeight: 'bold' }}
 						>
-							Forgot Password ?
-						</Button>
-					</Box>
+							Forgot Password?
+						</Link>
+					</FormHelperText>
+					<Button id="createAccount"
+						variant="contained"
+						type="submit"
+						style={{ margin: "16px 0px 4px 0px" }}
+					>
+						{verification ? 'Send Link' : 'Sign in'}
+					</Button>
 					{/* Ajouter etat pour mettre texte "Email not verified" et bouton pour renvoyer un mail de verification */}
 				</Box>
 			</Box>

@@ -105,7 +105,7 @@ class Notification {
 		// ON bl.blocking_user_id = 1001 AND bl.blocked_user_id = u.id
 		// WHERE (rn = 1 OR rn IS NULL) AND user_id = 1001 AND bl.id IS NULL
 		// LIMIT 100
-		connection.query('SELECT n.*, u.username AS sender, m.message \
+		connection.query('SELECT n.*, u.username AS sender, u.img0_path AS sender_img, m.message \
 FROM notifications n \
 LEFT JOIN (\
 SELECT * , ROW_NUMBER() OVER (PARTITION BY sender_user_id ORDER BY sent_date DESC) rn \

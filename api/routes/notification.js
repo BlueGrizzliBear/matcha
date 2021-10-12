@@ -28,6 +28,7 @@ router.get('/read', checkToken, function (req, res, next) {
 			res.status(400).end();
 		}
 		else {
+
 			res.status(200).json(results).end();
 		}
 	})

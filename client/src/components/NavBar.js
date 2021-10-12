@@ -1,10 +1,9 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Menu, Paper, ListItem, ListItemAvatar, Avatar, ListItemText, Divider, ListItemButton } from '@mui/material';
-
+import { Menu } from '@mui/material';
+import { MenuItemMessage, MenuItemLike, MenuItemWatch, MenuItemLoad, MenuItemEmpty } from './NavBarMenu'
 import { IconButton, Button, Box, Badge, Tooltip } from '@mui/material';
 import { Notifications as NotificationsIcon, Chat as ChatIcon } from '@mui/icons-material';
-import { Visibility as VisibilityIcon, Favorite as FavoriteIcon, Comment as CommentIcon } from '@mui/icons-material';
 
 import { Switch, Route, Link } from "react-router-dom";
 
@@ -17,28 +16,67 @@ import { useHistory } from "react-router-dom";
 
 function NavBar(props) {
 
-  var parser = new DOMParser();
-  const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
   const notificationData = [
     {
       "message_id": null,
       "like_id": null,
       "watch_id": null,
+      "read": 1
     }
   ];
 
   const history = useHistory();
+  const [isLoading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState(notificationData);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
+    setIsLoading(true);
+    fetch("http://localhost:9000/notification/read", {
+      method: 'GET',
+      headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+    })
+      .then(res => {
+        if (res.ok && res.status === 200) {
+          setNotifications(changeNotificationsToRead(notifications));
+          setIsLoading(false);
+        }
+        else {
+          console.log("Fail to put status read on notifications");
+          setIsLoading(false);
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        console.log("Fail to fetch");
+        setIsLoading(false);
+      })
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
 
+  const changeNotificationsToRead = (data) => {
+    data.forEach((item, i) => {
+      if (item.read === 0)
+        item.read = 1;
+    });
+    return data;
+  };
+
+  const countNotificationsNumber = (data) => {
+    let number = 0;
+    data.forEach((item, i) => {
+      if (item.read === 0)
+        number++;
+    });
+    return number;
+  };
+
   useEffect(() => {
+    setIsLoading(true);
     fetch("http://localhost:9000/notification", {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
@@ -46,17 +84,20 @@ function NavBar(props) {
       .then(res => {
         if (res.ok && res.status === 200) {
           return res.json().then((data) => {
-            setNotifications(data);
-            console.log(data);
+            if (data)
+              setNotifications(data);
+            setIsLoading(false);
           })
         }
         else {
           console.log("Fail to get notifications");
+          setIsLoading(false);
         }
       })
       .catch(error => {
         console.log(error);
         console.log("Fail to fetch");
+        setIsLoading(false);
       })
   }, []);
 
@@ -90,9 +131,8 @@ function NavBar(props) {
                     aria-haspopup="true"
                     aria-expanded={open ? 'true' : undefined}
                     onClick={handleClick}
-                  // component={Link} to="/notifications"
                   >
-                    <Badge badgeContent={notifications.length} color="primary">
+                    <Badge badgeContent={countNotificationsNumber(notifications)} color="primary">
                       <Tooltip title="notifications">
                         <NotificationsIcon />
                       </Tooltip>
@@ -103,76 +143,24 @@ function NavBar(props) {
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleClose}
-                    sx={{ width: '100%', maxWidth: 360, bgcolor: 'placeholder.main' }}>
-                    {notifications.map((item, i) => (
-                      (item.message_id) ?
-                        <ListItem
-                          key={i}
-                          alignItems="flex-start"
-                          divider={i + 1 !== notifications.length ? true : false}
-                          disablePadding
-                        >
-                          <ListItemButton>
-                            <ListItemAvatar>
-                              <Avatar alt={item.sender} src={item.sender_img} />
-                            </ListItemAvatar>
-                            <ListItemText
-                              primary={"New message from " + item.sender}
-                              secondary={parser.parseFromString('<!doctype html><body>' + item.message, 'text/html').body.textContent + ' ' + new Date(item.sent_date).toLocaleDateString("en-US", dateOptions)}
-                            />
-                            <Divider orientation="vertical" variant="middle" flexItem sx={{ margin: '10px' }} />
-                            <CommentIcon />
-                          </ListItemButton>
-                        </ListItem>
-                        : (item.like_id ?
-                          <ListItem
-                            key={i}
-                            alignItems="flex-start"
-                            divider={i + 1 !== notifications.length ? true : false}
-                            disablePadding
-                          >
-                            <ListItemButton>
-                              <ListItemAvatar>
-                                <Avatar alt={item.sender} src={item.sender_img} />
-                              </ListItemAvatar>
-                              <ListItemText
-                                primary={"New like from " + item.sender}
-                                secondary={new Date(item.sent_date).toLocaleDateString("en-US", dateOptions)}
-                              />
-                              <Divider orientation="vertical" variant="middle" flexItem sx={{ margin: '10px' }} />
-                              <FavoriteIcon />
-                            </ListItemButton>
-                          </ListItem>
-                          : (item.watch_id ?
-                            <ListItem
-                              key={i}
-                              alignItems="flex-start"
-                              divider={i + 1 !== notifications.length ? true : false}
-                              disablePadding
-                            >
-                              <ListItemButton>
-                                <ListItemAvatar>
-                                  <Avatar alt={item.sender} src={item.sender_img} />
-                                </ListItemAvatar>
-                                <ListItemText
-                                  primary={item.sender + " watched your profile"}
-                                  secondary={new Date(item.sent_date).toLocaleDateString("en-US", dateOptions)}
-                                />
-                                <Divider orientation="vertical" variant="middle" flexItem sx={{ margin: '10px' }} />
-                                <VisibilityIcon />
-                              </ListItemButton>
-                            </ListItem>
-                            :
-                            <ListItem key={i} alignItems="flex-start" divider={i + 1 !== notifications.length ? true : false}>
-                              <ListItemButton>
-                                <ListItemText
-                                  primary="You don't have any notifications"
-                                />
-                              </ListItemButton>
-                            </ListItem>
-                          )
-                        )
-                    ))}
+                    sx={{ width: '100%', maxWidth: 360 }}>
+                    {
+                      isLoading === true ?
+                        <MenuItemLoad key="1" />
+                        :
+                        notifications.slice().reverse().map((item, i) => (
+                          (item.message_id) ?
+                            <MenuItemMessage i={i} key={i} to={"/profile/" + item.sender} notifications={notifications} item={item} />
+                            : (item.like_id ?
+                              <MenuItemLike i={i} key={i} to={"/profile/" + item.sender} notifications={notifications} item={item} />
+                              : (item.watch_id ?
+                                <MenuItemWatch i={i} key={i} to={"/profile/" + item.sender} notifications={notifications} item={item} />
+                                :
+                                <MenuItemEmpty key={i} />
+                              )
+                            )
+                        ))
+                    }
                   </Menu>
                   <IconButton aria-label="show chat" color="inherit" component={Link} to="/chat" style={{ height: "48px" }}>
                     <Badge badgeContent={3} color="primary">

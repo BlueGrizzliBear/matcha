@@ -7,6 +7,17 @@ import { Box } from '@mui/material';
 //   },
 // }));
 
+export function LoadingMenu() {
+  return (
+    <ReactLoading
+      type={"bubbles"}
+      color={"#aaaaaa"}
+      height={100}
+      width={100}
+    />
+  );
+}
+
 function Loading() {
 
   // const classes = useStyles();

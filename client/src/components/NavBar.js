@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Menu } from '@mui/material';
-import { MenuItemMessage, MenuItemLike, MenuItemWatch, MenuItemLoad, MenuItemEmpty } from './NavBarMenu'
+import Notifications from './Notifications'
+import Chats from './Chats'
 import { IconButton, Button, Box, Badge, Tooltip } from '@mui/material';
 import { Notifications as NotificationsIcon, Chat as ChatIcon } from '@mui/icons-material';
 
@@ -25,14 +25,27 @@ function NavBar(props) {
     }
   ];
 
+  const chatData = [
+    {
+      "sender_user_id": null,
+      "sender": null,
+      "read": 1,
+    }
+  ];
+
   const history = useHistory();
-  const [isLoading, setIsLoading] = useState(false);
+  const [notificationsAreLoading, setNotificationsAreLoading] = useState(false);
+  const [chatsAreLoading, setChatsAreLoading] = useState(false);
+  const [chats, setChats] = useState(chatData);
   const [notifications, setNotifications] = useState(notificationData);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-    setIsLoading(true);
+  const [anchorNotifEl, setAnchorNotifEl] = useState(null);
+  const [anchorChatEl, setAnchorChatEl] = useState(null);
+  const openNotifications = Boolean(anchorNotifEl);
+  const openChats = Boolean(anchorChatEl);
+
+  const handleNotificationsClick = (event) => {
+    setAnchorNotifEl(event.currentTarget);
+    setNotificationsAreLoading(true);
     fetch("http://localhost:9000/notification/read", {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
@@ -40,22 +53,30 @@ function NavBar(props) {
       .then(res => {
         if (res.ok && res.status === 200) {
           setNotifications(changeNotificationsToRead(notifications));
-          setIsLoading(false);
+          setNotificationsAreLoading(false);
         }
         else {
           console.log("Fail to put status read on notifications");
-          setIsLoading(false);
+          setNotificationsAreLoading(false);
         }
       })
       .catch(error => {
         console.log(error);
         console.log("Fail to fetch");
-        setIsLoading(false);
+        setNotificationsAreLoading(false);
       })
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleNotificationsClose = () => {
+    setAnchorNotifEl(null);
+  };
+
+  const handleChatsClick = (event) => {
+    setAnchorChatEl(event.currentTarget);
+  };
+
+  const handleChatsClose = () => {
+    setAnchorChatEl(null);
   };
 
   const changeNotificationsToRead = (data) => {
@@ -66,7 +87,7 @@ function NavBar(props) {
     return data;
   };
 
-  const countNotificationsNumber = (data) => {
+  const countBadgeNumber = (data) => {
     let number = 0;
     data.forEach((item, i) => {
       if (item.read === 0)
@@ -76,7 +97,7 @@ function NavBar(props) {
   };
 
   useEffect(() => {
-    setIsLoading(true);
+    setNotificationsAreLoading(true);
     fetch("http://localhost:9000/notification", {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
@@ -86,18 +107,42 @@ function NavBar(props) {
           return res.json().then((data) => {
             if (data)
               setNotifications(data);
-            setIsLoading(false);
+            setNotificationsAreLoading(false);
           })
         }
         else {
           console.log("Fail to get notifications");
-          setIsLoading(false);
+          setNotificationsAreLoading(false);
         }
       })
       .catch(error => {
         console.log(error);
         console.log("Fail to fetch");
-        setIsLoading(false);
+        setNotificationsAreLoading(false);
+      })
+
+    setChatsAreLoading(true);
+    fetch("http://localhost:9000/chat", {
+      method: 'GET',
+      headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+    })
+      .then(res => {
+        if (res.ok && res.status === 200) {
+          return res.json().then((data) => {
+            if (data)
+              setChats(data);
+            setChatsAreLoading(false);
+          })
+        }
+        else {
+          console.log("Fail to get notifications");
+          setChatsAreLoading(false);
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        console.log("Fail to fetch");
+        setChatsAreLoading(false);
       })
   }, []);
 
@@ -129,46 +174,45 @@ function NavBar(props) {
                     color="inherit"
                     aria-controls="notifications-menu"
                     aria-haspopup="true"
-                    aria-expanded={open ? 'true' : undefined}
-                    onClick={handleClick}
+                    aria-expanded={openNotifications ? 'true' : undefined}
+                    onClick={handleNotificationsClick}
                   >
-                    <Badge badgeContent={countNotificationsNumber(notifications)} color="primary">
+                    <Badge badgeContent={countBadgeNumber(notifications)} color="primary">
                       <Tooltip title="notifications">
                         <NotificationsIcon />
                       </Tooltip>
                     </Badge>
                   </IconButton>
-                  <Menu
-                    id="notifications-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    sx={{ width: '100%', maxWidth: 360 }}>
-                    {
-                      isLoading === true ?
-                        <MenuItemLoad key="1" />
-                        :
-                        notifications.slice().reverse().map((item, i) => (
-                          (item.message_id) ?
-                            <MenuItemMessage i={i} key={i} to={"/profile/" + item.sender} notifications={notifications} item={item} />
-                            : (item.like_id ?
-                              <MenuItemLike i={i} key={i} to={"/profile/" + item.sender} notifications={notifications} item={item} />
-                              : (item.watch_id ?
-                                <MenuItemWatch i={i} key={i} to={"/profile/" + item.sender} notifications={notifications} item={item} />
-                                :
-                                <MenuItemEmpty key={i} />
-                              )
-                            )
-                        ))
-                    }
-                  </Menu>
-                  <IconButton aria-label="show chat" color="inherit" component={Link} to="/chat" style={{ height: "48px" }}>
-                    <Badge badgeContent={3} color="primary">
+                  <Notifications
+                    anchorEl={anchorNotifEl}
+                    open={openNotifications}
+                    onClose={handleNotificationsClose}
+                    isloading={notificationsAreLoading.toString()}
+                    notifications={notifications}
+                  />
+                  <IconButton
+                    aria-label="show chat"
+                    style={{ height: "48px" }}
+                    color="inherit"
+                    aria-controls="chats-menu"
+                    aria-haspopup="true"
+                    aria-expanded={openChats ? 'true' : undefined}
+                    onClick={handleChatsClick}
+                  >
+                    <Badge badgeContent={countBadgeNumber(chats)} color="primary">
                       <Tooltip title="chat">
                         <ChatIcon />
                       </Tooltip>
                     </Badge>
                   </IconButton>
+                  <Chats
+                    anchorEl={anchorChatEl}
+                    open={openChats}
+                    onClose={handleChatsClose}
+                    isloading={chatsAreLoading.toString()}
+                    chats={chats}
+                    footerref={props.footerref}
+                  />
                   <IconButton aria-label="show profile" color="inherit" component={Link} to="/profile" style={{ height: "24px" }}>
                     <Tooltip title="profile">
                       <ProfileIcon />

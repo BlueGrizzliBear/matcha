@@ -51,6 +51,7 @@ class ProtectedRoute extends Component {
 class App extends Component {
   constructor(props) {
     super(props);
+    this.footerRef = React.createRef();
     this.state = {
       isLoading: false,
       isAuth: false,
@@ -135,7 +136,7 @@ class App extends Component {
     return (
       <>
         <header>
-          <NavBar auth={this.state.isAuth} logout={this.logout} />
+          <NavBar auth={this.state.isAuth} logout={this.logout} footerref={this.footerRef} />
         </header>
         <main>
 
@@ -168,7 +169,7 @@ class App extends Component {
               </>
           }
         </main>
-        <footer>
+        <footer ref={this.footerRef}>
           <p id="notice">All photos are of professional models and used for illustrative purposes only</p>
         </footer>
       </>

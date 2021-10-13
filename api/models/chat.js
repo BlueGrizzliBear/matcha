@@ -73,20 +73,20 @@ class Chat {
 	}
 
 	find(ret) {
-		// SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date, bl.id AS blocked
+		// SELECT m.id, m.sender_user_id, u1.username AS sender, u1.img0_path AS sender_img, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date, bl.id AS blocked
 		// FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY sender_user_id + receiver_user_id ORDER BY sent_date DESC) rn
 		// FROM messages WHERE sender_user_id = 1001 OR receiver_user_id = 1001) m
 		// LEFT JOIN users u1 ON m.sender_user_id = u1.id
 		// LEFT JOIN users u2 ON m.receiver_user_id = u2.id
 		// LEFT JOIN blocklist bl ON bl.blocking_user_id = 1001 AND (bl.blocked_user_id = m.sender_user_id OR bl.blocked_user_id = m.receiver_user_id)
 		// WHERE rn = 1 AND bl.id IS NULL
-		connection.query('SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date \
+		connection.query('SELECT m.id, m.sender_user_id, u1.username AS sender, u1.img0_path AS sender_img, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date, ? AS user_id \
 FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY sender_user_id + receiver_user_id ORDER BY sent_date DESC) rn \
 FROM messages WHERE sender_user_id = ? OR receiver_user_id = ?) m \
 LEFT JOIN users u1 ON m.sender_user_id = u1.id \
 LEFT JOIN users u2 ON m.receiver_user_id = u2.id \
 LEFT JOIN blocklist bl ON bl.blocking_user_id = ? AND (bl.blocked_user_id = m.sender_user_id OR bl.blocked_user_id = m.receiver_user_id) \
-WHERE rn = 1 AND bl.id IS NULL', [this.sender_id, this.sender_id, this.sender_id], async (error, results, fields) => {
+WHERE rn = 1 AND bl.id IS NULL', [this.sender_id, this.sender_id, this.sender_id, this.sender_id], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding messages in messages table");
 				console.log(error);
@@ -107,14 +107,14 @@ WHERE rn = 1 AND bl.id IS NULL', [this.sender_id, this.sender_id, this.sender_id
 		// WHERE ((sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?)) AND bl.id IS NULL
 		// ORDER BY sent_date DESC
 		// LIMIT 100
-		connection.query('SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date, u1.username \
+		connection.query('SELECT m.id, m.sender_user_id, u1.username AS sender, m.receiver_user_id, u2.username AS receiver, m.message, m.read, m.sent_date, ? AS user_id \
 FROM messages m \
 LEFT JOIN users u1 ON m.sender_user_id = u1.id \
 LEFT JOIN users u2 ON m.receiver_user_id = u2.id \
 LEFT JOIN blocklist bl ON bl.blocking_user_id = ? AND (bl.blocked_user_id = m.sender_user_id OR bl.blocked_user_id = m.receiver_user_id) \
 WHERE ((sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?)) AND bl.id IS NULL \
 ORDER BY sent_date DESC \
-LIMIT 100', [this.sender_id, this.sender_id, this.receiver_id, this.receiver_id, this.sender_id], async (error, results, fields) => {
+LIMIT 100', [this.sender_id, this.sender_id, this.sender_id, this.receiver_id, this.receiver_id, this.sender_id], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured finding messages in messages table");
 				console.log(error);

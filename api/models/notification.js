@@ -88,7 +88,7 @@ class Notification {
 	}
 
 	find(ret) {
-		// SELECT n.*, u.username AS sender, m.message
+		// SELECT n.*, u.username AS sender, u.img0_path AS sender_img, m.message
 		// FROM notifications n
 		// LEFT JOIN (
 		// SELECT * , ROW_NUMBER() OVER (PARTITION BY sender_user_id ORDER BY sent_date DESC) rn

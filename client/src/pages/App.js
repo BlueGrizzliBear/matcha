@@ -169,8 +169,9 @@ class App extends Component {
               </>
           }
         </main>
-        <footer ref={this.footerRef}>
+        <footer >
           <p id="notice">All photos are of professional models and used for illustrative purposes only</p>
+          <p ref={this.footerRef}></p>
         </footer>
       </>
     );

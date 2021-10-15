@@ -67,6 +67,14 @@ function NavBar(props) {
       })
   };
 
+  const handleConversationClick = (data, conversation) => {
+    data.forEach((item, i) => {
+      if (item.read === 0 && item === conversation)
+        item.read = 1;
+    });
+    setChats(data);
+  }
+
   const handleNotificationsClose = () => {
     setAnchorNotifEl(null);
   };
@@ -87,10 +95,19 @@ function NavBar(props) {
     return data;
   };
 
-  const countBadgeNumber = (data) => {
+  const countNotificationBadgeNumber = (data) => {
     let number = 0;
     data.forEach((item, i) => {
       if (item.read === 0)
+        number++;
+    });
+    return number;
+  };
+
+  const countChatBadgeNumber = (data) => {
+    let number = 0;
+    data.forEach((item, i) => {
+      if (item.read === 0 && item.user_id !== item.sender_user_id)
         number++;
     });
     return number;
@@ -177,7 +194,7 @@ function NavBar(props) {
                     aria-expanded={openNotifications ? 'true' : undefined}
                     onClick={handleNotificationsClick}
                   >
-                    <Badge badgeContent={countBadgeNumber(notifications)} color="primary">
+                    <Badge badgeContent={countNotificationBadgeNumber(notifications)} color="primary">
                       <Tooltip title="notifications">
                         <NotificationsIcon />
                       </Tooltip>
@@ -199,7 +216,7 @@ function NavBar(props) {
                     aria-expanded={openChats ? 'true' : undefined}
                     onClick={handleChatsClick}
                   >
-                    <Badge badgeContent={countBadgeNumber(chats)} color="primary">
+                    <Badge badgeContent={countChatBadgeNumber(chats)} color="primary">
                       <Tooltip title="chat">
                         <ChatIcon />
                       </Tooltip>
@@ -212,6 +229,7 @@ function NavBar(props) {
                     isloading={chatsAreLoading.toString()}
                     chats={chats}
                     footerref={props.footerref}
+                    handleconversationclick={handleConversationClick}
                   />
                   <IconButton aria-label="show profile" color="inherit" component={Link} to="/profile" style={{ height: "24px" }}>
                     <Tooltip title="profile">

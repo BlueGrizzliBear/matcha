@@ -48,7 +48,7 @@ router.post('/', checkToken, function (req, res, next) {
 });
 
 /* GET /upload/486484844468-485648646846 - Send the asked image */
-router.get('/:filename', checkToken, function (req, res, next) {
+router.get('/:filename', function (req, res, next) {
     const { filename } = req.params;
     const dirname = path.resolve();
     const fullfilepath = path.join(dirname, 'user_images/' + filename);

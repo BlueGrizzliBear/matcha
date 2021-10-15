@@ -1,24 +1,28 @@
+import React from 'react';
 // import { makeStyles } from '@mui/styles';
+import { useState } from 'react';
 import { Link } from "react-router-dom";
 import { TextField, IconButton, Typography, Box, Chip, MenuItem, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material';
 import { Send as SendIcon, Close as CloseIcon, Visibility as VisibilityIcon, Favorite as FavoriteIcon, Comment as CommentIcon } from '@mui/icons-material';
 import { LoadingMenu } from './Loading';
 
 // const formStyle = (props) => makeStyles((theme) => ({
-// root: {
-// 	border: '1px solid #e2e2e1',
-// 	overflow: 'hidden',
-// 	borderRadius: 10,
-// 	backgroundColor: '#fff',
-// 	'&:hover': {
-// 		backgroundColor: '#fff',
+// 	root: {
+// 		border: 'none',
+// 		width: "90%",
+// 		background: '#fff',
+// 		// 	'&:hover': {
+// 		// 		border: 'none',
+// 		// 	},
+// 		// 	'&$focused': {
+// 		// 		backgroundColor: '#fff',
+// 		// 		borderColor: (props.error ? theme.palette.error.main : theme.palette.primary.main),
+// 		// 	},
 // 	},
-// 	'&$focused': {
-// 		backgroundColor: '#fff',
-// 		borderColor: (props.error ? theme.palette.error.main : theme.palette.primary.main),
+// 	input: {
+// 		border: 'none',
 // 	},
-// },
-// focused: {},
+// 	// focused: {},
 // }));
 
 var parser = new DOMParser();
@@ -57,11 +61,11 @@ export function MenuItemChat(props) {
 			divider={props.i !== props.chats.length ? true : false}
 		>
 			<ListItemAvatar>
-				<Avatar alt={props.item.sender} src={props.item.sender_img} />
+				<Avatar alt={props.item.user_id === props.item.receiver_user_id ? props.item.sender : props.item.receiver} src={props.item.user_id === props.item.receiver_user_id ? props.item.sender_img : props.item.receiver_img} />
 			</ListItemAvatar>
 			<ListItemText
-				primary={props.item.sender}
-				secondary={parser.parseFromString('<!doctype html><body>' + props.item.message, 'text/html').body.textContent.substr(0, 35) + '... ' + new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
+				primary={props.item.user_id === props.item.receiver_user_id ? props.item.sender : props.item.receiver}
+				secondary={(props.item.user_id === props.item.sender_user_id) && 'Vous: ' + parser.parseFromString('<!doctype html><body>' + props.item.message, 'text/html').body.textContent.substr(0, props.item.user_id === props.item.sender_user_id ? 29 : 35) + '... ' + new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
 			/>
 		</MenuItem>
 	);
@@ -142,7 +146,7 @@ export function ListItemConversation(props) {
 	// const classes = formStyle(props)();
 	return (
 		<ListItem
-			{...props}
+			key={props.keybis}
 			sx={{ padding: "0 8px", width: 328, whiteSpace: "normal" }}
 		>
 			<Box sx={{ dislpay: "flex", justifyContent: "flex-end" }}>
@@ -153,17 +157,17 @@ export function ListItemConversation(props) {
 				</Typography>
 				<Chip
 					color={props.item.sender_user_id === props.item.user_id ? 'primary' : 'secondary'}
-					sx={{ height: "100%", width: "80%", marginLeft: props.item.sender_user_id === props.item.user_id ? 0 : '20%' }}
+					sx={{ height: "100%", maxWidth: "80%", marginLeft: props.item.sender_user_id === props.item.user_id ? 0 : '20%' }}
 					label={<Typography
-						sx={{ whiteSpace: "normal" }}
+						sx={{ overflowWrap: "anywhere", whiteSpace: "normal" }}
 					>
 						{parser.parseFromString('<!doctype html><body>' + props.item.message, 'text/html').body.textContent}
 					</Typography>}
 				/>
 				<Typography
-					sx={{ fontSize: "10px", textAlign: "right", marginRight: props.item.sender_user_id === props.item.user_id ? '23%' : '10px' }}
+					sx={{ minWidth: "160px", fontSize: "10px", textAlign: "right", marginRight: props.item.sender_user_id === props.item.user_id ? '23%' : '10px' }}
 				>
-					{new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions) + ' - '}
+					{new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions) + ' - ' + (props.item.read ? '✓' : 'Sent')}
 				</Typography>
 			</Box>
 		</ListItem>
@@ -176,11 +180,11 @@ export function ListItemHeader(props) {
 	return (
 
 		<ListItem
-			{...props}
+			key={props.keybis}
 			disableGutters
-			sx={{ position: "sticky", top: 0, zIndex: 5, whiteSpace: "normal", padding: "5px 15px", margin: 0, backgroundColor: "primary.main" }}
+			sx={{ borderRadius: "4px 4px 0 0", zIndex: 5, whiteSpace: "normal", padding: "5px 15px", margin: 0, backgroundColor: "primary.main" }}
 			secondaryAction={
-				<IconButton onClick={props.handleclose}>
+				<IconButton onClick={props.conversationclose}>
 					<CloseIcon />
 				</IconButton>
 			}
@@ -191,26 +195,79 @@ export function ListItemHeader(props) {
 }
 
 
-export function ListItemSendMessage(props) {
+export function ListItemSendMessage(props, senderIDm, fetchConversation) {
+
+	const [values, setValues] = useState({
+		message: '',
+	});
+
+	const handleChange = (prop) => (event) => {
+		setValues({ ...values, [prop]: event.target.value });
+	};
+
+	const textFieldRef = React.useRef(null)
+
+	const sendMessage = (event, senderId, fetchConversation, scrollToBottom) => {
+		if (values.message) {
+			fetch("http://localhost:9000/chat/" + (senderId).toString() + "/send", {
+				method: 'POST',
+				headers: {
+					'Authorization': "Bearer " + localStorage.getItem("token"),
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					message: values.message,
+				})
+			})
+				.then(res => {
+					if (res.ok && res.status === 200) {
+						fetchConversation(senderId, function (results) {
+							if (results === true)
+								scrollToBottom()
+							return;
+						});
+					}
+					else {
+						console.log("Fail to send message");
+					}
+				})
+				.catch(error => {
+					console.log(error);
+					console.log("Fail to fetch");
+				})
+		}
+	}
 
 	// const classes = formStyle(props)();
 	return (
 
 		<ListItem
-			{...props}
+			key={props.keybis}
 			disableGutters
-			sx={{ position: "sticky", bottom: 0, zIndex: 5, whiteSpace: "normal", padding: "0 15px", margin: 0, backgroundColor: "primary.main" }}
+			sx={{ borderRadius: "0 0 4px 4px", zIndex: 5, whiteSpace: "normal", padding: "5px 15px", margin: 0, backgroundColor: "primary.main" }}
 			secondaryAction={
-				<IconButton >
+				<IconButton
+					onClick={(e) => {
+						textFieldRef.current.focus();
+						sendMessage(e, props.senderid, props.fetchconversation, props.scrollbottom);
+					}}
+				>
 					<SendIcon />
 				</IconButton>
 			}
 		>
 			<TextField
-				id="outlined-multiline-flexible"
+				// classes={classes}
+				inputRef={textFieldRef}
+				size="small"
+				hiddenLabel
+				id="filled-hidden-label-normal"
+				placeholder="Write a message"
 				multiline
-				maxRows={4}
-				label="Send message"
+				maxRows={2}
+				onChange={handleChange('message')}
+				// InputProps={classes.input}
+				sx={{ width: "90%", backgroundColor: '#fff' }}
 			/>
 		</ListItem>
 	);

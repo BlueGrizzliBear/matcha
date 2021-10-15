@@ -6,7 +6,7 @@ const wss = new ws.WebSocketServer({
 });
 
 const authenticate = (request, err) => {
-	console.log(`Conn Url ${request.url}`);
+	console.log(`Websocket connexion Url ${request.url}`);
 	const token = new Models.Token(null, request.url.substring(8))
 	token.verify(function (error, decoded) {
 		if (error) {
@@ -100,7 +100,7 @@ const sendNotification = function (userId, type, from, message = null) {
 		// Check that connect are open and still alive to avoid socket error
 		if (client.readyState === 1 && client.id === userId) {
 			if (type == 1)
-				client.send("New Message");
+				client.send("New Notification Message");
 			else if (type == 2)
 				client.send("New Like");
 			else if (type == 3)

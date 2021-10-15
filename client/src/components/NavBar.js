@@ -137,7 +137,9 @@ function NavBar(props) {
         console.log("Fail to fetch");
         setNotificationsAreLoading(false);
       })
+  }, []);
 
+  useEffect(() => {
     setChatsAreLoading(true);
     fetch("http://localhost:9000/chat", {
       method: 'GET',
@@ -162,6 +164,14 @@ function NavBar(props) {
         setChatsAreLoading(false);
       })
   }, []);
+
+  // useEffect(() => {
+  //   props.websocket.onmessage = evt => {
+  //     // listen to data sent from the websocket server
+  //     console.log(evt.data)
+  //   }
+
+  // }, [props.websocket]);
 
   const handleLogout = () => {
     props.logout();

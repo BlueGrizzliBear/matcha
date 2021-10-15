@@ -45,6 +45,7 @@ router.get('/:id', checkToken, function (req, res, next) {
 
 /* POST /chat/:id/send - Send a message to a user */
 router.post('/:id/send', checkToken, function (req, res, next) {
+	// CHECK IF USERS LIKING MUTUALLY TO GET THE RIGHT TO SEND MESSAGES
 	const chat = new Models.Chat(res.locals.results.id, parseInt(req.params['id']));
 
 	chat.create(req.body.message, (error, results) => {

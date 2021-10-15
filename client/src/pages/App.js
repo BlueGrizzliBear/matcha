@@ -59,7 +59,8 @@ class App extends Component {
       isProfileComplete: false,
       isSent: false,
       hasToken: localStorage.getItem("token"),
-      user: {}
+      user: {},
+      websocket: null
     };
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
@@ -67,13 +68,18 @@ class App extends Component {
   }
 
   login() {
-    this.setState({ hasToken: localStorage.getItem("token") })
+    this.setState({
+      hasToken: localStorage.getItem("token"),
+      websocket: new WebSocket('ws://localhost:9000/?token=' + localStorage.getItem("token"))
+    })
     this.fetchUser();
   }
 
   logout() {
     localStorage.removeItem("token");
-    this.setState({ hasToken: null })
+    this.state.websocket.close();
+    this.setState({ websocket: null });
+    this.setState({ hasToken: null });
     this.cleanUser();
   }
 
@@ -104,8 +110,10 @@ class App extends Component {
                 isActivated: data.isActivated,
                 isProfileComplete: data.isProfileComplete,
                 user: data,
-                isLoading: false
+                isLoading: false,
               });
+              if (!this.state.websocket)
+                this.setState({ websocket: new WebSocket('ws://localhost:9000/?token=' + localStorage.getItem("token")) });
               // }, () => {
               //   sleep(2000).then(() => {
               //     this.setState({ isLoading: false });
@@ -136,7 +144,7 @@ class App extends Component {
     return (
       <>
         <header>
-          <NavBar auth={this.state.isAuth} logout={this.logout} footerref={this.footerRef} />
+          <NavBar auth={this.state.isAuth} logout={this.logout} footerref={this.footerRef} websocket={this.state.websocket} />
         </header>
         <main>
 

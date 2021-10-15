@@ -36,14 +36,14 @@ export function MenuItemMessage(props) {
 			{...props}
 			sx={{ width: 328, whiteSpace: "normal" }}
 			component={Link}
-			divider={props.i !== props.notifications.length ? true : false}
+			divider={props.i + 1 !== props.notifications.length ? true : false}
 		>
 			<ListItemAvatar>
 				<Avatar alt={props.item.sender} src={props.item.sender_img} />
 			</ListItemAvatar>
 			<ListItemText
 				primary={"New message from " + props.item.sender}
-				secondary={parser.parseFromString('<!doctype html><body>' + props.item.message, 'text/html').body.textContent.substr(0, 25) + '... ' + new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
+				secondary={parser.parseFromString('<!doctype html><body>' + props.item.message, 'text/html').body.textContent.substr(0, 25) + ' - ' + new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
 			/>
 			<Divider orientation="vertical" variant="middle" flexItem sx={{ margin: '10px' }} />
 			<CommentIcon />
@@ -58,14 +58,14 @@ export function MenuItemChat(props) {
 		<MenuItem
 			{...props}
 			sx={{ width: 328, whiteSpace: "normal" }}
-			divider={props.i !== props.chats.length ? true : false}
+			divider={props.i + 1 !== props.chats.length ? true : false}
 		>
 			<ListItemAvatar>
 				<Avatar alt={props.item.user_id === props.item.receiver_user_id ? props.item.sender : props.item.receiver} src={props.item.user_id === props.item.receiver_user_id ? props.item.sender_img : props.item.receiver_img} />
 			</ListItemAvatar>
 			<ListItemText
 				primary={props.item.user_id === props.item.receiver_user_id ? props.item.sender : props.item.receiver}
-				secondary={(props.item.user_id === props.item.sender_user_id) && 'Vous: ' + parser.parseFromString('<!doctype html><body>' + props.item.message, 'text/html').body.textContent.substr(0, props.item.user_id === props.item.sender_user_id ? 29 : 35) + '... ' + new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
+				secondary={(props.item.user_id === props.item.sender_user_id ? 'You: ' : '') + parser.parseFromString('<!doctype html><body>' + props.item.message, 'text/html').body.textContent.substr(0, props.item.user_id === props.item.sender_user_id ? 30 : 35) + ' - ' + new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
 			/>
 		</MenuItem>
 	);

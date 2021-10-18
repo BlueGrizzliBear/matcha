@@ -209,7 +209,7 @@ export function ListItemSendMessage(props, senderIDm, fetchConversation) {
 
 	const sendMessage = (event, senderId, fetchConversation, scrollToBottom) => {
 		if (values.message) {
-			fetch("http://localhost:9000/chat/" + (senderId).toString() + "/send", {
+			fetch("http://" + process.env.REACT_APP_API_URL + "chat/" + (senderId).toString() + "/send", {
 				method: 'POST',
 				headers: {
 					'Authorization': "Bearer " + localStorage.getItem("token"),

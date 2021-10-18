@@ -76,7 +76,7 @@ function Register(props) {
 		e.preventDefault();
 
 		if (validateFields(values)) {
-			fetch('http://localhost:9000/register', {
+			fetch("http://" + process.env.REACT_APP_API_URL + 'register', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({

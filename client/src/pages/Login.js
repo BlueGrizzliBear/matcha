@@ -26,7 +26,7 @@ function Login(props) {
 	const handleLogin = (e) => {
 		e.preventDefault();
 		if (!verification) {
-			fetch('http://localhost:9000/login', {
+			fetch("http://" + process.env.REACT_APP_API_URL + 'login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				credentials: 'same-origin',
@@ -60,7 +60,7 @@ function Login(props) {
 				})
 		}
 		else {
-			fetch('http://localhost:9000/login/activation_link', {
+			fetch("http://" + process.env.REACT_APP_API_URL + 'login/activation_link', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				credentials: 'same-origin',
@@ -87,7 +87,7 @@ function Login(props) {
 	};
 
 	const handleForgotPassword = (e) => {
-		fetch('http://localhost:9000/login/forgot_password', {
+		fetch('http://' + process.env.REACT_APP_API_URL + 'login/forgot_password', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			credentials: 'same-origin',

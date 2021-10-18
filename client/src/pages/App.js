@@ -98,7 +98,7 @@ class App extends Component {
 
   fetchUser() {
     this.setState({ isLoading: true }, () => {
-      fetch(process.env.REACT_APP_API_URL + 'user', {
+      fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
         method: 'GET',
         headers: { 'Authorization': "Bearer " + this.state.hasToken },
       })
@@ -113,7 +113,7 @@ class App extends Component {
                 isLoading: false,
               });
               if (!this.state.websocket)
-                this.setState({ websocket: new WebSocket('ws://localhost:9000/?token=' + localStorage.getItem("token")) });
+                this.setState({ websocket: new WebSocket('ws://' + process.env.REACT_APP_API_URL + '?token=' + localStorage.getItem("token")) });
               // }, () => {
               //   sleep(2000).then(() => {
               //     this.setState({ isLoading: false });

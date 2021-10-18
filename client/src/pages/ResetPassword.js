@@ -50,7 +50,7 @@ function Register(props) {
 		e.preventDefault();
 
 		if (validateFields(values)) {
-			fetch('http://localhost:9000/user/reset_password', {
+			fetch("http://" + process.env.REACT_APP_API_URL + 'user/reset_password', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

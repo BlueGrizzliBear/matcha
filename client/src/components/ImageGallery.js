@@ -121,7 +121,7 @@ function ImageGallery(props) {
 		if (files && files.length) {
 			const formData = new FormData()
 			formData.append('uploadedImage', files[0], files[0].name);
-			fetch(process.env.REACT_APP_API_URL + 'upload?img=' + e.target.title, {
+			fetch("http://" + process.env.REACT_APP_API_URL + 'upload?img=' + e.target.title, {
 				method: 'POST',
 				headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 				body: formData
@@ -130,7 +130,7 @@ function ImageGallery(props) {
 				.then(res => {
 					props.setValue('isProfileComplete', res.isProfileComplete);
 					const index = itemData.findIndex(x => x.title === e.target.title);
-					fetchImage(process.env.REACT_APP_API_URL + 'upload/' + res.image, index, props.user.fake);
+					fetchImage("http://" + process.env.REACT_APP_API_URL + 'upload/' + res.image, index, props.user.fake);
 				})
 				.catch(error => {
 					console.log(error);
@@ -140,7 +140,7 @@ function ImageGallery(props) {
 	};
 
 	const handleFileDelete = (imgTitle) => {
-		fetch(process.env.REACT_APP_API_URL + 'upload?img=' + imgTitle, {
+		fetch("http://" + process.env.REACT_APP_API_URL + 'upload?img=' + imgTitle, {
 			method: 'DELETE',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
@@ -176,9 +176,9 @@ function ImageGallery(props) {
 						}}
 					>
 						{isLoading[i] ?
-						<Loading />
-						:
-						<img src={item.img} alt={item.title} style={{ objectFit: 'cover' }} />
+							<Loading />
+							:
+							<img src={item.img} alt={item.title} style={{ objectFit: 'cover' }} />
 						}
 						<input
 							title={item.title}

@@ -22,7 +22,7 @@ export default function Chats(props) {
 	const open = Boolean(anchorEl);
 
 	const fetchConversation = (senderId, ret) => {
-		fetch("http://localhost:9000/chat/" + (senderId).toString(), {
+		fetch("http://" + process.env.REACT_APP_API_URL + "chat/" + (senderId).toString(), {
 			method: 'GET',
 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})

@@ -46,7 +46,7 @@ function NavBar(props) {
   const handleNotificationsClick = (event) => {
     setAnchorNotifEl(event.currentTarget);
     setNotificationsAreLoading(true);
-    fetch("http://localhost:9000/notification/read", {
+    fetch("http://" + process.env.REACT_APP_API_URL + "notification/read", {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })
@@ -115,7 +115,7 @@ function NavBar(props) {
 
   useEffect(() => {
     setNotificationsAreLoading(true);
-    fetch("http://localhost:9000/notification", {
+    fetch("http://" + process.env.REACT_APP_API_URL + "notification", {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })
@@ -141,7 +141,7 @@ function NavBar(props) {
 
   useEffect(() => {
     setChatsAreLoading(true);
-    fetch("http://localhost:9000/chat", {
+    fetch("http://" + process.env.REACT_APP_API_URL + "chat", {
       method: 'GET',
       headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
     })

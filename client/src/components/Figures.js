@@ -57,7 +57,7 @@ function Figures(props) {
 	}
 
 	const handleLocation = (e) => {
-		fetch(process.env.REACT_APP_API_URL + 'user', {
+		fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
 			method: 'POST',
 			headers: {
 				'Authorization': "Bearer " + localStorage.getItem("token"),
@@ -88,45 +88,45 @@ function Figures(props) {
 				<Stack direction="column" spacing={1}>
 					<h2 style={{ 'margin': '4px', 'textAlign': 'left', 'paddingLeft': '8px' }} >{user.firstname} {user.lastname}{user.birth_date ? ", " + calculateAge(user.birth_date) : ''}</h2>
 					<Box className={classes.FigureRoot} style={{ 'margin': '4px' }}>
-						{ editable ?
-						<Tooltip title={user.location_mode ? "Automatic" : "Manual"}>
-							<IconButton sx={{ 'padding': '2px 8px' }} aria-label="Activate/Desactive Automatic Location" color={user.location_mode ? "primary" : "inherit"} clickable="true" onClick={handleLocation}>
+						{editable ?
+							<Tooltip title={user.location_mode ? "Automatic" : "Manual"}>
+								<IconButton sx={{ 'padding': '2px 8px' }} aria-label="Activate/Desactive Automatic Location" color={user.location_mode ? "primary" : "inherit"} clickable="true" onClick={handleLocation}>
+									<LocationOnIcon />
+								</IconButton>
+							</Tooltip>
+							:
+							<Box sx={{ 'padding': '2px 8px' }}>
 								<LocationOnIcon />
-							</IconButton>
-						</Tooltip>
-						:
-						<Box sx={{ 'padding': '2px 8px' }}>
-							<LocationOnIcon />
-						</Box>
+							</Box>
 						}
 						<Box>{user.city}, {user.country}</Box>
 					</Box>
 				</Stack>
-				{likeable ? 
-				<Stack>
-					<LikeButton liking={user.liking} {...props} />
-				</Stack>
-				:
-				<></>
+				{likeable ?
+					<Stack>
+						<LikeButton liking={user.liking} {...props} />
+					</Stack>
+					:
+					<></>
 				}
 				<Stack sx={{ 'marginRight': '12px' }} direction="row" spacing={2} justifyContent='flex-start' alignItems="center">
-					{ editable ?
-					<>
-						<Tooltip title="Who liked you">
-							<Chip icon={<FavoriteIcon />} color={"primary"} label={user.likes} clickable sx={{ fontSize: "20px" }} />
-						</Tooltip>
-						<Tooltip title="Who saw your profile">
-							<Chip icon={<VisibilityIcon />} color="secondary" label={user.watches} clickable sx={{ fontSize: "20px" }} />
-						</Tooltip>
-					</>
-					:
-					<>
-						{/* <StandaloneToggleButton component={<FavoriteIcon sx={{ fontSize: '36px' }} />} /> */}
-						<StandaloneToggleButton component={<MoreVertIcon />} firstColor='error' />
-						<StandaloneToggleButton component={<BlockIcon />} firstColor='error' />
-						<StandaloneToggleButton component={<ErrorOutlineIcon />} firstColor='warning' />
+					{editable ?
+						<>
+							<Tooltip title="Who liked you">
+								<Chip icon={<FavoriteIcon />} color={"primary"} label={user.likes} clickable sx={{ fontSize: "20px" }} />
+							</Tooltip>
+							<Tooltip title="Who saw your profile">
+								<Chip icon={<VisibilityIcon />} color="secondary" label={user.watches} clickable sx={{ fontSize: "20px" }} />
+							</Tooltip>
+						</>
+						:
+						<>
+							{/* <StandaloneToggleButton component={<FavoriteIcon sx={{ fontSize: '36px' }} />} /> */}
+							<StandaloneToggleButton component={<MoreVertIcon />} firstColor='error' />
+							<StandaloneToggleButton component={<BlockIcon />} firstColor='error' />
+							<StandaloneToggleButton component={<ErrorOutlineIcon />} firstColor='warning' />
 
-						{/* <Tooltip title="Click to Like Profile">
+							{/* <Tooltip title="Click to Like Profile">
 							<Chip icon={<FavoriteIcon />} color={"secondary"} variant="outlined" clickable sx={{ fontSize: "20px" }} />
 						</Tooltip>
 						<Tooltip title="Click to Like Profile">
@@ -142,7 +142,7 @@ function Figures(props) {
 						<Chip icon={<FavoriteIcon />} color={"secondary"} variant="outlined" clickable sx={{ fontSize: "20px" }} />
 						<Chip icon={<BlockIcon />} color={"secondary"} clickable variant="outlined" sx={{ fontSize: "20px" }} />
 						<Chip icon={<ErrorOutlineIcon />} color={"secondary"} variant="outlined" clickable sx={{ fontSize: "20px" }} /> */}
-					</>
+						</>
 					}
 				</Stack>
 			</Box>

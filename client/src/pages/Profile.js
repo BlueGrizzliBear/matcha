@@ -43,7 +43,7 @@ function Profile(props) {
 				setIsLoading(false);
 				history.push(`/`);
 			})
-	}, [props.path, props.computedMatch, history]);
+	}, [props.path, props.computedMatch, history, props.user]);
 
 	return (
 		<>
@@ -52,8 +52,8 @@ function Profile(props) {
 					<Loading />
 					:
 					<>
-						<Figures {...props} user={user} />
-						<ImageGallery {...props} user={user} />
+						<Figures {...props} user={user} updateUser={setUser} editable={user.isAuth} likeable={!user.isAuth}/>
+						<ImageGallery {...props} user={user} editable={user.isAuth} />
 						<Interests />
 						<Biography />
 						<Gender />

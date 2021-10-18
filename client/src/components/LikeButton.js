@@ -2,7 +2,7 @@ import * as React from 'react';
 import ToggleButton from '@mui/material/ToggleButton';
 import { Favorite as FavoriteIcon } from '@mui/icons-material';
 
-function LikeButton({ match = 'match', isLiked = 'primary', standard = 'secondary', ...props }) {
+function LikeButton({ match = 'match', isLiked = 'primary', standard = 'secondary', user = {}, ...props }) {
   const [selected, setSelected] = React.useState(props.liking);
 
   const fetchLike = (path) => {
@@ -37,7 +37,7 @@ function LikeButton({ match = 'match', isLiked = 'primary', standard = 'secondar
       value="check"
       selected={true}
       size='large'
-      color={selected ? match : (props.user.liked ? isLiked : standard)}
+      color={selected ? match : (user.liked ? isLiked : standard)}
       sx={{ borderRadius: '50%' }}
       onChange={() => {
         if (!selected)

@@ -79,17 +79,13 @@ function ImageGallery(props) {
 	);
 
 	useEffect(() => {
+		setMounted(true);
 		if (mounted) {
 			sleep(2000).then(() => {
 
 				for (const tag in props.user.images) {
 					const index = itemData.findIndex(x => x.title === tag);
 					if (props.user.images[tag]) {
-						// setIsLoading((arr) => {
-						// 	let tmpArr = arr.slice();
-						// 	tmpArr[index] = true;
-						// 	return (tmpArr);
-						// });
 						fetchImage(props.user.images[tag], index, props.user.fake);
 					}
 					else {
@@ -104,10 +100,7 @@ function ImageGallery(props) {
 						});
 					}
 				}
-
 			});
-
-
 		}
 		// Anything in here is fired on component unmount.
 		return () => {
@@ -192,7 +185,7 @@ function ImageGallery(props) {
 							position="top"
 							actionposition="right"
 							style={{ background: 'rgba(0,0,0,0)' }}
-							actionIcon={<OptionButton item={item} ref={inputFile.current[i]} handleFileDelete={handleFileDelete} />}
+							actionIcon={ props.editable ? <OptionButton item={item} ref={inputFile.current[i]} handleFileDelete={handleFileDelete} /> : <></> }
 						/>
 					</ImageListItem>
 				))}

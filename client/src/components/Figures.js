@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 import { Box, Chip, Stack, Tooltip, IconButton } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import StandaloneToggleButton from './ToggleButton';
@@ -6,7 +6,7 @@ import LikeButton from './LikeButton';
 import { Visibility as VisibilityIcon, Favorite as FavoriteIcon, LocationOn as LocationOnIcon, Block as BlockIcon, ErrorOutline as ErrorOutlineIcon } from '@mui/icons-material';
 
 // import OptionButton from '../components/OptionButton'
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+// import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import calculateAge from '../utility/utilities'
 
@@ -33,22 +33,9 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-function Figures(props) {
+function Figures({user, editable, likeable, updateUser, ...props}) {
 
 	const classes = useStyles();
-
-	const [user, setUser] = useState(props.user);
-	const [editable, setEditable] = useState(false);
-	const [likeable, setLikeable] = useState(false);
-
-	useEffect(() => {
-		if (props.user.isAuth === true)
-			setEditable(true);
-		else
-			setLikeable(true);
-		setUser(props.user);
-
-	}, [props.user]);
 
 	const changeAddress = (locationMode, tag) => {
 		if (locationMode === true)
@@ -76,8 +63,7 @@ function Figures(props) {
 			.then(res => {
 				if (res.ok) {
 					return res.json().then((data) => {
-						setUser(data);
-						// props.setValue('user', data) // removed to disable rendering all the page
+						updateUser(data);
 					})
 				}
 			})

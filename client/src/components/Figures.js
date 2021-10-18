@@ -56,6 +56,10 @@ function Figures(props) {
 		return (tag === 'country' ? 'France' : 'Lyon');
 	}
 
+	const estimateAddress = (value, placeholder) => {
+		return (value ? value : placeholder);
+	}
+
 	const handleLocation = (e) => {
 		fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
 			method: 'POST',
@@ -73,7 +77,7 @@ function Figures(props) {
 				if (res.ok) {
 					return res.json().then((data) => {
 						setUser(data);
-						props.setValue('user', data)
+						// props.setValue('user', data) // removed to disable rendering all the page
 					})
 				}
 			})
@@ -99,7 +103,7 @@ function Figures(props) {
 								<LocationOnIcon />
 							</Box>
 						}
-						<Box>{user.city}, {user.country}</Box>
+						<Box>{estimateAddress(user.city, 'cityPlaceholder')}, {estimateAddress(user.country, 'countryPlaceholder')}</Box>
 					</Box>
 				</Stack>
 				{likeable ?

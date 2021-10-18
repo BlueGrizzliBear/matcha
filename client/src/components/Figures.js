@@ -125,27 +125,8 @@ function Figures(props) {
 						</>
 						:
 						<>
-							{/* <StandaloneToggleButton component={<FavoriteIcon sx={{ fontSize: '36px' }} />} /> */}
-							<StandaloneToggleButton component={<MoreVertIcon />} firstColor='error' />
-							<StandaloneToggleButton component={<BlockIcon />} firstColor='error' />
 							<StandaloneToggleButton component={<ErrorOutlineIcon />} firstColor='warning' />
-
-							{/* <Tooltip title="Click to Like Profile">
-							<Chip icon={<FavoriteIcon />} color={"secondary"} variant="outlined" clickable sx={{ fontSize: "20px" }} />
-						</Tooltip>
-						<Tooltip title="Click to Like Profile">
-							<Chip icon={<FavoriteIcon />} color={"primary"} variant="outlined" clickable sx={{ fontSize: "20px" }} />
-						</Tooltip>
-						<Tooltip title="Click to Like Profile">
-							<Chip icon={<FavoriteIcon />} color={"secondary"} clickable sx={{ fontSize: "20px" }} />
-						</Tooltip>
-						<Tooltip title="Click to Like Profile">
-							<Chip icon={<FavoriteIcon />} color={"primary"} clickable sx={{ fontSize: "20px" }} />
-						</Tooltip>
-
-						<Chip icon={<FavoriteIcon />} color={"secondary"} variant="outlined" clickable sx={{ fontSize: "20px" }} />
-						<Chip icon={<BlockIcon />} color={"secondary"} clickable variant="outlined" sx={{ fontSize: "20px" }} />
-						<Chip icon={<ErrorOutlineIcon />} color={"secondary"} variant="outlined" clickable sx={{ fontSize: "20px" }} /> */}
+							<StandaloneToggleButton component={<BlockIcon />} firstColor='error' />
 						</>
 					}
 				</Stack>

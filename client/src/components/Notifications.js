@@ -7,10 +7,10 @@ import { Visibility as VisibilityIcon, Favorite as FavoriteIcon, Comment as Comm
 import { sleep } from '../utility/utilities'
 import { LoadingMenu } from './Loading';
 
-var parser = new DOMParser();
 const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
 
 function MenuItemMessage(props) {
+	var parser = new DOMParser();
 
 	// const classes = formStyle(props)();
 	return (

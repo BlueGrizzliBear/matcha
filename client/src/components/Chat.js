@@ -1,12 +1,9 @@
 import React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { IconButton, Box, Paper, Popper, TextField, Typography, Chip, MenuItem, ListItem, ListItemText } from '@mui/material';
-import { Send as SendIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Circle as CircleIcon, Send as SendIcon, Close as CloseIcon } from '@mui/icons-material';
 import { LoadingMenu } from './Loading';
 import { sleep } from '../utility/utilities'
-
-var parser = new DOMParser();
-const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
 
 export default function Messages(props) {
 
@@ -23,6 +20,9 @@ export default function Messages(props) {
     const [conversation, setConversation] = useState(data);
     const [receiverName, setReceiverName] = useState('No messages');
     const [receiverId, setReceiverId] = useState(null);
+    const [isOnline, setIsOnline] = useState({ id: null, online: false });
+
+    /* Events */
 
     const scrollToBottom = () => {
         if (messagesEndRef)
@@ -43,21 +43,23 @@ export default function Messages(props) {
 
     function ListItemConversation(props) {
 
-        // const classes = formStyle(props)();
+        var parser = new DOMParser();
+        const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+
         return (
             <ListItem
                 key={props.keybis}
                 sx={{ padding: "0 8px", width: 328, whiteSpace: "normal", justifyContent: props.item.sender_user_id === props.item.user_id ? "flex-start" : 'flex-end' }}
             >
-                <Box >
+                <Box sx={{ display: "flex", flexDirection: "column", maxWidth: "80%", alignItems: props.item.sender_user_id === props.item.user_id ? "flex-start" : 'flex-end' }}>
                     <Typography
-                        sx={{ maxWidth: "80%", fontSize: "10px", whiteSpace: "normal", marginLeft: "10px", marginRight: "10px" }}
+                        sx={{ fontSize: "10px", whiteSpace: "normal", marginLeft: "10px", marginRight: "10px" }}
                     >
                         {props.item.sender ? props.item.sender : props.item.receiver}
                     </Typography>
                     <Chip
                         color={props.item.sender_user_id === props.item.user_id ? 'primary' : 'secondary'}
-                        sx={{ maxWidth: "80%", height: "100%", marginLeft: 0, marginRight: 0 }}
+                        sx={{ width: 'fit-content', height: "100%", marginLeft: 0, marginRight: 0 }}
                         label={<Typography
                             sx={{ overflowWrap: "anywhere", whiteSpace: "normal" }}
                         >
@@ -65,7 +67,7 @@ export default function Messages(props) {
                         </Typography>}
                     />
                     <Typography
-                        sx={{ maxWidth: "80%", minWidth: "160px", fontSize: "10px", textAlign: "right", marginLeft: "10px", marginRight: "10px" }}
+                        sx={{ fontSize: "10px", marginLeft: "10px", marginRight: "10px" }}
                     >
                         {new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions) + ' - ' + (props.item.read ? '✓' : 'Sent')}
                     </Typography>
@@ -74,27 +76,29 @@ export default function Messages(props) {
         );
     }
 
-    function ListItemHeader(props) {
+    function ListItemHeader() {
 
         // const classes = formStyle(props)();
         return (
-
-            <ListItem
-                key={props.keybis}
-                disableGutters
-                sx={{ borderRadius: "4px 4px 0 0", zIndex: 5, whiteSpace: "normal", padding: "5px 15px", margin: 0, backgroundColor: "primary.main" }}
-                secondaryAction={
-                    <IconButton onClick={props.conversationclose}>
-                        <CloseIcon />
-                    </IconButton>
-                }
-            >
-                <ListItemText primary={props.sendername} />
-            </ListItem>
+            <>
+                <ListItem
+                    key={"conversationHeaderBis"}
+                    disableGutters
+                    sx={{ borderRadius: "4px 4px 0 0", zIndex: 5, whiteSpace: "normal", padding: "5px 15px", margin: 0, backgroundColor: "primary.main" }}
+                    secondaryAction={
+                        <IconButton onClick={props.handleclose}>
+                            <CloseIcon />
+                        </IconButton>
+                    }
+                >
+                    <CircleIcon sx={{ width: "12px", marginRight: "12px", color: (isOnline.user === receiverId && isOnline.online) ? "green" : "red" }} />
+                    <ListItemText primary={receiverName} />
+                </ListItem>
+            </>
         );
     }
 
-    function ListItemSendMessage(props) {
+    function ListItemSendMessage() {
 
         const [values, setValues] = useState({
             message: '',
@@ -137,14 +141,14 @@ export default function Messages(props) {
         return (
 
             <ListItem
-                key={props.keybis}
+                key={"conversationSenderBis"}
                 disableGutters
                 sx={{ borderRadius: "0 0 4px 4px", zIndex: 5, whiteSpace: "normal", padding: "5px 15px", margin: 0, backgroundColor: "primary.main" }}
                 secondaryAction={
                     <IconButton
                         onClick={(e) => {
                             textFieldRef.current.focus();
-                            sendMessage(e, props.senderid, props.fetchconversation);
+                            sendMessage(e, receiverId, fetchConversation);
                         }}
                     >
                         <SendIcon />
@@ -207,6 +211,12 @@ export default function Messages(props) {
         }
     }, [props.open, props.receiverid, fetchConversation]);
 
+    useEffect(() => {
+        if (props.websocketevent.user) {
+            setIsOnline(props.websocketevent);
+        }
+    }, [props.websocketevent]);
+
     return (
         <Popper
             key={"popper"}
@@ -246,7 +256,7 @@ export default function Messages(props) {
                         <MenuItemLoad key="1" />
                         :
                         [
-                            <ListItemHeader key={"conversationHeader"} keybis={"conversationHeaderBis"} sendername={receiverName} conversationclose={props.handleclose} />,
+                            <ListItemHeader key={"conversationHeader"} />,
                             <Box key="boxkey" sx={{ width: '100%', minWidth: 150, Width: 360, maxHeight: 450, overflow: "auto", }}>
                                 {conversation.slice().reverse().map((item, i) => (
                                     <ListItemConversation
@@ -261,11 +271,10 @@ export default function Messages(props) {
                                 >
                                 </div>
                             </Box>,
-                            <ListItemSendMessage key={"conversationSender"} keybis={"conversationSenderBis"} senderid={receiverId} fetchconversation={fetchConversation} scrollbottom={scrollToBottom} />
+                            <ListItemSendMessage key={"conversationSender"} />
                         ]
                 }
             </Paper>
         </Popper >
     )
-
 }

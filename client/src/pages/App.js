@@ -60,17 +60,31 @@ class App extends Component {
       isSent: false,
       hasToken: localStorage.getItem("token"),
       user: {},
-      websocket: null
+      websocket: null,
+      websocketEvent: {}
     };
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
     this.setValue = this.setValue.bind(this);
   }
 
+  websocketEventListener(websocket) {
+    websocket.onmessage = (msg) => {
+      console.log(msg)
+      msg = JSON.parse(msg.data);
+      this.setState({ websocketEvent: msg });
+    };
+  }
+
   login() {
     this.setState({
       hasToken: localStorage.getItem("token"),
-      websocket: new WebSocket('ws://localhost:9000/?token=' + localStorage.getItem("token"))
+    }, () => {
+      let websocket = new WebSocket('ws://' + process.env.REACT_APP_API_URL + '?token=' + localStorage.getItem("token"));
+      this.websocketEventListener(websocket);
+      this.setState({
+        websocket: websocket
+      })
     })
     this.fetchUser();
   }
@@ -112,8 +126,13 @@ class App extends Component {
                 user: data,
                 isLoading: false,
               });
-              if (!this.state.websocket)
-                this.setState({ websocket: new WebSocket('ws://' + process.env.REACT_APP_API_URL + '?token=' + localStorage.getItem("token")) });
+              if (!this.state.websocket) {
+                let websocket = new WebSocket('ws://' + process.env.REACT_APP_API_URL + '?token=' + localStorage.getItem("token"));
+                this.websocketEventListener(websocket);
+                this.setState({
+                  websocket: websocket
+                });
+              }
               // }, () => {
               //   sleep(2000).then(() => {
               //     this.setState({ isLoading: false });
@@ -144,7 +163,7 @@ class App extends Component {
     return (
       <>
         <header>
-          <NavBar auth={this.state.isAuth} logout={this.logout} footerref={this.footerRef} websocket={this.state.websocket} />
+          <NavBar auth={this.state.isAuth} logout={this.logout} footerref={this.footerRef} websocket={this.state.websocket} websocketevent={this.state.websocketEvent} />
         </header>
         <main>
 

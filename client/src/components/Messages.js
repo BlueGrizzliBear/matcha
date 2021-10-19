@@ -1,7 +1,7 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { IconButton, Menu, Badge, Tooltip, MenuItem, ListItemAvatar, Avatar, ListItemText } from '@mui/material';
-import { Chat as ChatIcon } from '@mui/icons-material';
+import { Circle as CircleIcon, Chat as ChatIcon } from '@mui/icons-material';
 import { LoadingMenu } from './Loading';
 import Chat from './Chat'
 
@@ -30,6 +30,7 @@ export default function Messages(props) {
 	const [anchorEl, setAnchorEl] = useState(null);
 	const [receiverId, setReceiverId] = useState(null);
 	const open = Boolean(anchorEl);
+	const [isOnline, setIsOnline] = useState({ id: null, online: false });
 
 	/* Chats */
 	const handleConversationClick = (data, conversation) => {
@@ -40,8 +41,16 @@ export default function Messages(props) {
 		setChats(data);
 	}
 
-	const handleChatsClick = (event) => {
+	const requestIsOnline = useCallback((object) => {
+		object.forEach((item, i) => {
+			if (props.websocket)
+				props.websocket.send(JSON.stringify({ isUserOnline: item.user_id === item.sender_user_id ? item.receiver_user_id : item.sender_user_id }))
+		})
+	}, [props.websocket])
+
+	const handleChatsClick = (event, object) => {
 		setAnchorChatEl(event.currentTarget);
+		requestIsOnline(object);
 	};
 
 	const handleChatsClose = () => {
@@ -64,7 +73,7 @@ export default function Messages(props) {
 			<MenuItem
 				{...props}
 				sx={{ width: 328, whiteSpace: "normal" }}
-				divider={props.i + 1 !== props.chats.length ? true : false}
+				divider={props.i + 1 !== chats.length ? true : false}
 			>
 				<ListItemAvatar>
 					<Avatar alt={props.item.user_id === props.item.receiver_user_id ? props.item.sender : props.item.receiver} src={props.item.user_id === props.item.receiver_user_id ? props.item.sender_img : props.item.receiver_img} />
@@ -73,6 +82,7 @@ export default function Messages(props) {
 					primary={props.item.user_id === props.item.receiver_user_id ? props.item.sender : props.item.receiver}
 					secondary={(props.item.user_id === props.item.sender_user_id ? 'You: ' : '') + parser.parseFromString('<!doctype html><body>' + props.item.message, 'text/html').body.textContent.substr(0, props.item.user_id === props.item.sender_user_id ? 30 : 35) + ' - ' + new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
 				/>
+				<CircleIcon sx={{ width: "12px", marginLeft: "12px", color: ((props.item.user_id === props.item.receiver_user_id && isOnline.user === props.item.sender_user_id) || (props.item.user_id === props.item.sender_user_id && isOnline.user === props.item.receiver_user_id)) && isOnline.online ? "green" : "red" }} />
 			</MenuItem>
 		);
 	}
@@ -122,8 +132,10 @@ export default function Messages(props) {
 				.then(res => {
 					if (res.ok && res.status === 200) {
 						return res.json().then((data) => {
-							if (data.length)
+							if (data.length) {
 								setChats(data);
+								requestIsOnline(data);
+							}
 							setChatsAreLoading(false);
 						})
 					}
@@ -138,7 +150,13 @@ export default function Messages(props) {
 					setChatsAreLoading(false);
 				})
 		})
-	}, []);
+	}, [requestIsOnline]);
+
+	useEffect(() => {
+		if (props.websocketevent.user) {
+			setIsOnline(props.websocketevent);
+		}
+	}, [props.websocketevent]);
 
 	return (
 		<>
@@ -149,7 +167,9 @@ export default function Messages(props) {
 				aria-controls="chats-menu"
 				aria-haspopup="true"
 				aria-expanded={openChats ? 'true' : undefined}
-				onClick={handleChatsClick}
+				onClick={(e) => {
+					handleChatsClick(e, chats);
+				}}
 			>
 				<Badge badgeContent={countChatBadgeNumber(chats)} color="primary">
 					<Tooltip title="Chat">
@@ -174,7 +194,6 @@ export default function Messages(props) {
 								<MenuItemChat
 									i={i}
 									key={i}
-									chats={chats}
 									item={item}
 									aria-controls="conversation-menu"
 									aria-haspopup="true"
@@ -194,6 +213,7 @@ export default function Messages(props) {
 				open={open}
 				receiverid={receiverId}
 				handleclose={handleClose}
+				websocketevent={props.websocketevent}
 			/>
 		</>
 	)

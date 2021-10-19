@@ -34,10 +34,8 @@ router.get('/:id', checkToken, function (req, res, next) {
 					console.log(error);
 					res.status(400).end();
 				}
-				else {
-					websocket.sendChat(parseInt(req.params['id']));
+				else
 					res.status(200).json(results).end();
-				}
 			});
 		}
 	});

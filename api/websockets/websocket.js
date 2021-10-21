@@ -32,7 +32,7 @@ wss.on('connection', function (ws, request, client) {
 	ws.watchlist = [];
 
 	addFriendsWatchlist(ws).then(v => {
-		sendFriends(ws.id, { user: ws.id, online: true });
+		sendFriends(ws.id, { type: "Online", user: ws.id, online: true });
 
 		ws.on('message', function message(msg) {
 			// console.log(`Received message ${msg} from user ${client.id}`);
@@ -45,7 +45,7 @@ wss.on('connection', function (ws, request, client) {
 				ws.watchlist.push(msg.watching);
 		});
 		ws.on('close', function close() {
-			sendFriends(ws.id, { user: ws.id, online: false });
+			sendFriends(ws.id, { type: "Online", user: ws.id, online: false });
 			// send message to all clients conversations and watching person to see offline
 			console.log(`Socket connection closed from user ${client.id}`);
 		});
@@ -55,11 +55,11 @@ wss.on('connection', function (ws, request, client) {
 const isUserOnline = function (ws, id) {
 	for (let client of wss.clients) {
 		if (client.readyState === 1 && client.id === id) {
-			ws.send(JSON.stringify({ user: id, online: true }))
+			ws.send(JSON.stringify({ type: "Online", user: id, online: true }))
 			return;
 		}
 	}
-	ws.send(JSON.stringify({ user: id, online: false }))
+	ws.send(JSON.stringify({ type: "Online", user: id, online: false }))
 	return;
 }
 
@@ -100,23 +100,23 @@ const sendNotification = function (userId, type, from, message = null) {
 		// Check that connect are open and still alive to avoid socket error
 		if (client.readyState === 1 && client.id === userId) {
 			if (type == 1)
-				client.send(JSON.stringify({ msg: "New Notification Message" }));
+				client.send(JSON.stringify({ type: "Notification Message" }));
 			else if (type == 2)
-				client.send(JSON.stringify({ msg: "New Like" }));
+				client.send(JSON.stringify({ type: "Notification Like" }));
 			else if (type == 3)
-				client.send(JSON.stringify({ msg: "New Watch" }));
+				client.send(JSON.stringify({ type: "Notification Watch" }));
 			else if (type == 4)
-				client.send(JSON.stringify({ msg: "New Unlike" }));
+				client.send(JSON.stringify({ type: "Notification Unlike" }));
 		}
 	});
 }
 
-const sendChat = function (userId, read, from, message = null) {
+const sendChat = function (userId, from, msg) {
 	wss.clients.forEach((client) => {
 		console.log(client.id);
 		// Check that connect are open and still alive to avoid socket error
 		if (client.readyState === 1 && client.id === userId) {
-			client.send(JSON.stringify({ msg: "New Message" }));
+			client.send(JSON.stringify({ type: "Message", id: from, msg: msg }));
 		}
 	});
 }

@@ -31,6 +31,7 @@ export default function Messages(props) {
 	const [receiverId, setReceiverId] = useState(null);
 	const open = Boolean(anchorEl);
 	const [isOnline, setIsOnline] = useState({ id: null, online: false });
+	// const [receivedMessage, setReceivedMessage] = useState({ id: null });
 
 	/* Chats */
 	const handleConversationClick = (data, conversation) => {
@@ -50,10 +51,11 @@ export default function Messages(props) {
 
 	const handleChatsClick = (event, object) => {
 		setAnchorChatEl(event.currentTarget);
-		requestIsOnline(object);
+		// requestIsOnline(object);
 	};
 
 	const handleChatsClose = () => {
+		setReceiverId(null);
 		setAnchorChatEl(null);
 	};
 
@@ -122,7 +124,8 @@ export default function Messages(props) {
 		setAnchorEl(null);
 	};
 
-	useEffect(() => {
+	const fetchMessages = useCallback(() => {
+		console.log('fetching chat')
 		setChatsAreLoading(true);
 		sleep(2000).then(() => {
 			fetch("http://" + process.env.REACT_APP_API_URL + "chat", {
@@ -153,10 +156,22 @@ export default function Messages(props) {
 	}, [requestIsOnline]);
 
 	useEffect(() => {
-		if (props.websocketevent.user) {
+		fetchMessages();
+	}, [fetchMessages]);
+
+	useEffect(() => {
+		if (props.websocketevent.type === "Online" && props.websocketevent.user) {
 			setIsOnline(props.websocketevent);
 		}
 	}, [props.websocketevent]);
+
+	useEffect(() => {
+		if (props.websocketevent.type === 'Message') {
+			console.log("setting receiver id")
+			setReceiverId(props.websocketevent.id);
+			fetchMessages();
+		}
+	}, [props.websocketevent, fetchMessages]);
 
 	return (
 		<>

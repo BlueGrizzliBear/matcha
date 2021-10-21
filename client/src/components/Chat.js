@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { IconButton, Box, Paper, Popper, TextField, Typography, Chip, MenuItem, ListItem, ListItemText } from '@mui/material';
 import { Circle as CircleIcon, Send as SendIcon, Close as CloseIcon } from '@mui/icons-material';
 import { LoadingMenu } from './Loading';
-import { sleep } from '../utility/utilities'
+// import { sleep } from '../utility/utilities'
 
 export default function Messages(props) {
 
@@ -110,7 +110,7 @@ export default function Messages(props) {
 
         const textFieldRef = React.useRef(null)
 
-        const sendMessage = (event, senderId, fetchConversation) => {
+        const sendMessage = (senderId, fetchConversation) => {
             if (values.message) {
                 fetch("http://" + process.env.REACT_APP_API_URL + "chat/" + (senderId).toString() + "/send", {
                     method: 'POST',
@@ -147,8 +147,8 @@ export default function Messages(props) {
                 secondaryAction={
                     <IconButton
                         onClick={(e) => {
+                            sendMessage(receiverId, fetchConversation);
                             textFieldRef.current.focus();
-                            sendMessage(e, receiverId, fetchConversation);
                         }}
                     >
                         <SendIcon />
@@ -174,48 +174,57 @@ export default function Messages(props) {
 
     const fetchConversation = useCallback((senderId) => {
         setIsLoading(true);
-        sleep(2000).then(() => {
-            fetch("http://" + process.env.REACT_APP_API_URL + "chat/" + (senderId).toString(), {
-                method: 'GET',
-                headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
-            })
-                .then(res => {
-                    if (res.ok && res.status === 200) {
-                        return res.json().then((data) => {
-                            if (data.length) {
-                                setConversation(data);
-                                setReceiverName(data[0].user_id === data[0].receiver_user_id ? data[0].sender : data[0].receiver);
-                                setReceiverId(data[0].user_id === data[0].receiver_user_id ? data[0].sender_user_id : data[0].receiver_user_id);
-                            }
-                            setIsLoading(false);
-                            scrollToBottom();
-
-                        })
-                    }
-                    else {
-                        console.log("Fail to get notifications");
-                        setIsLoading(false);
-                    }
-                })
-                .catch(error => {
-                    console.log(error);
-                    console.log("Fail to fetch");
-                    setIsLoading(false);
-                })
+        // sleep(2000).then(() => {
+        fetch("http://" + process.env.REACT_APP_API_URL + "chat/" + (senderId).toString(), {
+            method: 'GET',
+            headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
         })
+            .then(res => {
+                if (res.ok && res.status === 200) {
+                    return res.json().then((data) => {
+                        if (data.length) {
+                            console.log("Fetching conversations");
+                            setConversation(data);
+                            setReceiverName(data[0].user_id === data[0].receiver_user_id ? data[0].sender : data[0].receiver);
+                            setReceiverId(data[0].user_id === data[0].receiver_user_id ? data[0].sender_user_id : data[0].receiver_user_id);
+                        }
+                        setIsLoading(false);
+                        scrollToBottom();
+
+                    })
+                }
+                else {
+                    console.log("Fail to get notifications");
+                    setIsLoading(false);
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                console.log("Fail to fetch");
+                setIsLoading(false);
+            })
+        // })
     }, [])
 
     useEffect(() => {
-        if (props.receiverid) {
+        if (props.open && props.receiverid)
             fetchConversation(props.receiverid)
-        }
     }, [props.open, props.receiverid, fetchConversation]);
 
     useEffect(() => {
-        if (props.websocketevent.user) {
+        console.log("user effect receiver id in chat")
+        if (props.open && props.receiverid) {
+            if (props.websocketevent.type === "Message" && props.websocketevent.id === props.receiverid) {
+                fetchConversation(props.receiverid)
+            }
+        }
+    }, [props.open, props.receiverid, props.websocketevent, fetchConversation]);
+
+    useEffect(() => {
+        if (props.open && props.websocketevent.type === "Online" && props.websocketevent.user) {
             setIsOnline(props.websocketevent);
         }
-    }, [props.websocketevent]);
+    }, [props.open, props.websocketevent]);
 
     return (
         <Popper

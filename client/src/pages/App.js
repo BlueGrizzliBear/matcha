@@ -61,7 +61,8 @@ class App extends Component {
       hasToken: localStorage.getItem("token"),
       user: {},
       websocket: null,
-      websocketEvent: {}
+      websocketEvent: null,
+      socketMessage: null
     };
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
@@ -70,9 +71,10 @@ class App extends Component {
 
   websocketEventListener(websocket) {
     websocket.onmessage = (msg) => {
-      console.log(msg)
       msg = JSON.parse(msg.data);
-      this.setState({ websocketEvent: msg });
+      this.setState({ socketMessage: msg })
+      console.log("Client received message from websocket :")
+      console.log(msg)
     };
   }
 
@@ -91,7 +93,8 @@ class App extends Component {
 
   logout() {
     localStorage.removeItem("token");
-    this.state.websocket.close();
+    if (this.state.websocket)
+      this.state.websocket.close();
     this.setState({ websocket: null });
     this.setState({ hasToken: null });
     this.cleanUser();
@@ -119,20 +122,19 @@ class App extends Component {
         .then(res => {
           if (res.ok && res.status === 200) {
             return res.json().then((data) => {
+              if (!this.state.websocket) {
+                var websocket = new WebSocket('ws://' + process.env.REACT_APP_API_URL + '?token=' + localStorage.getItem("token"));
+                this.websocketEventListener(websocket);
+                console.log("WEBSOCKET")
+              }
               this.setState({
                 isAuth: data.isAuth,
                 isActivated: data.isActivated,
                 isProfileComplete: data.isProfileComplete,
                 user: data,
                 isLoading: false,
+                websocket: websocket
               });
-              if (!this.state.websocket) {
-                let websocket = new WebSocket('ws://' + process.env.REACT_APP_API_URL + '?token=' + localStorage.getItem("token"));
-                this.websocketEventListener(websocket);
-                this.setState({
-                  websocket: websocket
-                });
-              }
               // }, () => {
               //   sleep(2000).then(() => {
               //     this.setState({ isLoading: false });
@@ -142,14 +144,18 @@ class App extends Component {
           }
           else {
             localStorage.removeItem("token");
-            this.setState({ isLoading: false, hasToken: null });
+            if (this.state.websocket)
+              this.state.websocket.close();
+            this.setState({ isLoading: false, hasToken: null, websocket: null });
           }
         })
         .catch(error => {
           console.log(error);
           console.log("Fail to fetch");
           localStorage.removeItem("token");
-          this.setState({ isLoading: false, hasToken: null });
+          if (this.state.websocket)
+            this.state.websocket.close();
+          this.setState({ isLoading: false, hasToken: null, websocket: null });
         })
     });
   }
@@ -157,6 +163,14 @@ class App extends Component {
   componentDidMount() {
     if (this.state.hasToken)
       this.fetchUser();
+  }
+
+  shouldComponentUpdate() {
+    if (this.state.socketMessage) {
+      this.setState({ websocketEvent: this.state.socketMessage, socketMessage: null });
+      return false;
+    }
+    return true;
   }
 
   render() {

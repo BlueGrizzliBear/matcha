@@ -160,7 +160,7 @@ export default function Messages(props) {
 
     const scrollToBottom = () => {
         if (messagesEndRef)
-            messagesEndRef.current.scrollIntoView(true);
+            messagesEndRef.current.scrollIntoViewIfNeeded(true);
     }
 
     function ListItemHeader() {

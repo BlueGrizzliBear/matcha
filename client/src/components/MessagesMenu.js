@@ -5,7 +5,7 @@ import { Circle as CircleIcon, Chat as ChatIcon } from '@mui/icons-material';
 import { LoadingMenu } from './Loading';
 import Chat from './Chat'
 
-import { sleep } from '../utility/utilities'
+// import { sleep } from '../utility/utilities'
 
 var parser = new DOMParser();
 const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
@@ -52,7 +52,6 @@ export default function MessagesMenu(props) {
 	};
 
 	const handleMessagesClose = () => {
-		setReceiverId(null);
 		setAnchorMessagesEl(null);
 	};
 
@@ -112,39 +111,38 @@ export default function MessagesMenu(props) {
 	};
 
 	const handleChatClose = () => {
-		// console.log("closing")
 		setReceiverId(null);
 		setAnchorChatEl(null);
 	};
 
 	const fetchMessages = useCallback(() => {
 		setMenuIsLoading(true);
-		sleep(2000).then(() => {
-			fetch("http://" + process.env.REACT_APP_API_URL + "chat", {
-				method: 'GET',
-				headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
-			})
-				.then(res => {
-					if (res.ok && res.status === 200) {
-						return res.json().then((data) => {
-							if (data.length) {
-								setMessages(data);
-								requestIsOnline(data);
-							}
-							setMenuIsLoading(false);
-						})
-					}
-					else {
-						console.log("Fail to get notifications");
-						setMenuIsLoading(false);
-					}
-				})
-				.catch(error => {
-					console.log(error);
-					console.log("Fail to fetch");
-					setMenuIsLoading(false);
-				})
+		// sleep(2000).then(() => {
+		fetch("http://" + process.env.REACT_APP_API_URL + "chat", {
+			method: 'GET',
+			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
+			.then(res => {
+				if (res.ok && res.status === 200) {
+					return res.json().then((data) => {
+						if (data.length) {
+							setMessages(data);
+							requestIsOnline(data);
+						}
+						setMenuIsLoading(false);
+					})
+				}
+				else {
+					console.log("Fail to get notifications");
+					setMenuIsLoading(false);
+				}
+			})
+			.catch(error => {
+				console.log(error);
+				console.log("Fail to fetch");
+				setMenuIsLoading(false);
+			})
+		// })
 	}, [requestIsOnline]);
 
 	useEffect(() => {

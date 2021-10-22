@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from "react-router-dom";
 import { IconButton, Menu, Badge, Tooltip, MenuItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material';
 import { Notifications as NotificationsIcon } from '@mui/icons-material';
@@ -167,10 +167,9 @@ export default function Notifications(props) {
 		return number;
 	};
 
-	useEffect(() => {
+	const fetchNotifications = useCallback(() => {
 		setIsLoading(true);
 		sleep(2000).then(() => {
-
 			fetch("http://" + process.env.REACT_APP_API_URL + "notification", {
 				method: 'GET',
 				headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
@@ -194,7 +193,48 @@ export default function Notifications(props) {
 					setIsLoading(false);
 				})
 		})
-	}, []);
+	}, [])
+
+	// useEffect(() => {
+	// 	setIsLoading(true);
+	// 	sleep(2000).then(() => {
+
+	// 		fetch("http://" + process.env.REACT_APP_API_URL + "notification", {
+	// 			method: 'GET',
+	// 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+	// 		})
+	// 			.then(res => {
+	// 				if (res.ok && res.status === 200) {
+	// 					return res.json().then((data) => {
+	// 						if (data.length)
+	// 							setNotifications(data);
+	// 						setIsLoading(false);
+	// 					})
+	// 				}
+	// 				else {
+	// 					console.log("Fail to get notifications");
+	// 					setIsLoading(false);
+	// 				}
+	// 			})
+	// 			.catch(error => {
+	// 				console.log(error);
+	// 				console.log("Fail to fetch");
+	// 				setIsLoading(false);
+	// 			})
+	// 	})
+	// }, []);
+
+	useEffect(() => {
+		if (props.websocket != null) {
+			props.websocket.addEventListener('message', function (msg) {
+				msg = JSON.parse(msg.data);
+				if (msg && msg.type === 'Notification') {
+					fetchNotifications();
+				}
+			});
+		}
+		fetchNotifications();
+	}, [props.websocket, fetchNotifications]);
 
 	return (
 		<>

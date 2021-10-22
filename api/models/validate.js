@@ -24,7 +24,7 @@ const isNum = function (value) {
 }
 
 const isEmail = function (value) {
-	if (regexMatch(value, /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/))
+	if (regexMatch(value, /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i))
 		return true;
 	return false;
 }

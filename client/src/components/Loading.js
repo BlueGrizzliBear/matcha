@@ -18,6 +18,17 @@ export function LoadingMenu() {
   );
 }
 
+export function LoadingChat() {
+  return (
+    <ReactLoading
+      type={"bubbles"}
+      color={"#aaaaaa"}
+      height={30}
+      width={30}
+    />
+  );
+}
+
 function Loading() {
 
   // const classes = useStyles();

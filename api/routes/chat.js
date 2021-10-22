@@ -35,7 +35,8 @@ router.get('/:id', checkToken, function (req, res, next) {
 					res.status(400).end();
 				}
 				else {
-					websocket.sendChat(parseInt(req.params['id']));
+					if (fres.changedRows)
+						websocket.sendChat(parseInt(req.params['id']), res.locals.results.id, 'msgread');
 					res.status(200).json(results).end();
 				}
 			});
@@ -62,7 +63,7 @@ router.post('/:id/send', checkToken, function (req, res, next) {
 				}
 				else {
 					websocket.sendNotification(parseInt(req.params['id']), 1);
-					websocket.sendChat(parseInt(req.params['id']));
+					websocket.sendChat(parseInt(req.params['id']), res.locals.results.id, results.message);
 					res.status(200).end();
 				}
 			});

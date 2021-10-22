@@ -1,6 +1,6 @@
 import React from 'react';
 import Notifications from './Notifications'
-import Messages from './Messages'
+import MessagesMenu from './MessagesMenu'
 import { IconButton, Button, Box, Tooltip } from '@mui/material';
 
 import { Switch, Route, Link } from "react-router-dom";
@@ -39,7 +39,7 @@ function NavBar(props) {
               <Route path="/">
                 <Box style={{ display: "flex", alignItems: "center" }}>
                   <Notifications />
-                  <Messages footerref={props.footerref} websocket={props.websocket} />
+                  <MessagesMenu footerref={props.footerref} websocket={props.websocket} />
                   <IconButton aria-label="show profile" color="inherit" component={Link} to="/profile" style={{ height: "24px" }}>
                     <Tooltip title="Profile">
                       <ProfileIcon />

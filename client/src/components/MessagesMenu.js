@@ -10,7 +10,7 @@ import { sleep } from '../utility/utilities'
 var parser = new DOMParser();
 const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
 
-export default function Messages(props) {
+export default function MessagesMenu(props) {
 
 	const data = [
 		{
@@ -19,65 +19,58 @@ export default function Messages(props) {
 			"read": 1,
 		}
 	];
-	// const messagesEndRef = React.useRef(null)
 
-	/* chats */
-	const [chatsAreLoading, setChatsAreLoading] = useState(false);
-	const [chats, setChats] = useState(data);
+	/* MessagesMenu */
+	const [menuIsLoading, setMenuIsLoading] = useState(false);
+	const [messages, setMessages] = useState(data);
+	const [anchorMessagesEl, setAnchorMessagesEl] = useState(null);
+	const openMessages = Boolean(anchorMessagesEl);
+	/* Chat */
 	const [anchorChatEl, setAnchorChatEl] = useState(null);
-	const openChats = Boolean(anchorChatEl);
-	/* Conversations */
-	const [anchorEl, setAnchorEl] = useState(null);
 	const [receiverId, setReceiverId] = useState(null);
-	const [open, setOpen] = useState(false);
-	// const open = Boolean(anchorEl);
+	const openChat = Boolean(anchorChatEl);
 	const [isOnline, setIsOnline] = useState({ id: null, online: false });
-	// const [receivedMessage, setReceivedMessage] = useState({ id: null });
-	// const [websocketEvent, setWebsocketEvent] = useState(null);
 
-	/* Chats */
-	const handleConversationClick = (data, conversation) => {
-		data.forEach((item, i) => {
-			if (item.read === 0 && item === conversation)
+	/* MessagesMenu */
+	const setChatToRead = (messages, chat) => {
+		messages.forEach((item, i) => {
+			if (item.read === 0 && item === chat)
 				item.read = 1;
 		});
-		setChats(data);
+		setMessages(messages);
 	}
 
-	const requestIsOnline = useCallback((object) => {
-		object.forEach((item, i) => {
+	const requestIsOnline = useCallback((messages) => {
+		messages.forEach((item, i) => {
 			if (props.websocket)
 				props.websocket.send(JSON.stringify({ isUserOnline: item.user_id === item.sender_user_id ? item.receiver_user_id : item.sender_user_id }))
 		})
 	}, [props.websocket])
 
-	const handleChatsClick = (event, object) => {
-		setAnchorChatEl(event.currentTarget);
-		// requestIsOnline(object);
+	const handleMessageClick = (event) => {
+		setAnchorMessagesEl(event.currentTarget);
 	};
 
-	const handleChatsClose = () => {
+	const handleMessagesClose = () => {
 		setReceiverId(null);
-		setAnchorChatEl(null);
+		setAnchorMessagesEl(null);
 	};
 
-	const countChatBadgeNumber = (data) => {
+	const countMessagesMenuBadgeNumber = (messages) => {
 		let number = 0;
-		data.forEach((item, i) => {
+		messages.forEach((item, i) => {
 			if (item.read === 0 && item.user_id !== item.sender_user_id)
 				number++;
 		});
 		return number;
 	};
 
-	function MenuItemChat(props) {
-
-		// const classes = formStyle(props)();
+	function MenuItemMessage(props) {
 		return (
 			<MenuItem
 				{...props}
 				sx={{ width: 328, whiteSpace: "normal" }}
-				divider={props.i + 1 !== chats.length ? true : false}
+				divider={props.i + 1 !== messages.length ? true : false}
 			>
 				<ListItemAvatar>
 					<Avatar alt={props.item.user_id === props.item.receiver_user_id ? props.item.sender : props.item.receiver} src={props.item.user_id === props.item.receiver_user_id ? props.item.sender_img : props.item.receiver_img} />
@@ -92,8 +85,6 @@ export default function Messages(props) {
 	}
 
 	function MenuItemLoad() {
-
-		// const classes = formStyle(props)();
 		return (
 			<MenuItem
 				sx={{ width: 328, whiteSpace: "normal", display: 'flex', justifyContent: 'center' }}
@@ -104,8 +95,6 @@ export default function Messages(props) {
 	}
 
 	function MenuItemEmpty() {
-
-		// const classes = formStyle(props)();
 		return (
 			<MenuItem sx={{ width: 328, whiteSpace: "normal" }}>
 				<ListItemText
@@ -115,24 +104,21 @@ export default function Messages(props) {
 		);
 	}
 
-	const handleClick = (event, closeChats, conversations, chats, handleConversationClick) => {
-		closeChats();
-		setOpen(true);
-		setAnchorEl(props.footerref.current);
-		setReceiverId(chats.sender_user_id === chats.user_id ? chats.receiver_user_id : chats.sender_user_id);
-		handleConversationClick(conversations, chats);
+	const handleChatClick = (event, chat) => {
+		handleMessagesClose();
+		setAnchorChatEl(props.footerref.current);
+		setReceiverId(chat.sender_user_id === chat.user_id ? chat.receiver_user_id : chat.sender_user_id);
+		setChatToRead(messages, chat);
 	};
 
-	const handleClose = () => {
-		console.log("closing")
+	const handleChatClose = () => {
+		// console.log("closing")
 		setReceiverId(null);
-		setAnchorEl(null);
-		setOpen(false);
+		setAnchorChatEl(null);
 	};
 
 	const fetchMessages = useCallback(() => {
-		// console.log('fetching chat')
-		setChatsAreLoading(true);
+		setMenuIsLoading(true);
 		sleep(2000).then(() => {
 			fetch("http://" + process.env.REACT_APP_API_URL + "chat", {
 				method: 'GET',
@@ -142,35 +128,30 @@ export default function Messages(props) {
 					if (res.ok && res.status === 200) {
 						return res.json().then((data) => {
 							if (data.length) {
-								setChats(data);
+								setMessages(data);
 								requestIsOnline(data);
 							}
-							setChatsAreLoading(false);
+							setMenuIsLoading(false);
 						})
 					}
 					else {
 						console.log("Fail to get notifications");
-						setChatsAreLoading(false);
+						setMenuIsLoading(false);
 					}
 				})
 				.catch(error => {
 					console.log(error);
 					console.log("Fail to fetch");
-					setChatsAreLoading(false);
+					setMenuIsLoading(false);
 				})
 		})
 	}, [requestIsOnline]);
-
-	// useEffect(() => {
-	// }, [fetchMessages])
 
 	useEffect(() => {
 		if (props.websocket != null) {
 			props.websocket.addEventListener('message', function (msg) {
 				msg = JSON.parse(msg.data);
 				if (msg && msg.type === 'Message') {
-					// console.log("setting receiver id")
-					// setReceiverId(msg.id);
 					fetchMessages();
 				}
 				else if (msg && msg.type === "Online" && msg.user) {
@@ -184,45 +165,43 @@ export default function Messages(props) {
 	return (
 		<>
 			<IconButton
-				aria-label="show chat"
+				aria-label="show messages"
 				style={{ height: "48px" }}
 				color="inherit"
-				aria-controls="chats-menu"
+				aria-controls="messages-menu"
 				aria-haspopup="true"
-				aria-expanded={openChats ? 'true' : undefined}
-				onClick={(e) => {
-					handleChatsClick(e, chats);
-				}}
+				aria-expanded={openMessages ? 'true' : undefined}
+				onClick={handleMessageClick}
 			>
-				<Badge badgeContent={countChatBadgeNumber(chats)} color="primary">
+				<Badge badgeContent={countMessagesMenuBadgeNumber(messages)} color="primary">
 					<Tooltip title="Chat">
 						<ChatIcon />
 					</Tooltip>
 				</Badge>
 			</IconButton>
 			<Menu
-				id="chats-menu"
-				anchorEl={anchorChatEl}
-				open={openChats}
-				onClose={handleChatsClose}
+				id="messages-menu"
+				anchorEl={anchorMessagesEl}
+				open={openMessages}
+				onClose={handleMessagesClose}
 				footerref={props.footerref}
 
 				sx={{ width: '100%', maxWidth: 360 }}>
 				{
-					chatsAreLoading === true ?
+					menuIsLoading === true ?
 						<MenuItemLoad key="1" />
 						:
-						chats.slice().reverse().map((item, i) => (
+						messages.slice().reverse().map((item, i) => (
 							(item.sender_user_id ?
-								<MenuItemChat
+								<MenuItemMessage
 									i={i}
 									key={i}
 									item={item}
-									aria-controls="conversation-menu"
+									aria-controls="chat-menu"
 									aria-haspopup="true"
-									aria-expanded={open ? 'true' : undefined}
+									aria-expanded={openChat ? 'true' : undefined}
 									onClick={(e) => {
-										handleClick(e, handleChatsClose, chats, item, handleConversationClick);
+										handleChatClick(e, item);
 									}}
 								/>
 								:
@@ -232,10 +211,10 @@ export default function Messages(props) {
 				}
 			</Menu >
 			<Chat
-				anchorel={anchorEl}
-				open={open}
+				anchorel={anchorChatEl}
+				open={openChat}
 				receiverid={receiverId}
-				handleclose={handleClose}
+				handleclose={handleChatClose}
 				websocket={props.websocket}
 			/>
 		</>

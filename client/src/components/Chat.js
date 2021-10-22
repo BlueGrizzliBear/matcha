@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { IconButton, Box, Paper, Popper, TextField, Typography, Chip, MenuItem, ListItem, ListItemText } from '@mui/material';
 import { Circle as CircleIcon, Send as SendIcon, Close as CloseIcon } from '@mui/icons-material';
-import { LoadingMenu } from './Loading';
+import { LoadingMenu, LoadingChat } from './Loading';
 // import { sleep } from '../utility/utilities'
 
 
@@ -16,7 +16,7 @@ function ListItemSendMessage(props) {
         setValues({ ...values, [prop]: event.target.value });
     };
 
-    // const textFieldRef = React.useRef(null)
+    let textFieldRef = React.useRef(null)
 
     const sendMessage = () => {
         if (values.message) {
@@ -32,6 +32,7 @@ function ListItemSendMessage(props) {
             })
                 .then(res => {
                     if (res.ok && res.status === 200) {
+                        textFieldRef.value = ''
                         props.fetchconversation(props.receiverid);
                     }
                     else {
@@ -63,7 +64,7 @@ function ListItemSendMessage(props) {
             <TextField
                 // classes={classes}
                 autoFocus
-                // inputRef={textFieldRef}
+                inputRef={el => textFieldRef = el}
                 size="small"
                 hiddenLabel
                 id="filled-hidden-label-normal"
@@ -125,6 +126,18 @@ function MenuItemLoad() {
     );
 }
 
+function ListItemLoad(props) {
+
+    // const classes = formStyle(props)();
+    return (
+        <ListItem
+            sx={{ width: 328, height: 30, whiteSpace: "normal", display: 'flex', justifyContent: 'right' }}
+        >
+            {LoadingChat()}
+        </ListItem>
+    );
+}
+
 export default function Messages(props) {
 
     const data = [
@@ -136,7 +149,8 @@ export default function Messages(props) {
     ];
     const messagesEndRef = React.useRef(null)
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [isPopperLoading, setIsPopperLoading] = useState(false);
+    const [isChatLoading, setIsChatLoading] = useState(false);
     const [conversation, setConversation] = useState(data);
     const [receiverName, setReceiverName] = useState('No messages');
     // const [receiverId, setReceiverId] = useState(null);
@@ -160,7 +174,7 @@ export default function Messages(props) {
                     sx={{ borderRadius: "4px 4px 0 0", zIndex: 5, whiteSpace: "normal", padding: "5px 15px", margin: 0, backgroundColor: "primary.main" }}
                     secondaryAction={
                         <IconButton onClick={(e) => {
-                            props.websocket.removeEventListener('message', console.log("Removed websocket message"))
+                            props.websocket.removeEventListener('message', listenMessages)
                             props.handleclose()
                         }}>
                             <CloseIcon />
@@ -174,11 +188,9 @@ export default function Messages(props) {
         );
     }
 
-    const fetchConversation = useCallback((senderId) => {
-        console.log("fetch conversation")
-        console.log(props.open)
-        // if (props.open === true) {
-        setIsLoading(true);
+    const fetchConversation = useCallback((senderId, loadName) => {
+        loadName ? setIsPopperLoading(true) : setIsChatLoading(true);
+        !loadName && scrollToBottom();
         // sleep(2000).then(() => {
         fetch("http://" + process.env.REACT_APP_API_URL + "chat/" + (senderId).toString(), {
             method: 'GET',
@@ -188,57 +200,46 @@ export default function Messages(props) {
                 if (res.ok && res.status === 200) {
                     return res.json().then((data) => {
                         if (data.length) {
-                            // console.log("Fetching conversations");
                             setConversation(data);
-                            setReceiverName(data[0].user_id === data[0].receiver_user_id ? data[0].sender : data[0].receiver);
-                            // setReceiverId(data[0].user_id === data[0].receiver_user_id ? data[0].sender_user_id : data[0].receiver_user_id);
-                            if (props.websocket == null && senderId)
-                                props.websocket.send(JSON.stringify({ isUserOnline: senderId }))
+                            if (loadName)
+                                setReceiverName(data[0].user_id === data[0].receiver_user_id ? data[0].sender : data[0].receiver);
                         }
-                        setIsLoading(false);
-                        console.log(props.open)
+                        loadName ? setIsPopperLoading(false) : setIsChatLoading(false);
                         scrollToBottom();
-
                     })
                 }
                 else {
                     console.log("Fail to get notifications");
-                    setIsLoading(false);
+                    loadName ? setIsPopperLoading(false) : setIsChatLoading(false);
                 }
             })
             .catch(error => {
                 console.log(error);
                 console.log("Fail to fetch");
-                setIsLoading(false);
+                loadName ? setIsPopperLoading(false) : setIsChatLoading(false);
             })
         // })
-        // }
-    }, [props.websocket, props.open])
+    }, [])
 
-    // useEffect(() => {
-    // }, [props.open, props.receiverid, fetchConversation]);
+    const listenMessages = useCallback((msg) => {
+        msg = JSON.parse(msg.data);
+        if (msg && props.receiverid) {
+            if (msg.type === "Message" && msg.id === props.receiverid) {
+                fetchConversation(props.receiverid, false)
+            }
+        }
+        else if (msg && msg.type === "Online" && msg.user) {
+            setIsOnline(msg);
+        }
+    }, [props.receiverid, fetchConversation])
 
     useEffect(() => {
-        console.log("props.open in usereffect")
-        console.log(props.open)
-        if (props.websocket && props.open) {
-            props.websocket.addEventListener('message', function (msg) {
-                msg = JSON.parse(msg.data);
-                // console.log("user effect receiver id in chat")
-                if (msg && props.receiverid) {
-                    if (msg.type === "Message" && msg.id === props.receiverid) {
-                        fetchConversation(props.receiverid)
-                    }
-                }
-                else if (msg && msg.type === "Online" && msg.user) {
-                    setIsOnline(msg);
-                }
-            });
-
+        if (props.websocket) {
+            props.websocket.addEventListener('message', listenMessages);
         }
-        if (props.receiverid && props.open)
-            fetchConversation(props.receiverid)
-    }, [props.open, props.receiverid, props.websocket, fetchConversation]);
+        if (props.receiverid)
+            fetchConversation(props.receiverid, true)
+    }, [props.receiverid, props.websocket, fetchConversation, listenMessages]);
 
     return (
         <Popper
@@ -275,7 +276,7 @@ export default function Messages(props) {
         >
             <Paper>
                 {
-                    isLoading === true ?
+                    isPopperLoading === true ?
                         <MenuItemLoad key="1" />
                         :
                         [
@@ -288,6 +289,7 @@ export default function Messages(props) {
                                         item={item}
                                     />
                                 ))}
+                                {isChatLoading && <ListItemLoad key="message-load" />}
                                 <div
                                     style={{ float: "left", clear: "both" }}
                                     ref={messagesEndRef}

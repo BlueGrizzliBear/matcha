@@ -132,6 +132,30 @@ function ListItemLoad(props) {
     );
 }
 
+function ListItemHeader(props) {
+
+    return (
+        <>
+            <ListItem
+                key={"conversationHeaderBis"}
+                disableGutters
+                sx={{ borderRadius: "4px 4px 0 0", zIndex: 5, whiteSpace: "normal", padding: "5px 15px", margin: 0, backgroundColor: "primary.main" }}
+                secondaryAction={
+                    <IconButton onClick={(e) => {
+                        props.websocket.removeEventListener('message', props.listenmessages)
+                        props.handleclose();
+                    }}>
+                        <CloseIcon />
+                    </IconButton>
+                }
+            >
+                <CircleIcon sx={{ width: "12px", marginRight: "12px", color: (props.isonline.user === props.receiverid && props.isonline.online) ? "green" : "red" }} />
+                <ListItemText primary={props.receivername} />
+            </ListItem>
+        </>
+    );
+}
+
 const data = [
     {
         "sender_user_id": null,
@@ -143,7 +167,6 @@ const data = [
 export default function Messages(props) {
 
     const messagesEndRef = React.useRef(null)
-
     const [isPopperLoading, setIsPopperLoading] = useState(false);
     const [isChatLoading, setIsChatLoading] = useState(false);
     const [conversation, setConversation] = useState(data);
@@ -154,30 +177,6 @@ export default function Messages(props) {
     const scrollToBottom = () => {
         if (messagesEndRef)
             messagesEndRef.current.scrollIntoViewIfNeeded(true);
-    }
-
-    function ListItemHeader() {
-
-        return (
-            <>
-                <ListItem
-                    key={"conversationHeaderBis"}
-                    disableGutters
-                    sx={{ borderRadius: "4px 4px 0 0", zIndex: 5, whiteSpace: "normal", padding: "5px 15px", margin: 0, backgroundColor: "primary.main" }}
-                    secondaryAction={
-                        <IconButton onClick={(e) => {
-                            props.websocket.removeEventListener('message', listenMessages)
-                            props.handleclose()
-                        }}>
-                            <CloseIcon />
-                        </IconButton>
-                    }
-                >
-                    <CircleIcon sx={{ width: "12px", marginRight: "12px", color: (isOnline.user === props.receiverid && isOnline.online) ? "green" : "red" }} />
-                    <ListItemText primary={receiverName} />
-                </ListItem>
-            </>
-        );
     }
 
     const fetchConversation = useCallback((senderId, loadName) => {
@@ -272,7 +271,7 @@ export default function Messages(props) {
                         <MenuItemLoad key="1" />
                         :
                         [
-                            <ListItemHeader key={"conversationHeader"} />,
+                            <ListItemHeader key={"conversationHeader"} receiverid={props.receiverid} handleclose={props.handleclose} websocket={props.websocket} receivername={receiverName} isonline={isOnline} listenmessages={listenMessages} />,
                             <Box key="boxkey" sx={{ width: '100%', minWidth: 150, Width: 360, height: 450, overflow: "auto", }}>
                                 {conversation.slice().reverse().map((item, i) => (
                                     <ListItemConversation

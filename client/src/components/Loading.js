@@ -1,11 +1,5 @@
 import ReactLoading from 'react-loading';
 import { Box } from '@mui/material';
-// import { makeStyles } from '@mui/styles';
-
-// const useStyles = makeStyles((theme) => ({
-//   root: {
-//   },
-// }));
 
 export function LoadingMenu() {
   return (
@@ -30,9 +24,6 @@ export function LoadingChat() {
 }
 
 function Loading() {
-
-  // const classes = useStyles();
-
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
       <ReactLoading

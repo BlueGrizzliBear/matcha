@@ -5,7 +5,6 @@ import { Circle as CircleIcon, Send as SendIcon, Close as CloseIcon } from '@mui
 import { LoadingMenu, LoadingChat } from './Loading';
 // import { sleep } from '../utility/utilities'
 
-
 function ListItemSendMessage(props) {
 
     const [values, setValues] = useState({
@@ -46,7 +45,6 @@ function ListItemSendMessage(props) {
         }
     }
 
-    // const classes = formStyle(props)();
     return (
 
         <ListItem
@@ -62,7 +60,6 @@ function ListItemSendMessage(props) {
             }
         >
             <TextField
-                // classes={classes}
                 autoFocus
                 inputRef={el => textFieldRef = el}
                 size="small"
@@ -72,7 +69,6 @@ function ListItemSendMessage(props) {
                 multiline
                 maxRows={2}
                 onChange={handleChange('message')}
-                // InputProps={classes.input}
                 sx={{ width: "90%", backgroundColor: '#fff' }}
             />
         </ListItem>
@@ -116,7 +112,6 @@ function ListItemConversation(props) {
 
 function MenuItemLoad() {
 
-    // const classes = formStyle(props)();
     return (
         <MenuItem
             sx={{ width: 328, height: 542, whiteSpace: "normal", display: 'flex', justifyContent: 'center' }}
@@ -128,7 +123,6 @@ function MenuItemLoad() {
 
 function ListItemLoad(props) {
 
-    // const classes = formStyle(props)();
     return (
         <ListItem
             sx={{ width: 328, height: 30, whiteSpace: "normal", display: 'flex', justifyContent: 'right' }}
@@ -138,26 +132,25 @@ function ListItemLoad(props) {
     );
 }
 
+const data = [
+    {
+        "sender_user_id": null,
+        "sender": null,
+        "read": 1,
+    }
+];
+
 export default function Messages(props) {
 
-    const data = [
-        {
-            "sender_user_id": null,
-            "sender": null,
-            "read": 1,
-        }
-    ];
     const messagesEndRef = React.useRef(null)
 
     const [isPopperLoading, setIsPopperLoading] = useState(false);
     const [isChatLoading, setIsChatLoading] = useState(false);
     const [conversation, setConversation] = useState(data);
     const [receiverName, setReceiverName] = useState('No messages');
-    // const [receiverId, setReceiverId] = useState(null);
     const [isOnline, setIsOnline] = useState({ id: null, online: false });
 
     /* Events */
-
     const scrollToBottom = () => {
         if (messagesEndRef)
             messagesEndRef.current.scrollIntoViewIfNeeded(true);
@@ -165,7 +158,6 @@ export default function Messages(props) {
 
     function ListItemHeader() {
 
-        // const classes = formStyle(props)();
         return (
             <>
                 <ListItem

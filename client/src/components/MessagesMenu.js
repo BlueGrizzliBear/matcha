@@ -9,16 +9,15 @@ import Chat from './Chat'
 
 var parser = new DOMParser();
 const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+const data = [
+	{
+		"sender_user_id": null,
+		"sender": null,
+		"read": 1,
+	}
+];
 
 export default function MessagesMenu(props) {
-
-	const data = [
-		{
-			"sender_user_id": null,
-			"sender": null,
-			"read": 1,
-		}
-	];
 
 	/* MessagesMenu */
 	const [menuIsLoading, setMenuIsLoading] = useState(false);

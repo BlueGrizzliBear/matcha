@@ -4,15 +4,14 @@ import { Link } from "react-router-dom";
 import { IconButton, Menu, Badge, Tooltip, MenuItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material';
 import { Notifications as NotificationsIcon } from '@mui/icons-material';
 import { Visibility as VisibilityIcon, Favorite as FavoriteIcon, Comment as CommentIcon } from '@mui/icons-material';
-import { sleep } from '../utility/utilities'
+// import { sleep } from '../utility/utilities'
 import { LoadingMenu } from './Loading';
 
 const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+var parser = new DOMParser();
 
 function MenuItemMessage(props) {
-	var parser = new DOMParser();
 
-	// const classes = formStyle(props)();
 	return (
 		<MenuItem
 			{...props}
@@ -35,7 +34,6 @@ function MenuItemMessage(props) {
 
 function MenuItemLike(props) {
 
-	// const classes = formStyle(props)();
 	return (
 		<MenuItem
 			{...props}
@@ -58,7 +56,6 @@ function MenuItemLike(props) {
 
 function MenuItemWatch(props) {
 
-	// const classes = formStyle(props)();
 	return (
 		<MenuItem
 			{...props}
@@ -81,7 +78,6 @@ function MenuItemWatch(props) {
 
 function MenuItemLoad() {
 
-	// const classes = formStyle(props)();
 	return (
 		<MenuItem
 			sx={{ width: 328, whiteSpace: "normal", display: 'flex', justifyContent: 'center' }}
@@ -93,7 +89,6 @@ function MenuItemLoad() {
 
 function MenuItemEmpty() {
 
-	// const classes = formStyle(props)();
 	return (
 		<MenuItem sx={{ width: 328, whiteSpace: "normal" }}>
 			<ListItemText
@@ -122,28 +117,27 @@ export default function Notifications(props) {
 	const handleNotificationsClick = (event) => {
 		setAnchorEl(event.currentTarget);
 		setIsLoading(true);
-		sleep(2000).then(() => {
-
-			fetch("http://" + process.env.REACT_APP_API_URL + "notification/read", {
-				method: 'GET',
-				headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
-			})
-				.then(res => {
-					if (res.ok && res.status === 200) {
-						setNotifications(changeNotificationsToRead(notifications));
-						setIsLoading(false);
-					}
-					else {
-						console.log("Fail to put status read on notifications");
-						setIsLoading(false);
-					}
-				})
-				.catch(error => {
-					console.log(error);
-					console.log("Fail to fetch");
-					setIsLoading(false);
-				})
+		// sleep(2000).then(() => {
+		fetch("http://" + process.env.REACT_APP_API_URL + "notification/read", {
+			method: 'GET',
+			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
+			.then(res => {
+				if (res.ok && res.status === 200) {
+					setNotifications(changeNotificationsToRead(notifications));
+					setIsLoading(false);
+				}
+				else {
+					console.log("Fail to put status read on notifications");
+					setIsLoading(false);
+				}
+			})
+			.catch(error => {
+				console.log(error);
+				console.log("Fail to fetch");
+				setIsLoading(false);
+			})
+		// })
 	};
 
 	const handleNotificationsClose = () => {
@@ -169,60 +163,31 @@ export default function Notifications(props) {
 
 	const fetchNotifications = useCallback(() => {
 		setIsLoading(true);
-		sleep(2000).then(() => {
-			fetch("http://" + process.env.REACT_APP_API_URL + "notification", {
-				method: 'GET',
-				headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
-			})
-				.then(res => {
-					if (res.ok && res.status === 200) {
-						return res.json().then((data) => {
-							if (data.length)
-								setNotifications(data);
-							setIsLoading(false);
-						})
-					}
-					else {
-						console.log("Fail to get notifications");
-						setIsLoading(false);
-					}
-				})
-				.catch(error => {
-					console.log(error);
-					console.log("Fail to fetch");
-					setIsLoading(false);
-				})
+		// sleep(2000).then(() => {
+		fetch("http://" + process.env.REACT_APP_API_URL + "notification", {
+			method: 'GET',
+			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
 		})
+			.then(res => {
+				if (res.ok && res.status === 200) {
+					return res.json().then((data) => {
+						if (data.length)
+							setNotifications(data);
+						setIsLoading(false);
+					})
+				}
+				else {
+					console.log("Fail to get notifications");
+					setIsLoading(false);
+				}
+			})
+			.catch(error => {
+				console.log(error);
+				console.log("Fail to fetch");
+				setIsLoading(false);
+			})
+		// })
 	}, [])
-
-	// useEffect(() => {
-	// 	setIsLoading(true);
-	// 	sleep(2000).then(() => {
-
-	// 		fetch("http://" + process.env.REACT_APP_API_URL + "notification", {
-	// 			method: 'GET',
-	// 			headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
-	// 		})
-	// 			.then(res => {
-	// 				if (res.ok && res.status === 200) {
-	// 					return res.json().then((data) => {
-	// 						if (data.length)
-	// 							setNotifications(data);
-	// 						setIsLoading(false);
-	// 					})
-	// 				}
-	// 				else {
-	// 					console.log("Fail to get notifications");
-	// 					setIsLoading(false);
-	// 				}
-	// 			})
-	// 			.catch(error => {
-	// 				console.log(error);
-	// 				console.log("Fail to fetch");
-	// 				setIsLoading(false);
-	// 			})
-	// 	})
-	// }, []);
 
 	useEffect(() => {
 		if (props.websocket != null) {

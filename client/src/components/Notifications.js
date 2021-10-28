@@ -45,7 +45,7 @@ function MenuItemLike(props) {
 				<Avatar alt={props.item.sender} src={props.item.sender_img} />
 			</ListItemAvatar>
 			<ListItemText
-				primary={"New like from " + props.item.sender}
+				primary={props.item.sender + " liked you"}
 				secondary={new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
 			/>
 			<Divider orientation="vertical" variant="middle" flexItem sx={{ margin: '10px' }} />
@@ -67,7 +67,7 @@ function MenuItemWatch(props) {
 				<Avatar alt={props.item.sender} src={props.item.sender_img} />
 			</ListItemAvatar>
 			<ListItemText
-				primary={"New like from " + props.item.sender}
+				primary={props.item.sender + " watched your profile"}
 				secondary={new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
 			/>
 			<Divider orientation="vertical" variant="middle" flexItem sx={{ margin: '10px' }} />

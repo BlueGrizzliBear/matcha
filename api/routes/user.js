@@ -94,10 +94,8 @@ router.post('/', checkToken, function (req, res, next) {
 
 /* POST /user/reset_password - Verify a generated token link to reset password */
 router.post('/reset_password', checkToken, function (req, res, next) {
-  // A VOIR COMMENT TRAITER LE RETOUR SUR LE FRONT
-  // (lien du mail pointant directement sur le front avec parsing du token dans la querry renvoyé sur la route en back
-  // ou lien de mail poitant sur le back et reset sur le back avec redirection sur le front une fois reset)
   const user = new Models.User(res.locals.results.id, res.locals.results.username);
+
   user.update({ password: req.body.password }, true, (error, results) => {
     if (error) {
       console.log(error);
@@ -112,6 +110,75 @@ router.post('/reset_password', checkToken, function (req, res, next) {
         }
         else {
           res.status(200).end();
+        }
+      });
+    }
+  });
+});
+
+
+/* POST /user/search_match - Return a list of matching users with search criterias */
+router.post('/search_match', checkToken, function (req, res, next) {
+  // Search Criteria :
+  // - Age
+  // - Fame
+  // - Geographical Location
+  // - Interests tags
+  const user = new Models.User(res.locals.results.id, res.locals.results.username);
+
+  const set = {
+    gender: res.locals.results.gender,
+    preference: res.locals.results.preference,
+    age: { min: req.body.age.min, max: req.body.age.max },
+    fame: { min: req.body.fame.min, max: req.body.fame.max },
+    location: { long: req.body.location.long, lat: req.body.location.lat },
+    tags: req.body.tags
+  }
+
+  user.find_match(set, (usererr, userres) => {
+    if (usererr) {
+      console.log(usererr);
+      res.status(400).end();
+    }
+    else {
+      res.status(200).json(userres).end();
+    }
+  });
+});
+
+/* GET /user/find_match - Return a list of matching users */
+router.get('/find_match', checkToken, function (req, res, next) {
+
+  // Matching Criteria :
+  // 1 - Sexual orientation
+  // 2 - Geographical Location
+  // 3 - Interests tags
+  // 4 - Fame (views/likes ratio)
+  const tag = new Models.Tag(res.locals.results.id);
+
+  tag.findUserTags((tagerr, tagres) => {
+    if (tagerr) {
+      console.log(tagerr);
+      res.status(400).end();
+    }
+    else {
+      const set = {
+        gender: res.locals.results.gender,
+        preference: res.locals.results.preference,
+        age: { min: 0, max: 5000 },
+        fame: { min: 0, max: 1 },
+        location: { long: res.locals.results.long, lat: res.locals.results.lat },
+        tags: tagres
+      }
+
+      const user = new Models.User(res.locals.results.id, res.locals.results.username);
+      user.find_match(set, (usererr, userres) => {
+        if (usererr) {
+          console.log(usererr);
+          res.status(400).end();
+        }
+        else {
+          res.status(200).json(userres).end();
         }
       });
     }

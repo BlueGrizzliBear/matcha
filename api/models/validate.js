@@ -37,13 +37,13 @@ const isDate = function (value) {
 }
 
 const isGender = function (value) {
-	if (set[i] === "Male" || set[i] === 'Female' || set[i] === 'Non-binary')
+	if (value === "Man" || value === 'Woman' || value === 'NonBinary')
 		return true;
 	return false;
 }
 
 const isPreference = function (value) {
-	if (set[i] === "Heterosexual" || set[i] === 'Gay' || set[i] === 'Bisexual')
+	if (value === "Man" || value === 'Woman' || value === 'NonBinary' || value === 'Man-Woman' || value === 'Man-NonBinary' || value === 'Woman-NonBinary' || value === 'Man-Woman-NonBinary')
 		return true;
 	return false;
 }

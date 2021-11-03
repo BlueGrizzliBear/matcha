@@ -17,6 +17,22 @@ function unlinkImage(path) {
 	}))
 }
 
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+	var p = 0.017453292519943295;	// Math.PI / 180
+	var c = Math.cos;
+	var a = 0.5 - c((lat2 - lat1) * p) / 2 +
+		c(lat1 * p) * c(lat2 * p) *
+		(1 - c((lon2 - lon1) * p)) / 2;
+	return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
+}
+
+function add_match_score(results) {
+	// Calculate matching score with these citeria :
+	// Distance (most important)
+	// Common tags (calculate number of common tags)
+	// Fame (views/likes ratio if likes != 0)
+}
+
 /* MODELS */
 class User {
 	constructor(user_id = null, username = null) {
@@ -214,6 +230,66 @@ WHERE u2.username = ?', [this.username, this.username, this.username], async (er
 							ret("No results", null);
 					}
 				});
+			}
+		});
+	};
+
+
+	find_match(set, ret) {
+
+		const preference = set.preference.split('-')
+		const gender = '%' + set.gender + '%'
+		// SELECT u2.*, GROUP_CONCAT(tu.tag_id) as tags
+		// FROM (
+		// SELECT u1.*, COUNT(w.id) watches
+		// FROM (
+		// SELECT u.*,COUNT(l.id) likes
+		// FROM users u
+		// LEFT JOIN likes l
+		// ON u.id = l.liked_user_id
+		// GROUP BY u.id
+		// ) u1
+		// LEFT JOIN watches w
+		// ON u1.id = w.watched_user_id
+		// GROUP BY u1.id
+		// ) u2
+		// LEFT JOIN tag_user tu
+		// ON u2.id = tu.user_id
+		// WHERE u2.gender IN ('Man', 'Woman', 'NonBinary') AND u2.preference LIKE BINARY '%Woman%' AND YEAR(u2.birth_date) BETWEEN '1980' AND '1999'
+		// GROUP BY u2.id
+		connection.query('\
+SELECT u2.*, GROUP_CONCAT(tu.tag_id) as tags \
+FROM (\
+SELECT u1.*, COUNT(w.id) watches \
+FROM (\
+SELECT u.*,COUNT(l.id) likes \
+FROM users u \
+LEFT JOIN likes l \
+ON u.id = l.liked_user_id \
+GROUP BY u.id\
+) u1 \
+LEFT JOIN watches w \
+ON u1.id = w.watched_user_id \
+GROUP BY u1.id\
+) u2 \
+LEFT JOIN tag_user tu \
+ON u2.id = tu.user_id \
+WHERE \
+u2.gender IN (?) AND u2.preference LIKE BINARY ? AND YEAR(u2.birth_date) BETWEEN ? AND ?\
+GROUP BY u2.id', [preference, gender, set.age.min, set.age.max], async (error, results, fields) => {
+			if (error) {
+				console.log("Error occured finding matching users in users table");
+				console.log(error);
+				ret(error, null);
+			}
+			else {
+				if (results.length > 0) {
+					this.user_id = results[0].id;
+					results = add_match_score(results);
+					ret(null, results);
+				}
+				else
+					ret("No users to match", null);
 			}
 		});
 	};

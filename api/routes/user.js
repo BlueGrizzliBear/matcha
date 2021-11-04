@@ -167,7 +167,7 @@ router.get('/find_match', checkToken, function (req, res, next) {
         preference: res.locals.results.preference,
         age: { min: 0, max: 5000 },
         fame: { min: 0, max: 1 },
-        location: { long: res.locals.results.long, lat: res.locals.results.lat },
+        location: { lat: res.locals.results.gps_lat, long: res.locals.results.gps_long },
         tags: tagres
       }
 
@@ -253,8 +253,8 @@ const fetchProfileImageURL = function (results, user, ret) {
       .then(res => {
         if (!res.ok)
           throw new Error('Request: did not receive success code between 200-299.');
-        console.log(res.url)
-        console.log(user.getUsername())
+        // console.log(res.url)
+        // console.log(user.getUsername())
         connection.query('UPDATE users SET img0_path = ? WHERE username = ?', [res.url, user.getUsername()], async (uperr, upres, fields) => {
           if (uperr) {
             console.log(uperr)

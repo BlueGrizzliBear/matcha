@@ -47,14 +47,8 @@ exports.up = function (db) {
     gender: 'string',
     preference: {
       type: 'string',
-      defaultValue: "Bisexual",
+      defaultValue: "Man-Woman-NonBinary",
       notNull: true
-    },
-    gps_long: {
-      type: 'decimal',
-    },
-    gps_lat: {
-      type: 'decimal',
     },
     city: {
       type: 'string',
@@ -85,7 +79,7 @@ exports.up = function (db) {
   })
     .then(
       function (result) {
-        return db.runSql('ALTER TABLE users ADD COLUMN bio LONGTEXT, ADD COLUMN img0_path LONGTEXT, ADD COLUMN img1_path LONGTEXT, ADD COLUMN img2_path LONGTEXT, ADD COLUMN img3_path LONGTEXT, ADD COLUMN img4_path LONGTEXT',
+        return db.runSql('ALTER TABLE users ADD COLUMN gps_lat DECIMAL(12,8), ADD COLUMN gps_long DECIMAL(12,8), ADD COLUMN bio LONGTEXT, ADD COLUMN img0_path LONGTEXT, ADD COLUMN img1_path LONGTEXT, ADD COLUMN img2_path LONGTEXT, ADD COLUMN img3_path LONGTEXT, ADD COLUMN img4_path LONGTEXT',
           (err) => {
             if (err)
               console.log(err);

@@ -84,6 +84,16 @@ const isImageKey = function (value) {
 	return false;
 }
 
+const isTagArray = function (value) {
+	if (!Array.isArray(value))
+		return false
+	for (const tag of value) {
+		if (tag.tag == null)
+			return false;
+	};
+	return true;
+}
+
 const validateKey = function (value, keyArray) {
 	for (const key of keyArray) {
 		if (value == key)
@@ -110,6 +120,7 @@ module.exports = {
 	isJWT,
 	isBool,
 	isImageKey,
+	isTagArray,
 	validateKey,
 	isDate,
 	escapeHTML,

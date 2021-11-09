@@ -117,25 +117,34 @@ router.post('/reset_password', checkToken, function (req, res, next) {
 });
 
 
-/* POST /user/search_match - Return a list of matching users with search criterias */
-router.post('/search_match', checkToken, function (req, res, next) {
+/* POST /user/find_match - Return a list of matching users with search criterias */
+router.post('/find_match', checkToken, function (req, res, next) {
   // Search Criteria :
   // - Age
   // - Fame
   // - Geographical Location
   // - Interests tags
-  const user = new Models.User(res.locals.results.id, res.locals.results.username);
+  const match = new Models.Match(res.locals.results.id, res.locals.results.username);
 
   const set = {
     gender: res.locals.results.gender,
     preference: res.locals.results.preference,
-    age: { min: req.body.age.min, max: req.body.age.max },
-    fame: { min: req.body.fame.min, max: req.body.fame.max },
-    location: { long: req.body.location.long, lat: req.body.location.lat },
-    tags: req.body.tags
+    age: {
+      min: req.body.agemin ? req.body.agemin : 0,
+      max: req.body.agemax ? req.body.agemax : 5000
+    },
+    fame: {
+      min: req.body.famemin ? req.body.famemin : 0,
+      max: req.body.famemax ? req.body.famemax : 1
+    },
+    location: {
+      long: req.body.long ? req.body.long : res.locals.results.gps_long,
+      lat: req.body.lat ? req.body.lat : res.locals.results.gps_lat
+    },
+    tags: req.body.tags ? req.body.tags : []
   }
 
-  user.find_match(set, (usererr, userres) => {
+  match.find_match(set, (usererr, userres) => {
     if (usererr) {
       console.log(usererr);
       res.status(400).end();
@@ -171,8 +180,8 @@ router.get('/find_match', checkToken, function (req, res, next) {
         tags: tagres
       }
 
-      const user = new Models.User(res.locals.results.id, res.locals.results.username);
-      user.find_match(set, (usererr, userres) => {
+      const match = new Models.Match(res.locals.results.id, res.locals.results.username);
+      match.find_match(set, (usererr, userres) => {
         if (usererr) {
           console.log(usererr);
           res.status(400).end();

@@ -7,5 +7,6 @@ var Chat = require('./chat');
 var Report = require('./report');
 var Notification = require('./notification');
 var Tag = require('./tag');
+var Match = require('./match');
 
-module.exports = { User, Token, Like, Block, Watch, Chat, Notification, Tag, Report };
+module.exports = { User, Token, Like, Block, Watch, Chat, Notification, Tag, Report, Match };

@@ -88,19 +88,19 @@ function add_match_score(results, set, userId) {
 	results.forEach(function (item, i) {
 		// console.log(set);
 		// console.log(userTags);
-		const proximity = getDistanceFromLatLonInKm(set.location.lat, set.location.long, item.gps_lat, item.gps_long);
+		results[i].proximity = getDistanceFromLatLonInKm(set.location.lat, set.location.long, item.gps_lat, item.gps_long);
 		// console.log("proximity");
 		// console.log(proximity);
 
-		const commonTags = count_common_tags(item.tags, set.tags);
+		results[i].common_tags = count_common_tags(item.tags, set.tags);
 		// console.log(commonTags);
 
-		const fame = calculate_fame(item.likes, item.watches);
+		results[i].fame = calculate_fame(item.likes, item.watches);
 		// console.log(fame);
 		results[i].match_score =
-			(1 / proximity) * 10000		/* (Distance: 10km = 1000 -> 100km = 100 -> 1000km = 10) */
-			+ commonTags * 10			/* (Tags: 0 tag: 0 -> 5 tags: 50) */
-			+ fame * 10					/* (Fame : no fame: 0 -> max fame: 10) */
+			(1 / results[i].proximity) * 10000	/* (Distance: 10km = 1000 -> 100km = 100 -> 1000km = 10) */
+			+ results[i].common_tags * 10					/* (Tags: 0 tag: 0 -> 5 tags: 50) */
+			+ results[i].fame * 10				/* (Fame : no fame: 0 -> max fame: 10) */
 		if (results[i].match_score > 50 && results[i].id !== userId)
 			search.push(results[i])
 	});
@@ -170,27 +170,43 @@ class Match {
 			else {
 				const preference = set.preference.split('-')
 				const gender = '%' + set.gender + '%'
-				connection.query('\
-					SELECT u2.*, GROUP_CONCAT(tu.tag_id) as tags_id, GROUP_CONCAT(t.tag) as tags \
+				/*
+				'\
+				SELECT u2.id, u2.username, u2.firstname, u2.lastname, u2.birth_date, u2.gender, u2.preference, u2.city, u2.country, u2.gps_lat, u2.gps_long, u2.bio, u2.complete, u2.img0_path, u2.img1_path, u2.img2_path, u2.img3_path, u2.img4_path, u2.watches, u2.likes, GROUP_CONCAT(tu.tag_id) as tags_id, GROUP_CONCAT(t.tag) as tags \
+				FROM (\
+					SELECT u1.*, COUNT(w.id) watches \
 					FROM (\
-						SELECT u1.*, COUNT(w.id) watches \
-						FROM (\
-							SELECT u.*,COUNT(l.id) likes \
-							FROM users u \
-							LEFT JOIN likes l \
-								ON u.id = l.liked_user_id \
-							GROUP BY u.id\
-						) u1 \
-						LEFT JOIN watches w \
-							ON u1.id = w.watched_user_id \
-						GROUP BY u1.id\
-					) u2 \
+						SELECT u.*,COUNT(l.id) likes \
+						FROM users u \
+						LEFT JOIN likes l \
+							ON u.id = l.liked_user_id \
+						GROUP BY u.id\
+					) u1 \
+					LEFT JOIN watches w \
+						ON u1.id = w.watched_user_id \
+					GROUP BY u1.id\
+				) u2 \
+				LEFT JOIN tag_user tu \
+					ON u2.id = tu.user_id \
+				LEFT JOIN tags t \
+					ON t.id = tu.tag_id \
+				WHERE u2.gender IN (?) AND u2.complete = 1 AND u2.preference LIKE BINARY ? AND YEAR(u2.birth_date) BETWEEN ? AND ? \
+				GROUP BY u2.id'
+				*/
+
+				connection.query('\
+					SELECT u.id, u.username, u.firstname, u.lastname, u.birth_date, u.gender, u.preference, u.city, u.country, u.gps_lat, u.gps_long, u.bio, u.complete, u.img0_path, u.img1_path, u.img2_path, u.img3_path, u.img4_path, COUNT(w.id) watches, COUNT(l.id) likes, GROUP_CONCAT(tu.tag_id) as tags_id, GROUP_CONCAT(t.tag) as tags \
+					FROM users u \
+					LEFT JOIN watches w \
+						ON u.id = w.watched_user_id \
+					LEFT JOIN likes l \
+						ON u.id = l.liked_user_id \
 					LEFT JOIN tag_user tu \
-						ON u2.id = tu.user_id \
+						ON u.id = tu.user_id \
 					LEFT JOIN tags t \
 						ON t.id = tu.tag_id \
-					WHERE u2.gender IN (?) AND activated = 1 AND u2.preference LIKE BINARY ? AND YEAR(u2.birth_date) BETWEEN ? AND ? \
-					GROUP BY u2.id',
+					WHERE u.gender IN (?) AND u.complete = 1 AND u.preference LIKE BINARY ? AND YEAR(u.birth_date) BETWEEN ? AND ? \
+					GROUP BY u.id',
 					[preference, gender, set.age.min, set.age.max],
 					async (error, results, fields) => {
 						if (error) {

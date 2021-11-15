@@ -99,9 +99,9 @@ function add_match_score(results, set, userId) {
 		// console.log(fame);
 		results[i].match_score =
 			(1 / results[i].proximity) * 10000	/* (Distance: 10km = 1000 -> 100km = 100 -> 1000km = 10) */
-			+ results[i].common_tags * 10					/* (Tags: 0 tag: 0 -> 5 tags: 50) */
+			+ results[i].common_tags * 10		/* (Tags: 0 tag: 0 -> 5 tags: 50) */
 			+ results[i].fame * 10				/* (Fame : no fame: 0 -> max fame: 10) */
-		if (results[i].match_score > 50 && results[i].id !== userId)
+		if (search.length < 100 && /*results[i].match_score > 50 && */results[i].id !== userId && results[i].fame <= set.fame.max && results[i].fame >= set.fame.min)
 			search.push(results[i])
 	});
 	return search;
@@ -116,13 +116,13 @@ class Match {
 
 	validate(set, error) {
 		if (!Number.isInteger(set.age.min) || !Number.isInteger(set.age.max)
-			|| set.age.max < 0 || set.age.max < set.age.min) {
+			|| set.age.max < 0 || set.age.max > set.age.min) {
 			error("Invalid age format");
 			return;
 		}
-		if (!Number.isInteger(set.fame.min) || !Number.isInteger(set.fame.max)
-			|| set.fame.max < 0 || set.fame.max > 1
-			|| set.fame.min > 1 || set.fame.min < 0
+		if (!Number.isFinite(set.fame.min) || !Number.isFinite(set.fame.max)
+			|| set.fame.max < 0.0 || set.fame.max > 1.0
+			|| set.fame.min > 1.0 || set.fame.min < 0.0
 			|| set.fame.max < set.fame.min) {
 			error("Invalid fame format");
 			return;
@@ -207,7 +207,7 @@ class Match {
 						ON t.id = tu.tag_id \
 					WHERE u.gender IN (?) AND u.complete = 1 AND u.preference LIKE BINARY ? AND YEAR(u.birth_date) BETWEEN ? AND ? \
 					GROUP BY u.id',
-					[preference, gender, set.age.min, set.age.max],
+					[preference, gender, set.age.max, set.age.min],
 					async (error, results, fields) => {
 						if (error) {
 							console.log("Error occured finding matching users in users table");
@@ -219,8 +219,9 @@ class Match {
 								results = add_match_score(results, set, this.user_id);
 								ret(null, results);
 							}
-							else
+							else {
 								ret("No users to match", null);
+							}
 						}
 					});
 			}

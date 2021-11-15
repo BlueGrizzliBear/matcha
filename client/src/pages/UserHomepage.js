@@ -1,234 +1,15 @@
 import React from 'react';
-import { Box, TablePagination, MenuItem, Typography, Paper, InputLabel, Select, List, ListItem, ListItemButton, ListItemAvatar, Avatar, TextField, Slider, FormControl } from '@mui/material';
+import { useEffect, useCallback } from 'react';
+import { styled } from '@mui/material/styles';
+import { Box, TablePagination, MenuItem, Typography, Paper, List, ListItemButton, ListItemAvatar, Avatar, TextField, Slider, Button, Chip, Popover, Menu } from '@mui/material';
 import { useHistory } from "react-router-dom";
 import calculateAge from '../utility/utilities'
 
-const fetchData = [
-	{
-		"id": 225,
-		"username": "bpetti68",
-		"firstname": "Blakelee",
-		"lastname": "Petti",
-		"birth_date": "1997-04-28T00:00:00.000Z",
-		"gender": "Woman",
-		"preference": "Man",
-		"city": "Avignon",
-		"country": "France",
-		"gps_lat": 43.939352,
-		"gps_long": 4.81568,
-		"bio": "Grass-roots optimal utilisation",
-		"complete": 1,
-		"img0_path": "https://images.unsplash.com/photo-1584625881399-60d94b0e8890?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bm9uYmluYXJ5fHx8fHx8MTYzNjQ3OTk4Mw&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080",
-		"img1_path": null,
-		"img2_path": null,
-		"img3_path": null,
-		"img4_path": null,
-		"watches": 1,
-		"likes": 0,
-		"tags_id": null,
-		"tags": null,
-		"proximity": 176.29308287458545,
-		"common_tags": 0,
-		"fame": 0,
-		"match_score": 56.723723001168345
-	},
-	{
-		"id": 471,
-		"username": "jsurmond2",
-		"firstname": "Jacquette",
-		"lastname": "Surmon",
-		"birth_date": "1990-12-15T00:00:00.000Z",
-		"gender": "Woman",
-		"preference": "Man-Woman-NonBinary",
-		"city": "Dijon",
-		"country": "France",
-		"gps_lat": 47.317743,
-		"gps_long": 5.037793,
-		"bio": "Configurable bandwidth-monitored solution",
-		"complete": 1,
-		"img0_path": "https://images.unsplash.com/photo-1584625881399-60d94b0e8890?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bm9uYmluYXJ5fHx8fHx8MTYzNjQ4MDAwMQ&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080",
-		"img1_path": null,
-		"img2_path": null,
-		"img3_path": null,
-		"img4_path": null,
-		"watches": 1,
-		"likes": 0,
-		"tags_id": null,
-		"tags": null,
-		"proximity": 199.81051236221478,
-		"common_tags": 0,
-		"fame": 0,
-		"match_score": 50.0474168339656
-	},
-	{
-		"id": 564,
-		"username": "vkersleyfn",
-		"firstname": "Viki",
-		"lastname": "Kersley",
-		"birth_date": "1994-11-19T00:00:00.000Z",
-		"gender": "Woman",
-		"preference": "Man-Woman",
-		"city": "Lyon",
-		"country": "France",
-		"gps_lat": 45.732398,
-		"gps_long": 4.835571,
-		"bio": "Optional needs-based neural-net",
-		"complete": 1,
-		"img0_path": "https://images.unsplash.com/photo-1626199844140-b72d93057839?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bm9uYmluYXJ5fHx8fHx8MTYzNjQ4MDA4Mg&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080",
-		"img1_path": null,
-		"img2_path": null,
-		"img3_path": null,
-		"img4_path": null,
-		"watches": 1,
-		"likes": 0,
-		"tags_id": null,
-		"tags": null,
-		"proximity": 23.390968417376378,
-		"common_tags": 0,
-		"fame": 0,
-		"match_score": 427.51543337433304
-	},
-	{
-		"id": 1002,
-		"username": "Olivier",
-		"firstname": "Olivier",
-		"lastname": "LIDON",
-		"birth_date": "1989-08-03T00:00:00.000Z",
-		"gender": "Man",
-		"preference": "Man-Woman-NonBinary",
-		"city": "Givors",
-		"country": "France",
-		"gps_lat": 45.5844238,
-		"gps_long": 4.7696529,
-		"bio": null,
-		"complete": 1,
-		"img0_path": "http://localhost:9000/upload/10021636044536129-341327870.jpg",
-		"img1_path": null,
-		"img2_path": null,
-		"img3_path": null,
-		"img4_path": null,
-		"watches": 1,
-		"likes": 0,
-		"tags_id": null,
-		"tags": null,
-		"proximity": 10.790655213362438,
-		"common_tags": 0,
-		"fame": 0,
-		"match_score": 926.7277845757371
-	},
-	{
-		"id": 225,
-		"username": "bpetti68",
-		"firstname": "Blakelee",
-		"lastname": "Petti",
-		"birth_date": "1997-04-28T00:00:00.000Z",
-		"gender": "Woman",
-		"preference": "Man",
-		"city": "Avignon",
-		"country": "France",
-		"gps_lat": 43.939352,
-		"gps_long": 4.81568,
-		"bio": "Grass-roots optimal utilisation",
-		"complete": 1,
-		"img0_path": "https://images.unsplash.com/photo-1584625881399-60d94b0e8890?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bm9uYmluYXJ5fHx8fHx8MTYzNjQ3OTk4Mw&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080",
-		"img1_path": null,
-		"img2_path": null,
-		"img3_path": null,
-		"img4_path": null,
-		"watches": 1,
-		"likes": 0,
-		"tags_id": null,
-		"tags": null,
-		"proximity": 176.29308287458545,
-		"common_tags": 0,
-		"fame": 0,
-		"match_score": 56.723723001168345
-	},
-	{
-		"id": 471,
-		"username": "jsurmond2",
-		"firstname": "Jacquette",
-		"lastname": "Surmon",
-		"birth_date": "1990-12-15T00:00:00.000Z",
-		"gender": "Woman",
-		"preference": "Man-Woman-NonBinary",
-		"city": "Dijon",
-		"country": "France",
-		"gps_lat": 47.317743,
-		"gps_long": 5.037793,
-		"bio": "Configurable bandwidth-monitored solution",
-		"complete": 1,
-		"img0_path": "https://images.unsplash.com/photo-1584625881399-60d94b0e8890?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bm9uYmluYXJ5fHx8fHx8MTYzNjQ4MDAwMQ&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080",
-		"img1_path": null,
-		"img2_path": null,
-		"img3_path": null,
-		"img4_path": null,
-		"watches": 1,
-		"likes": 0,
-		"tags_id": null,
-		"tags": null,
-		"proximity": 199.81051236221478,
-		"common_tags": 0,
-		"fame": 0,
-		"match_score": 50.0474168339656
-	},
-	{
-		"id": 564,
-		"username": "vkersleyfn",
-		"firstname": "Viki",
-		"lastname": "Kersley",
-		"birth_date": "1994-11-19T00:00:00.000Z",
-		"gender": "Woman",
-		"preference": "Man-Woman",
-		"city": "Lyon",
-		"country": "France",
-		"gps_lat": 45.732398,
-		"gps_long": 4.835571,
-		"bio": "Optional needs-based neural-net",
-		"complete": 1,
-		"img0_path": "https://images.unsplash.com/photo-1626199844140-b72d93057839?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bm9uYmluYXJ5fHx8fHx8MTYzNjQ4MDA4Mg&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080",
-		"img1_path": null,
-		"img2_path": null,
-		"img3_path": null,
-		"img4_path": null,
-		"watches": 1,
-		"likes": 0,
-		"tags_id": null,
-		"tags": null,
-		"proximity": 23.390968417376378,
-		"common_tags": 0,
-		"fame": 0,
-		"match_score": 427.51543337433304
-	},
-	{
-		"id": 1002,
-		"username": "Olivier",
-		"firstname": "Olivier",
-		"lastname": "LIDON",
-		"birth_date": "1989-08-03T00:00:00.000Z",
-		"gender": "Man",
-		"preference": "Man-Woman-NonBinary",
-		"city": "Givors",
-		"country": "France",
-		"gps_lat": 45.5844238,
-		"gps_long": 4.7696529,
-		"bio": null,
-		"complete": 1,
-		"img0_path": "http://localhost:9000/upload/10021636044536129-341327870.jpg",
-		"img1_path": null,
-		"img2_path": null,
-		"img3_path": null,
-		"img4_path": null,
-		"watches": 1,
-		"likes": 0,
-		"tags_id": null,
-		"tags": null,
-		"proximity": 10.790655213362438,
-		"common_tags": 0,
-		"fame": 0,
-		"match_score": 926.7277845757371
-	}
-]
+const year = new Date().getFullYear()
+
+const ListItem = styled('li')(({ theme }) => ({
+	margin: theme.spacing(0.5),
+}));
 
 function createData(id, username, firstname, lastname, birth_date, gender, preference, city, country, bio, img0_path, fame, tags, proximity, common_tags, match) {
 	return {
@@ -249,12 +30,6 @@ function createData(id, username, firstname, lastname, birth_date, gender, prefe
 		common_tags,
 		match
 	};
-}
-
-var rows = [];
-
-for (const data of fetchData) {
-	rows.push(createData(data.id, data.username, data.firstname, data.lastname, data.birth_date, data.gender, data.preference, data.city, data.country, data.bio, data.img0_path, data.fame, data.tags, data.proximity, data.common_tags, data.match_score))
 }
 
 function descendingComparator(a, b, orderBy) {
@@ -292,13 +67,28 @@ function valuetext(value) {
 }
 
 function EnhancedSearchBar(props) {
+
+	const [anchorAgeEl, setAnchorAgeEl] = React.useState(null);
+	const [anchorSortEl, setAnchorSortEl] = React.useState(null);
+	const [anchorFameEl, setAnchorFameEl] = React.useState(null);
+	const [anchorLocationEl, setAnchorLocationEl] = React.useState(null);
+	const [anchorInterestsEl, setAnchorInterestsEl] = React.useState(null);
+	const [age, setAge] = React.useState(null)
+	const [fame, setFame] = React.useState(null)
+	const [location, setLocation] = React.useState(null)
+	const [tags, setTags] = React.useState(null)
+
 	const { onRequestSort } =
+		props;
+	const { fetchMatchUserList } =
 		props;
 	const createSortHandler = (property, orderProp) => (event) => {
 		onRequestSort(event, property, orderProp);
+		setAnchorSortEl(null);
+		setSort(event.target.value);
 	};
-	const [ageValue, setAgeValue] = React.useState([18, 120]);
-	const [fameValue, setFameValue] = React.useState([0, 1]);
+	const [ageValue, setAgeValue] = React.useState([18, 100]);
+	const [fameValue, setFameValue] = React.useState([0.0, 1.0]);
 
 	const handleAgeChange = (event, newValue) => {
 		setAgeValue(newValue);
@@ -307,61 +97,225 @@ function EnhancedSearchBar(props) {
 		setFameValue(newValue);
 	};
 
-	const [sort, setSort] = React.useState('');
+	const [sort, setSort] = React.useState(null);
 
-	const handleSortChange = (event) => {
-		setSort(event.target.value);
+	const handleAgeClick = (event) => {
+		setAnchorAgeEl(event.currentTarget);
 	};
 
-	return (
-		<Paper>
-			<Box sx={{ m: 3 }} />
-			<Typography gutterBottom>Age</Typography>
-			<Slider
-				getAriaLabel={() => 'Age'}
-				value={ageValue}
-				step={1}
-				min={18}
-				max={120}
-				onChange={handleAgeChange}
-				valueLabelDisplay="on"
-				getAriaValueText={valuetext}
-			/>
-			<Box sx={{ m: 3 }} />
-			<Typography gutterBottom>Fame</Typography>
-			<Slider
-				getAriaLabel={() => 'Fame'}
-				value={fameValue}
-				step={0.1}
-				min={0.0}
-				max={1}
-				onChange={handleFameChange}
-				valueLabelDisplay="on"
-				getAriaValueText={valuetext}
-			/>
-			<TextField id="outlined-basic" label="City" variant="outlined" />
-			<TextField id="outlined-basic" label="Country" variant="outlined" />
-			<TextField id="outlined-basic" label="Interests" variant="outlined" />
-			<FormControl fullWidth>
+	const handleAgeClose = () => {
+		setAnchorAgeEl(null);
+	};
 
-				<InputLabel id="simple-select-label">Sort</InputLabel>
-				<Select
-					labelId="simple-select-label"
-					id="simple-select"
-					value={sort}
-					label="Sort"
-					onChange={handleSortChange}
+	const handleSortClick = (event) => {
+		setAnchorSortEl(event.currentTarget);
+	};
+
+	const handleSortClose = () => {
+		setAnchorSortEl(null);
+	};
+
+	const handleFameClick = (event) => {
+		setAnchorFameEl(event.currentTarget);
+	};
+
+	const handleFameClose = () => {
+		setAnchorFameEl(null);
+	};
+
+	const handleLocationClick = (event) => {
+		setAnchorLocationEl(event.currentTarget);
+	};
+
+	const handleLocationClose = () => {
+		setAnchorLocationEl(null);
+	};
+
+	const handleInterestsClick = (event) => {
+		setAnchorInterestsEl(event.currentTarget);
+	};
+
+	const handleInterestsClose = () => {
+		setAnchorInterestsEl(null);
+	};
+
+	const handleChipAgeDelete = () => {
+		setAge(null);
+		setAgeValue([18, 100]);
+	};
+
+	const handleAgeSearch = () => {
+		setAge({ min: year - ageValue[0], max: year - ageValue[1] });
+		setAnchorAgeEl(null);
+	};
+
+	const handleChipFameDelete = () => {
+		setFame(null);
+		setFameValue([0.0, 1.0]);
+	};
+
+	const handleFameSearch = () => {
+		setFame({ min: fameValue[0], max: fameValue[1] });
+		setAnchorFameEl(null);
+	};
+
+	const handleChipSortDelete = (event) => {
+		onRequestSort(event, 'match', 'desc');
+		setSort(null);
+	};
+
+	const openAge = Boolean(anchorAgeEl);
+	const openSort = Boolean(anchorSortEl);
+	const openFame = Boolean(anchorFameEl);
+	const openLocation = Boolean(anchorLocationEl);
+	const openInterests = Boolean(anchorInterestsEl);
+	const idAge = openAge ? 'simple-age-popover' : undefined;
+	const idFame = openFame ? 'simple-fame-popover' : undefined;
+	const idLocation = openLocation ? 'simple-location-popover' : undefined;
+	const idInterests = openInterests ? 'simple-interests-popover' : undefined;
+
+
+	useEffect(() => {
+		fetchMatchUserList(age, fame, location, tags);
+	}, [fetchMatchUserList, age, fame, location, tags])
+
+	return (
+		<Paper sx={{
+			display: 'flex',
+			flexDirection: 'column',
+			justifyContent: 'center',
+			flexWrap: 'wrap',
+			p: 0.5,
+			m: '10px 0',
+		}}>
+			<Box sx={{
+				display: 'flex',
+				justifyContent: 'center',
+				flexWrap: 'wrap',
+				listStyle: 'none',
+				p: 0.5,
+				m: 0,
+			}} component="ul"
+			>
+				<ListItem key='age-list-item'>
+					<Chip label="Age" onClick={handleAgeClick} onDelete={age && handleChipAgeDelete} />
+				</ListItem>
+				<Popover
+					id={idAge}
+					open={openAge}
+					anchorEl={anchorAgeEl}
+					onClose={handleAgeClose}
+					anchorOrigin={{
+						vertical: 'bottom',
+						horizontal: 'left',
+					}}
 				>
-					<MenuItem onClick={createSortHandler('birth_date', 'desc')} value={1}>Age, low to high</MenuItem>
-					<MenuItem onClick={createSortHandler('birth_date', 'asc')} value={2}>Age, high to low</MenuItem>
-					<MenuItem onClick={createSortHandler('fame', 'desc')} value={3}>Fame, low to high</MenuItem>
-					<MenuItem onClick={createSortHandler('fame', 'asc')} value={4}>Fame, high to low</MenuItem>
-					<MenuItem onClick={createSortHandler('proximity', 'asc')} value={5}>Location, closer to farther</MenuItem>
-					<MenuItem onClick={createSortHandler('proximity', 'desc')} value={6}>Location, farther to closer</MenuItem>
-					<MenuItem onClick={createSortHandler('common_tags', 'desc')} value={7}>Interests</MenuItem>
-				</Select>
-			</FormControl>
-		</Paper>
+					<Box sx={{ m: 2 }} >
+						<Slider
+							sx={{ width: 200, m: '25px 10px' }}
+							getAriaLabel={() => 'Age'}
+							value={ageValue}
+							step={1}
+							min={18}
+							max={100}
+							onChange={handleAgeChange}
+							valueLabelDisplay="on"
+							getAriaValueText={valuetext}
+						/>
+						<Box />
+						<Button variant="contained" onClick={handleAgeSearch} >OK</Button>
+					</Box>
+				</Popover>
+				<ListItem key='fame-list-item'>
+					<Chip label="Fame" onClick={handleFameClick} onDelete={fame && handleChipFameDelete} />
+				</ListItem>
+				<Popover
+					id={idFame}
+					open={openFame}
+					anchorEl={anchorFameEl}
+					onClose={handleFameClose}
+					anchorOrigin={{
+						vertical: 'bottom',
+						horizontal: 'left',
+					}}
+				>
+					<Box sx={{ m: 2 }} >
+						<Slider
+							sx={{ width: 200, m: '25px 10px' }}
+							getAriaLabel={() => 'Fame'}
+							value={fameValue}
+							step={0.1}
+							min={0.0}
+							max={1.0}
+							onChange={handleFameChange}
+							valueLabelDisplay="on"
+							getAriaValueText={valuetext}
+						/>
+						<Box />
+						<Button variant="contained" onClick={handleFameSearch}>OK</Button>
+					</Box>
+				</Popover>
+				<ListItem key='location-list-item'>
+					<Chip label="Location" onClick={handleLocationClick} />
+				</ListItem>
+				<Popover
+					id={idLocation}
+					open={openLocation}
+					anchorEl={anchorLocationEl}
+					onClose={handleLocationClose}
+					anchorOrigin={{
+						vertical: 'bottom',
+						horizontal: 'left',
+					}}
+				>
+					<Box sx={{ m: 2 }} >
+						<TextField id="outlined-basic" label="City" variant="outlined" />
+						<Box />
+						<TextField id="outlined-basic" label="Country" variant="outlined" />
+						<Box />
+						<Button variant="contained">OK</Button>
+					</Box>
+				</Popover>
+
+				<ListItem key='interests-list-item'>
+					<Chip label="Interests" onClick={handleInterestsClick} />
+				</ListItem>
+				<Popover
+					id={idInterests}
+					open={openInterests}
+					anchorEl={anchorInterestsEl}
+					onClose={handleInterestsClose}
+					anchorOrigin={{
+						vertical: 'bottom',
+						horizontal: 'left',
+					}}
+				>
+					<TextField id="outlined-basic" label="Interests" variant="outlined" />
+				</Popover>
+
+				<ListItem key='sort-list-item'>
+					<Chip label="Sort" onClick={handleSortClick} onDelete={sort && handleChipSortDelete} />
+				</ListItem>
+				<Menu
+					id="basic-menu"
+					anchorEl={anchorSortEl}
+					open={openSort}
+					onClose={handleSortClose}
+					MenuListProps={{
+						'aria-labelledby': 'basic-button',
+					}}
+				>
+					<MenuItem selected={sort === 1} onClick={createSortHandler('birth_date', 'desc')} value={1}>Age, low to high</MenuItem>
+					<MenuItem selected={sort === 2} onClick={createSortHandler('birth_date', 'asc')} value={2}>Age, high to low</MenuItem>
+					<MenuItem selected={sort === 3} onClick={createSortHandler('fame', 'asc')} value={3}>Fame, low to high</MenuItem>
+					<MenuItem selected={sort === 4} onClick={createSortHandler('fame', 'desc')} value={4}>Fame, high to low</MenuItem>
+					<MenuItem selected={sort === 5} onClick={createSortHandler('proximity', 'asc')} value={5}>Location, closer to farther</MenuItem>
+					<MenuItem selected={sort === 6} onClick={createSortHandler('proximity', 'desc')} value={6}>Location, farther to closer</MenuItem>
+					<MenuItem selected={sort === 7} onClick={createSortHandler('common_tags', 'desc')} value={7}>Common interests</MenuItem>
+				</Menu>
+			</Box >
+			<Button sx={{ width: 200, alignSelf: 'center' }} variant="contained">Find Match</Button>
+		</Paper >
 	);
 
 }
@@ -369,6 +323,7 @@ function EnhancedSearchBar(props) {
 function UserHomepage() {
 	const history = useHistory();
 	const [order, setOrder] = React.useState('desc');
+	const [rows, setRows] = React.useState([]);
 	const [orderBy, setOrderBy] = React.useState('match');
 	const [page, setPage] = React.useState(0);
 	const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -393,20 +348,60 @@ function UserHomepage() {
 		setPage(0);
 	};
 
-	// useEffect(() => {
-	// 	for (const data of fetchData) {
-	// 		rows.push(createData(data.id, data.username, data.firstname, data.lastname, data.birth_date, data.gender, data.preference, data.city, data.country, data.bio, data.img0_path, data.fame, data.tags))
-	// 	}
-	// })
+	const fetchMatchUserList = useCallback((age = null, fame = null, location = null, tags = null) => {
+		let set = {};
+		if (age) {
+			set.agemin = age.min;
+			set.agemax = age.max;
+		}
+		if (fame) {
+			set.famemin = fame.min;
+			set.famemax = fame.max;
+		}
+		if (location) {
+			set.lat = location.lat;
+			set.long = location.long;
+		}
+		if (tags)
+			set.tags = tags;
+		fetch("http://" + process.env.REACT_APP_API_URL + "user/find_match", {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', 'Authorization': "Bearer " + localStorage.getItem("token") },
+			body: JSON.stringify(set)
+		})
+			.then(res => {
+				if (res.ok && res.status === 200) {
+					return res.json().then((fetchData) => {
+						let rowsData = [];
+						for (const data of fetchData) {
+							rowsData.push(createData(data.id, data.username, data.firstname, data.lastname, data.birth_date, data.gender, data.preference, data.city, data.country, data.bio, data.img0_path, data.fame, data.tags, data.proximity, data.common_tags, data.match_score))
+						}
+						setRows(rowsData);
+					})
+				}
+				else {
+					console.log("Fail to get notifications");
+				}
+			})
+			.catch(error => {
+				console.log(error);
+				console.log("Fail to fetch");
+			})
+	}, [])
+
+	useEffect(() => {
+		fetchMatchUserList()
+	}, [fetchMatchUserList])
 
 	// Avoid a layout jump when reaching the last page with empty rows.
 	// const emptyRows =
 	// 	page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
 	return (
-		<Box sx={{ width: '100%' }}>
+		<Box sx={{ margin: 2 }}>
 			<EnhancedSearchBar
 				onRequestSort={handleRequestSort}
+				fetchMatchUserList={fetchMatchUserList}
 			/>
 			<Paper sx={{ width: '100%', mb: 2 }}>
 				<List>
@@ -415,7 +410,7 @@ function UserHomepage() {
 						.map((row, index) => {
 
 							return (
-								<ListItemButton disablePadding onClick={(event) => handleClick(event, row.username)}>
+								<ListItemButton key={'list-item-button' + index} onClick={(event) => handleClick(event, row.username)}>
 									<ListItemAvatar>
 										<Avatar sx={{ width: 100, height: 100 }} alt={row.firstname + ' ' + row.lastname} src={row.img0_path} />
 									</ListItemAvatar>
@@ -432,6 +427,15 @@ function UserHomepage() {
 								</ListItemButton>
 							);
 						})}
+					{/* {emptyRows > 0 && (
+						<TableRow
+							style={{
+								height: (dense ? 33 : 53) * emptyRows,
+							}}
+						>
+							<TableCell colSpan={6} />
+						</TableRow>
+					)} */}
 					{/* {!emptyRows && (
 						<ListItem disablePadding>
 							<p>No results</p>

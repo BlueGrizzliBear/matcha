@@ -126,12 +126,13 @@ router.post('/find_match', checkToken, function (req, res, next) {
   // - Interests tags
   const match = new Models.Match(res.locals.results.id, res.locals.results.username);
 
+  console.log(req.body)
   const set = {
     gender: res.locals.results.gender,
     preference: res.locals.results.preference,
     age: {
-      min: req.body.agemin ? req.body.agemin : 0,
-      max: req.body.agemax ? req.body.agemax : 5000
+      min: req.body.agemin ? req.body.agemin : 5000,
+      max: req.body.agemax ? req.body.agemax : 0
     },
     fame: {
       min: req.body.famemin ? req.body.famemin : 0,
@@ -174,7 +175,7 @@ router.get('/find_match', checkToken, function (req, res, next) {
       const set = {
         gender: res.locals.results.gender,
         preference: res.locals.results.preference,
-        age: { min: 0, max: 5000 },
+        age: { min: 5000, max: 0 },
         fame: { min: 0, max: 1 },
         location: { lat: res.locals.results.gps_lat, long: res.locals.results.gps_long },
         tags: tagres
@@ -255,7 +256,7 @@ router.get('/:username/unlike', checkToken, function (req, res, next) {
 
 const fetchProfileImageURL = function (results, user, ret) {
   if (results.fake && results.img0_path === null) {
-    let path = 'https://source.unsplash.com/featured/?' + (results.gender === 'Male' ? 'man' : (results.gender === 'Female' ? 'woman' : 'nonbinary'));
+    let path = 'https://source.unsplash.com/featured/?' + (results.gender === 'Man' ? 'man' : (results.gender === 'Woman' ? 'woman' : 'nonbinary'));
     fetch(path, {
       method: 'GET',
     })

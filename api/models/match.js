@@ -69,11 +69,8 @@ function count_common_tags(listTags, userTagsSet) {
 }
 
 function calculate_fame(likes, watches) {
-	if (watches === 0)
-		return 0.5
-	else {
-		return likes / watches;
-	}
+	let score = 1 - ((watches - likes) * 0.1)
+	return score < 0 ? 0 : score;
 }
 
 function add_match_score(results, set, userId) {

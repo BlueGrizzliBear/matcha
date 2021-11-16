@@ -1,9 +1,10 @@
 import React from 'react';
-import { useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, TablePagination, MenuItem, Typography, Paper, List, ListItemButton, ListItemAvatar, Avatar, TextField, Slider, Button, Chip, Popover, Menu } from '@mui/material';
+import { Link, Box, TablePagination, MenuItem, Typography, Paper, List, ListItemButton, ListItemAvatar, Avatar, TextField, Slider, Button, Chip, Popover, Menu } from '@mui/material';
 import { useHistory } from "react-router-dom";
 import calculateAge from '../utility/utilities'
+import ChipsArray from '../components/ChipsArray'
 
 const year = new Date().getFullYear()
 
@@ -77,6 +78,10 @@ function EnhancedSearchBar(props) {
 	const [fame, setFame] = React.useState(null)
 	const [location, setLocation] = React.useState(null)
 	const [tags, setTags] = React.useState(null)
+	const [inputValues, setInputValues] = useState({
+		city: '',
+		country: '',
+	});
 
 	const { onRequestSort } =
 		props;
@@ -99,44 +104,12 @@ function EnhancedSearchBar(props) {
 
 	const [sort, setSort] = React.useState(null);
 
-	const handleAgeClick = (event) => {
-		setAnchorAgeEl(event.currentTarget);
+	const handleClick = (setAnchorEl) => (event) => {
+		setAnchorEl(event.currentTarget);
 	};
 
-	const handleAgeClose = () => {
-		setAnchorAgeEl(null);
-	};
-
-	const handleSortClick = (event) => {
-		setAnchorSortEl(event.currentTarget);
-	};
-
-	const handleSortClose = () => {
-		setAnchorSortEl(null);
-	};
-
-	const handleFameClick = (event) => {
-		setAnchorFameEl(event.currentTarget);
-	};
-
-	const handleFameClose = () => {
-		setAnchorFameEl(null);
-	};
-
-	const handleLocationClick = (event) => {
-		setAnchorLocationEl(event.currentTarget);
-	};
-
-	const handleLocationClose = () => {
-		setAnchorLocationEl(null);
-	};
-
-	const handleInterestsClick = (event) => {
-		setAnchorInterestsEl(event.currentTarget);
-	};
-
-	const handleInterestsClose = () => {
-		setAnchorInterestsEl(null);
+	const handleClose = (setAnchorEl) => (event) => {
+		setAnchorEl(null);
 	};
 
 	const handleChipAgeDelete = () => {
@@ -164,6 +137,15 @@ function EnhancedSearchBar(props) {
 		setSort(null);
 	};
 
+	const handleLocationSearch = () => {
+		setLocation({ city: inputValues.city, country: inputValues.country })
+		setAnchorLocationEl(null);
+	};
+
+	const handleChipLocationDelete = (event) => {
+		setLocation(null);
+	};
+
 	const openAge = Boolean(anchorAgeEl);
 	const openSort = Boolean(anchorSortEl);
 	const openFame = Boolean(anchorFameEl);
@@ -174,6 +156,9 @@ function EnhancedSearchBar(props) {
 	const idLocation = openLocation ? 'simple-location-popover' : undefined;
 	const idInterests = openInterests ? 'simple-interests-popover' : undefined;
 
+	const handleInputChange = (prop) => (event) => {
+		setInputValues({ ...inputValues, [prop]: event.target.value });
+	};
 
 	useEffect(() => {
 		fetchMatchUserList(age, fame, location, tags);
@@ -198,13 +183,13 @@ function EnhancedSearchBar(props) {
 			}} component="ul"
 			>
 				<ListItem key='age-list-item'>
-					<Chip label="Age" onClick={handleAgeClick} onDelete={age && handleChipAgeDelete} />
+					<Chip label="Age" onClick={handleClick(setAnchorAgeEl)} onDelete={age && handleChipAgeDelete} />
 				</ListItem>
 				<Popover
 					id={idAge}
 					open={openAge}
 					anchorEl={anchorAgeEl}
-					onClose={handleAgeClose}
+					onClose={handleClose(setAnchorAgeEl)}
 					anchorOrigin={{
 						vertical: 'bottom',
 						horizontal: 'left',
@@ -227,13 +212,13 @@ function EnhancedSearchBar(props) {
 					</Box>
 				</Popover>
 				<ListItem key='fame-list-item'>
-					<Chip label="Fame" onClick={handleFameClick} onDelete={fame && handleChipFameDelete} />
+					<Chip label="Fame" onClick={handleClick(setAnchorFameEl)} onDelete={fame && handleChipFameDelete} />
 				</ListItem>
 				<Popover
 					id={idFame}
 					open={openFame}
 					anchorEl={anchorFameEl}
-					onClose={handleFameClose}
+					onClose={handleClose(setAnchorFameEl)}
 					anchorOrigin={{
 						vertical: 'bottom',
 						horizontal: 'left',
@@ -256,51 +241,63 @@ function EnhancedSearchBar(props) {
 					</Box>
 				</Popover>
 				<ListItem key='location-list-item'>
-					<Chip label="Location" onClick={handleLocationClick} />
+					<Chip label="Location" onClick={handleClick(setAnchorLocationEl)} onDelete={location && handleChipLocationDelete} />
 				</ListItem>
 				<Popover
 					id={idLocation}
 					open={openLocation}
 					anchorEl={anchorLocationEl}
-					onClose={handleLocationClose}
+					onClose={handleClose(setAnchorLocationEl)}
 					anchorOrigin={{
 						vertical: 'bottom',
 						horizontal: 'left',
 					}}
 				>
 					<Box sx={{ m: 2 }} >
-						<TextField id="outlined-basic" label="City" variant="outlined" />
+						<TextField id="outlined-basic" label="City" value={inputValues.city} onChange={handleInputChange('city')} variant="outlined" />
 						<Box />
-						<TextField id="outlined-basic" label="Country" variant="outlined" />
+						<TextField id="outlined-basic" label="Country" value={inputValues.country} onChange={handleInputChange('country')} variant="outlined" />
 						<Box />
-						<Button variant="contained">OK</Button>
+						<Button variant="contained" onClick={handleLocationSearch}>OK</Button>
 					</Box>
 				</Popover>
 
 				<ListItem key='interests-list-item'>
-					<Chip label="Interests" onClick={handleInterestsClick} />
+					<Chip label="Interests" onClick={handleClick(setAnchorInterestsEl)} />
 				</ListItem>
 				<Popover
 					id={idInterests}
 					open={openInterests}
 					anchorEl={anchorInterestsEl}
-					onClose={handleInterestsClose}
+					onClose={handleClose(setAnchorInterestsEl)}
 					anchorOrigin={{
 						vertical: 'bottom',
 						horizontal: 'left',
 					}}
 				>
-					<TextField id="outlined-basic" label="Interests" variant="outlined" />
+					<Box sx={{ m: 2 }} >
+						<ChipsArray />
+						<Box sx={{
+							m: 2,
+							display: 'flex',
+							justifyContent: 'space-between',
+							flexWrap: 'wrap'
+						}} >
+							<Link>+ Add interest</Link>
+							<Button variant="contained" >OK</Button>
+						</Box>
+					</Box>
+
 				</Popover>
 
 				<ListItem key='sort-list-item'>
-					<Chip label="Sort" onClick={handleSortClick} onDelete={sort && handleChipSortDelete} />
+					<Chip label="Sort" onClick={handleClick(setAnchorSortEl)} onDelete={sort && handleChipSortDelete} />
 				</ListItem>
 				<Menu
 					id="basic-menu"
 					anchorEl={anchorSortEl}
 					open={openSort}
-					onClose={handleSortClose}
+					onClose={handleClose(setAnchorSortEl)}
 					MenuListProps={{
 						'aria-labelledby': 'basic-button',
 					}}
@@ -317,7 +314,6 @@ function EnhancedSearchBar(props) {
 			<Button sx={{ width: 200, alignSelf: 'center' }} variant="contained">Find Match</Button>
 		</Paper >
 	);
-
 }
 
 function UserHomepage() {
@@ -359,8 +355,8 @@ function UserHomepage() {
 			set.famemax = fame.max;
 		}
 		if (location) {
-			set.lat = location.lat;
-			set.long = location.long;
+			set.city = location.city;
+			set.country = location.country;
 		}
 		if (tags)
 			set.tags = tags;
@@ -376,6 +372,7 @@ function UserHomepage() {
 						for (const data of fetchData) {
 							rowsData.push(createData(data.id, data.username, data.firstname, data.lastname, data.birth_date, data.gender, data.preference, data.city, data.country, data.bio, data.img0_path, data.fame, data.tags, data.proximity, data.common_tags, data.match_score))
 						}
+						setPage(0);
 						setRows(rowsData);
 					})
 				}

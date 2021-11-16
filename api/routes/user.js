@@ -117,53 +117,28 @@ router.post('/reset_password', checkToken, function (req, res, next) {
 });
 
 
-/* POST /user/find_match - Return a list of matching users with search criterias */
-router.post('/find_match', checkToken, function (req, res, next) {
-  // Search Criteria :
-  // - Age
-  // - Fame
-  // - Geographical Location
-  // - Interests tags
-  const match = new Models.Match(res.locals.results.id, res.locals.results.username);
+function find_gps_location(city, country, ret) {
+  fetch('http://api.positionstack.com/v1/forward?access_key=' + process.env.POSITIONSTACK_API_KEY + '&query=' + encodeURI(city) + ',' + encodeURI(country) + '&limit=1&output=json', {
+    method: 'GET',
+  })
+    .then(res => {
+      if (res.ok && res.status === 200) {
+        res.json().then((data) => {
+          if (data.data.length > 0)
+            ret(null, { lat: data.data[0].latitude, long: data.data[0].longitude })
+          else
+            ret("No city found", null)
+        })
+      }
+      else
+        ret("Fail to GET gps long/lat from positionstack", null)
+    })
+    .catch(error => {
+      ret(error, null)
+    })
+}
 
-  console.log(req.body)
-  const set = {
-    gender: res.locals.results.gender,
-    preference: res.locals.results.preference,
-    age: {
-      min: req.body.agemin ? req.body.agemin : 5000,
-      max: req.body.agemax ? req.body.agemax : 0
-    },
-    fame: {
-      min: req.body.famemin ? req.body.famemin : 0,
-      max: req.body.famemax ? req.body.famemax : 1
-    },
-    location: {
-      long: req.body.long ? req.body.long : res.locals.results.gps_long,
-      lat: req.body.lat ? req.body.lat : res.locals.results.gps_lat
-    },
-    tags: req.body.tags ? req.body.tags : []
-  }
-
-  match.find_match(set, (usererr, userres) => {
-    if (usererr) {
-      console.log(usererr);
-      res.status(400).end();
-    }
-    else {
-      res.status(200).json(userres).end();
-    }
-  });
-});
-
-/* GET /user/find_match - Return a list of matching users */
-router.get('/find_match', checkToken, function (req, res, next) {
-
-  // Matching Criteria :
-  // 1 - Sexual orientation
-  // 2 - Geographical Location
-  // 3 - Interests tags
-  // 4 - Fame (views/likes ratio)
+function find_match_results(res, req, location) {
   const tag = new Models.Tag(res.locals.results.id);
 
   tag.findUserTags((tagerr, tagres) => {
@@ -172,16 +147,25 @@ router.get('/find_match', checkToken, function (req, res, next) {
       res.status(400).end();
     }
     else {
+      const match = new Models.Match(res.locals.results.id, res.locals.results.username);
       const set = {
         gender: res.locals.results.gender,
         preference: res.locals.results.preference,
-        age: { min: 5000, max: 0 },
-        fame: { min: 0, max: 1 },
-        location: { lat: res.locals.results.gps_lat, long: res.locals.results.gps_long },
-        tags: tagres
+        age: {
+          min: req.body.agemin ? req.body.agemin : 5000,
+          max: req.body.agemax ? req.body.agemax : 0
+        },
+        fame: {
+          min: req.body.famemin ? req.body.famemin : 0,
+          max: req.body.famemax ? req.body.famemax : 1
+        },
+        location: {
+          long: location ? location.long : res.locals.results.gps_long,
+          lat: location ? location.lat : res.locals.results.gps_lat
+        },
+        tags: req.body.tags ? req.body.tags : tagres
       }
 
-      const match = new Models.Match(res.locals.results.id, res.locals.results.username);
       match.find_match(set, (usererr, userres) => {
         if (usererr) {
           console.log(usererr);
@@ -193,7 +177,74 @@ router.get('/find_match', checkToken, function (req, res, next) {
       });
     }
   });
+}
+
+/* POST /user/find_match - Return a list of matching users with search criterias */
+router.post('/find_match', checkToken, function (req, res, next) {
+  // Search Criteria :
+  // - Age
+  // - Fame
+  // - Geographical Location
+  // - Interests tags
+  var location = null
+
+  console.log(req.body)
+  if (req.body.city && req.body.country) {
+    find_gps_location(req.body.city, req.body.country, (gpserr, gpsres) => {
+      if (gpsres) {
+        location = gpsres;
+        find_match_results(res, req, location);
+      }
+      else {
+        console.log(gpserr);
+        res.status(400).end();
+      }
+    })
+  }
+  else {
+    find_match_results(res, req, location);
+  }
+
 });
+
+// /* GET /user/find_match - Return a list of matching users */
+// router.get('/find_match', checkToken, function (req, res, next) {
+
+//   // Matching Criteria :
+//   // 1 - Sexual orientation
+//   // 2 - Geographical Location
+//   // 3 - Interests tags
+//   // 4 - Fame (views/likes ratio)
+//   const tag = new Models.Tag(res.locals.results.id);
+
+//   tag.findUserTags((tagerr, tagres) => {
+//     if (tagerr) {
+//       console.log(tagerr);
+//       res.status(400).end();
+//     }
+//     else {
+//       const set = {
+//         gender: res.locals.results.gender,
+//         preference: res.locals.results.preference,
+//         age: { min: 5000, max: 0 },
+//         fame: { min: 0, max: 1 },
+//         location: { lat: res.locals.results.gps_lat, long: res.locals.results.gps_long },
+//         tags: tagres
+//       }
+
+//       const match = new Models.Match(res.locals.results.id, res.locals.results.username);
+//       match.find_match(set, (usererr, userres) => {
+//         if (usererr) {
+//           console.log(usererr);
+//           res.status(400).end();
+//         }
+//         else {
+//           res.status(200).json(userres).end();
+//         }
+//       });
+//     }
+//   });
+// });
 
 /* GET /user/username/like - Like username's profile */
 router.get('/:username/like', checkToken, function (req, res, next) {

@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import { Link, Box, TablePagination, MenuItem, Typography, Paper, List, ListItemButton, ListItemAvatar, Avatar, TextField, Slider, Button, Chip, Popover, Menu } from '@mui/material';
 import { useHistory } from "react-router-dom";
 import calculateAge from '../utility/utilities'
-import ChipsArray from '../components/ChipsArray'
+import { ChipsArray, ChipsAdder } from '../components/Chips'
 
 const year = new Date().getFullYear()
 
@@ -82,16 +82,12 @@ function EnhancedSearchBar(props) {
 		city: '',
 		country: '',
 	});
+	const [chipData, setChipData] = React.useState([]);
+	const [chipAdderDisplay, setChipAdderDisplay] = React.useState(false)
 
-	const { onRequestSort } =
+	const { onRequestSort, fetchMatchUserList } =
 		props;
-	const { fetchMatchUserList } =
-		props;
-	const createSortHandler = (property, orderProp) => (event) => {
-		onRequestSort(event, property, orderProp);
-		setAnchorSortEl(null);
-		setSort(event.target.value);
-	};
+
 	const [ageValue, setAgeValue] = React.useState([18, 100]);
 	const [fameValue, setFameValue] = React.useState([0.0, 1.0]);
 
@@ -112,38 +108,71 @@ function EnhancedSearchBar(props) {
 		setAnchorEl(null);
 	};
 
-	const handleChipAgeDelete = () => {
-		setAge(null);
-		setAgeValue([18, 100]);
-	};
 
+	/* Chip filter search */
 	const handleAgeSearch = () => {
+		sessionStorage.setItem('age', JSON.stringify(ageValue));
 		setAge({ min: year - ageValue[0], max: year - ageValue[1] });
 		setAnchorAgeEl(null);
 	};
 
-	const handleChipFameDelete = () => {
-		setFame(null);
-		setFameValue([0.0, 1.0]);
-	};
-
 	const handleFameSearch = () => {
+		sessionStorage.setItem('fame', JSON.stringify(fameValue));
 		setFame({ min: fameValue[0], max: fameValue[1] });
 		setAnchorFameEl(null);
 	};
 
-	const handleChipSortDelete = (event) => {
-		onRequestSort(event, 'match', 'desc');
-		setSort(null);
-	};
-
 	const handleLocationSearch = () => {
+		sessionStorage.setItem('location', JSON.stringify(inputValues));
 		setLocation({ city: inputValues.city, country: inputValues.country })
 		setAnchorLocationEl(null);
 	};
 
+	const handleInterestsSearch = () => {
+		sessionStorage.setItem('tags', JSON.stringify(chipData));
+		let tagsArray = []
+		for (const chip of chipData) {
+			tagsArray.push({ tag: chip.label })
+		}
+		setTags(tagsArray)
+		setAnchorInterestsEl(null);
+	};
+
+	const createSortHandler = (property, orderProp) => (event) => {
+		sessionStorage.setItem('sort', JSON.stringify({ 'property': property, 'order': orderProp, 'value': event.target.value }));
+		onRequestSort(event, property, orderProp);
+		setAnchorSortEl(null);
+		setSort(event.target.value);
+	};
+
+	/* Chip filter delete */
+	const handleChipAgeDelete = () => {
+		setAge(null);
+		sessionStorage.removeItem('age')
+		setAgeValue([18, 100]);
+	};
+
+	const handleChipFameDelete = () => {
+		sessionStorage.removeItem('fame')
+		setFame(null);
+		setFameValue([0.0, 1.0]);
+	};
+
 	const handleChipLocationDelete = (event) => {
+		sessionStorage.removeItem('location')
 		setLocation(null);
+	};
+
+	const handleChipInterestsDelete = (event) => {
+		sessionStorage.removeItem('tags')
+		setTags(null);
+		setChipData([]);
+	};
+
+	const handleChipSortDelete = (event) => {
+		sessionStorage.removeItem('sort')
+		onRequestSort(event, 'match', 'desc');
+		setSort(null);
 	};
 
 	const openAge = Boolean(anchorAgeEl);
@@ -159,6 +188,67 @@ function EnhancedSearchBar(props) {
 	const handleInputChange = (prop) => (event) => {
 		setInputValues({ ...inputValues, [prop]: event.target.value });
 	};
+
+	const handleChipArrayDelete = (chipToDelete) => () => {
+		setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
+	};
+
+	const handleChipArrayAdd = (event) => (chipToAdd) => {
+		for (const data of chipData) {
+			if (data.label === chipToAdd)
+				return;
+		}
+		let newChipData = chipData
+		newChipData.push(({
+			key: (chipData[chipData.length - 1] ? chipData[chipData.length - 1].key : -1) + 1,
+			label: chipToAdd
+		}))
+		setChipData(newChipData);
+	};
+
+	const showChipAdd = () => {
+		if (chipAdderDisplay)
+			setChipAdderDisplay(false);
+		else
+			setChipAdderDisplay(true);
+	}
+
+	useEffect(() => {
+		let sessionAge = sessionStorage.getItem('age');
+		let sessionFame = sessionStorage.getItem('fame');
+		let sessionLocation = sessionStorage.getItem('location');
+		let sessionInterests = sessionStorage.getItem('tags');
+		let sessionSort = sessionStorage.getItem('sort');
+		if (sessionAge) {
+			sessionAge = JSON.parse(sessionAge);
+			setAgeValue(sessionAge);
+			setAge({ min: year - sessionAge[0], max: year - sessionAge[1] });
+		}
+		if (sessionFame) {
+			sessionFame = JSON.parse(sessionFame);
+			setFameValue(sessionFame);
+			setFame({ min: sessionFame[0], max: sessionFame[1] });
+		}
+		if (sessionLocation) {
+			sessionLocation = JSON.parse(sessionLocation);
+			setLocation({ city: sessionLocation.city, country: sessionLocation.country })
+			setInputValues(sessionLocation);
+		}
+		if (sessionInterests) {
+			sessionInterests = JSON.parse(sessionInterests);
+			let tagsArray = []
+			for (const chip of sessionInterests) {
+				tagsArray.push({ tag: chip.label })
+			}
+			setTags(tagsArray)
+			setChipData(sessionInterests)
+		}
+		if (sessionSort) {
+			sessionSort = JSON.parse(sessionSort);
+			onRequestSort(null, sessionSort.property, sessionSort.order);
+			setSort(sessionSort.value)
+		}
+	}, [onRequestSort])
 
 	useEffect(() => {
 		fetchMatchUserList(age, fame, location, tags);
@@ -211,6 +301,7 @@ function EnhancedSearchBar(props) {
 						<Button variant="contained" onClick={handleAgeSearch} >OK</Button>
 					</Box>
 				</Popover>
+
 				<ListItem key='fame-list-item'>
 					<Chip label="Fame" onClick={handleClick(setAnchorFameEl)} onDelete={fame && handleChipFameDelete} />
 				</ListItem>
@@ -240,6 +331,7 @@ function EnhancedSearchBar(props) {
 						<Button variant="contained" onClick={handleFameSearch}>OK</Button>
 					</Box>
 				</Popover>
+
 				<ListItem key='location-list-item'>
 					<Chip label="Location" onClick={handleClick(setAnchorLocationEl)} onDelete={location && handleChipLocationDelete} />
 				</ListItem>
@@ -263,7 +355,7 @@ function EnhancedSearchBar(props) {
 				</Popover>
 
 				<ListItem key='interests-list-item'>
-					<Chip label="Interests" onClick={handleClick(setAnchorInterestsEl)} />
+					<Chip label="Interests" onClick={handleClick(setAnchorInterestsEl)} onDelete={tags && handleChipInterestsDelete} />
 				</ListItem>
 				<Popover
 					id={idInterests}
@@ -276,18 +368,20 @@ function EnhancedSearchBar(props) {
 					}}
 				>
 					<Box sx={{ m: 2 }} >
-						<ChipsArray />
+						<ChipsArray handleChipDelete={handleChipArrayDelete} chipData={chipData} />
 						<Box sx={{
 							m: 2,
+							gap: 2,
 							display: 'flex',
-							justifyContent: 'space-between',
+							justifyContent: 'flex-start',
+							alignItems: 'center',
 							flexWrap: 'wrap'
 						}} >
-							<Link>+ Add interest</Link>
-							<Button variant="contained" >OK</Button>
+							<Link display={chipAdderDisplay ? 'none' : 'block'} sx={{ width: 200 }} onClick={showChipAdd}>+ Add interest</Link>
+							<ChipsAdder handleChipArrayAdd={handleChipArrayAdd()} showChipAdd={showChipAdd} display={chipAdderDisplay ? 'block' : 'none'} />
+							<Button variant="contained" onClick={handleInterestsSearch} >OK</Button>
 						</Box>
 					</Box>
-
 				</Popover>
 
 				<ListItem key='sort-list-item'>
@@ -311,7 +405,7 @@ function EnhancedSearchBar(props) {
 					<MenuItem selected={sort === 7} onClick={createSortHandler('common_tags', 'desc')} value={7}>Common interests</MenuItem>
 				</Menu>
 			</Box >
-			<Button sx={{ width: 200, alignSelf: 'center' }} variant="contained">Find Match</Button>
+			{/* <Button sx={{ width: 200, alignSelf: 'center' }} variant="contained">Find Match</Button> */}
 		</Paper >
 	);
 }
@@ -324,15 +418,14 @@ function UserHomepage() {
 	const [page, setPage] = React.useState(0);
 	const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-	const handleRequestSort = (event, property, orderProp) => {
+	const handleRequestSort = useCallback((event, property, orderProp) => {
 		setOrder(orderProp);
 		setOrderBy(property);
-	};
+	}, []);
 
 	const handleClick = (event, link) => {
 		event.preventDefault();
 		history.push(`/profile/` + link);
-
 	};
 
 	const handleChangePage = (event, newPage) => {

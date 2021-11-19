@@ -53,7 +53,19 @@ exports.up = function (db) {
         }
       }
     },
-  });
+  })
+    .then(
+      function (result) {
+        return db.runSql('ALTER TABLE tag_user ADD CONSTRAINT uc_tag_user UNIQUE (tag_id, user_id)',
+          (err) => {
+            if (err)
+              console.log(err);
+          });
+      },
+      function (err) {
+        return;
+      }
+    );
 };
 
 exports.down = function (db) {

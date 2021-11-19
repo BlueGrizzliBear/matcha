@@ -52,12 +52,12 @@ function Profile(props) {
 					<Loading />
 					:
 					<>
-						<Figures {...props} user={user} updateUser={setUser} editable={user.isAuth} likeable={!user.isAuth}/>
+						<Figures {...props} user={user} updateUser={setUser} editable={user.isAuth} likeable={!user.isAuth} />
 						<ImageGallery {...props} user={user} editable={user.isAuth} />
-						<Interests />
-						<Biography />
-						<Gender />
-						<SexualPreferences />
+						<Interests user={user} />
+						<Biography bio={user.bio} editable={user.isAuth} />
+						<Gender gender={user.gender} editable={user.isAuth} />
+						<SexualPreferences preference={user.preference} editable={user.isAuth} />
 					</>
 			}
 		</>

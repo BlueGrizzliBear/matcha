@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect } from 'react';
-import { Paper, Slider } from '@mui/material';
+import { Paper, Slider, Box } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -78,17 +78,22 @@ function Gender(props) {
   return (
     <Paper className={classes.root}>
       <h3>Gender :</h3>
-      <Slider
-        disabled={!editable}
-        sx={{ width: 200 }}
-        track={false}
-        onChange={handleValueChange}
-        aria-label="Restricted values"
-        value={value}
-        getAriaValueText={valuetext}
-        step={null}
-        marks={marks}
-      />
+      {editable ?
+        <Slider
+          sx={{ width: 200 }}
+          track={false}
+          onChange={handleValueChange}
+          aria-label="Restricted values"
+          value={value}
+          getAriaValueText={valuetext}
+          step={null}
+          marks={marks}
+        />
+        :
+        <Box sx={{ paddingBottom: '10px' }}>
+          {gender}
+        </Box>
+      }
     </Paper>
   );
 }

@@ -18,6 +18,7 @@ function Profile(props) {
 	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
+		// document.title = 'MATCHA - Profile'
 		setIsLoading(true);
 
 		fetch("http://" + process.env.REACT_APP_API_URL + 'user/' + (props.path === '/profile' ? '' : props.computedMatch.params.username), {

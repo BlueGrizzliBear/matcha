@@ -1,5 +1,7 @@
-// import { useState, useEffect } from 'react';
-import { Box, Chip, Stack, Tooltip, IconButton } from '@mui/material';
+
+import React from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Box, Chip, Stack, Tooltip, IconButton, Button, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import StandaloneToggleButton from './ToggleButton';
 import LikeButton from './LikeButton';
@@ -33,44 +35,165 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-function Figures({user, editable, likeable, updateUser, ...props}) {
+function Figures({ user, editable, likeable, updateUser, ...props }) {
 
 	const classes = useStyles();
+	const [editLoc, setEditLoc] = React.useState(true);
+	const [ipAdress, setIpAdress] = React.useState(null);
+	let textInput = useRef(null);
+	const [values, setValues] = useState({
+		city: '',
+		country: ''
+	});
 
-	const changeAddress = (locationMode, tag) => {
-		if (locationMode === true)
-			return (tag === 'city' ? 'Ecully' : 'France');
-		return (tag === 'country' ? 'France' : 'Lyon');
-	}
+	// const changeAddress = (locationMode, tag) => {
+	// 	if (locationMode === true) {
+	// 		if ("geolocation" in navigator) {
+	// 			console.log("Geolocation is Available on navigator");
+	// 			navigator.geolocation.getCurrentPosition(function (position) {
+	// 				console.log("Latitude is :", position.coords.latitude);
+	// 				console.log("Longitude is :", position.coords.longitude);
+	// 				return (tag === 'city' ? 'Ecully' : 'France');
+	// 			});
+	// 		} else {
+	// 			console.log("Geolocation is Not Available on navigator");
+	// 		}
+	// 	}
+	// 	return (tag === 'country' ? 'France' : 'Lyon');
+	// }
 
 	const estimateAddress = (value, placeholder) => {
 		return (value ? value : placeholder);
 	}
 
-	const handleLocation = (e) => {
-		fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
-			method: 'POST',
-			headers: {
-				'Authorization': "Bearer " + localStorage.getItem("token"),
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				location_mode: !user.location_mode,
-				city: changeAddress(!user.location_mode, 'city'),
-				country: changeAddress(!user.location_modem, 'country')
+	const handleEditLocation = () => {
+		if (editLoc) {
+			setEditLoc(false);
+		}
+		else {
+			console.log(values);
+			fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
+				method: 'POST',
+				headers: {
+					'Authorization': "Bearer " + localStorage.getItem("token"),
+					'Content-Type': 'application/json',
+					'x-forwarded-for': ipAdress
+				},
+				body: JSON.stringify({
+					location_mode: false,
+					city: values.city,
+					country: values.country
+				})
 			})
+				.then(res => {
+					if (res.ok) {
+						return res.json().then((data) => {
+							updateUser(data);
+							setEditLoc(true);
+						})
+					}
+					else {
+						console.log("Fail to add bio");
+					}
+				})
+				.catch(() => {
+					console.log("Fail to add bio");
+				})
+		}
+	};
+
+	const handleLocation = (e) => {
+		if (!user.location_mode) {
+			if ("geolocation" in navigator) {
+				console.log("Geolocation is Available on navigator");
+				navigator.geolocation.getCurrentPosition(function (position) {
+					console.log("Latitude is :", position.coords.latitude);
+					console.log("Longitude is :", position.coords.longitude);
+					fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
+						method: 'POST',
+						headers: {
+							'Authorization': "Bearer " + localStorage.getItem("token"),
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							location_mode: !user.location_mode,
+							gps_long: position.coords.longitude,
+							gps_lat: position.coords.latitude
+						})
+					})
+						.then(res => {
+							if (res.ok) {
+								return res.json().then((data) => {
+									updateUser(data);
+								})
+							}
+						})
+						.catch(() => {
+							console.log("Fail to update user location to server");
+						})
+				});
+			}
+			else {
+				console.log("Geolocation is Not Available on navigator");
+			}
+		}
+		else {
+			fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
+				method: 'POST',
+				headers: {
+					'Authorization': "Bearer " + localStorage.getItem("token"),
+					'Content-Type': 'application/json',
+					'x-forwarded-for': ipAdress
+				},
+				body: JSON.stringify({
+					location_mode: !user.location_mode,
+					city: user.city,
+					country: user.country,
+				})
+			})
+				.then(res => {
+					if (res.ok) {
+						return res.json().then((data) => {
+							updateUser(data);
+						})
+					}
+				})
+				.catch(() => {
+					console.log("Fail to update user location to server");
+				})
+		}
+	}
+
+	const handleChange = (prop) => (event) => {
+		setValues({ ...values, [prop]: event.target.value });
+	};
+
+	useEffect(() => {
+		setValues({ city: user.city, country: user.country });
+	}, [user.city, user.country]);
+
+	useEffect(() => {
+		if (!editLoc) {
+			textInput.current.focus();
+		}
+	}, [editLoc])
+
+	useEffect(() => {
+		fetch("http://api6.ipify.org/?format=json", {
+			method: 'GET',
 		})
 			.then(res => {
 				if (res.ok) {
 					return res.json().then((data) => {
-						updateUser(data);
+						setIpAdress(data.ip);
 					})
 				}
 			})
 			.catch(() => {
-				console.log("Fail to register user to server");
+				console.log("Fail to get client ip adress");
 			})
-	}
+	}, [])
+
 
 	return (
 		<>
@@ -88,8 +211,32 @@ function Figures({user, editable, likeable, updateUser, ...props}) {
 							<Box sx={{ 'padding': '2px 8px' }}>
 								<LocationOnIcon />
 							</Box>
+
 						}
-						<Box>{estimateAddress(user.city, 'cityPlaceholder')}, {estimateAddress(user.country, 'countryPlaceholder')}</Box>
+						{editable && !user.location_mode ?
+							<Box display="flex" direction="row" sx={{ m: 0, p: 0, gap: '5px', width: '300px', alignItems: 'center' }}>
+								<TextField
+									disabled={editLoc}
+									inputRef={textInput}
+									id="filled-static"
+									label="City"
+									value={values.city}
+									variant="filled"
+									onChange={handleChange('city')}
+								/>
+								<TextField
+									disabled={editLoc}
+									id="filled-static"
+									label="Country"
+									value={values.country}
+									variant="filled"
+									onChange={handleChange('country')}
+								/>
+								<Button sx={{ width: '70px' }} variant="contained" onClick={handleEditLocation} >{editLoc ? 'EDIT' : 'OK'}</Button>
+							</Box>
+							:
+							<Box>{estimateAddress(user.city, 'cityPlaceholder')}, {estimateAddress(user.country, 'countryPlaceholder')}</Box>
+						}
 					</Box>
 				</Stack>
 				{likeable ?

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect } from 'react';
-import { Paper, FormControlLabel, Switch } from '@mui/material';
+import { Paper, FormControlLabel, Switch, Box } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -20,6 +20,7 @@ function SexualPreferences(props) {
   const [man, setMan] = React.useState(false);
   const [woman, setWoman] = React.useState(false);
   const [nonBinary, setNonBinary] = React.useState(false);
+  const [preferences, setPreferences] = React.useState('');
 
   const handleChange = (setChecked) => (event) => {
     let newPreference = ''
@@ -75,6 +76,25 @@ function SexualPreferences(props) {
   };
 
   useEffect(() => {
+    let genderText = ''
+    if (man)
+      genderText = 'Man'
+    if (woman) {
+      if (genderText === '')
+        genderText += 'Woman'
+      else
+        genderText += ', Woman'
+    }
+    if (nonBinary) {
+      if (genderText === '')
+        genderText += 'Non-Binary'
+      else
+        genderText += ', Non-Binary'
+    }
+    setPreferences(genderText);
+  }, [man, woman, nonBinary]);
+
+  useEffect(() => {
     if (preference) {
       let preferences = preference.split('-')
       for (const orientation of preferences) {
@@ -91,9 +111,17 @@ function SexualPreferences(props) {
   return (
     <Paper className={classes.root}>
       <h3>Interested in :</h3>
-      <FormControlLabel control={<Switch disabled={!editable} checked={man} onChange={handleChange(setMan)} />} label="Man" />
-      <FormControlLabel control={<Switch disabled={!editable} checked={woman} onChange={handleChange(setWoman)} />} label="Woman" />
-      <FormControlLabel control={<Switch disabled={!editable} checked={nonBinary} onChange={handleChange(setNonBinary)} />} label="Non-Binary" />
+      {editable ?
+        <>
+          <FormControlLabel control={<Switch disabled={!editable} checked={man} onChange={handleChange(setMan)} />} label="Man" />
+          <FormControlLabel control={<Switch disabled={!editable} checked={woman} onChange={handleChange(setWoman)} />} label="Woman" />
+          <FormControlLabel control={<Switch disabled={!editable} checked={nonBinary} onChange={handleChange(setNonBinary)} />} label="Non-Binary" />
+        </>
+        :
+        <Box sx={{ paddingBottom: '10px' }}>
+          {preferences}
+        </Box>
+      }
     </Paper>
   );
 }

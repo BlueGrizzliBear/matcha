@@ -43,50 +43,126 @@ router.get('/', checkToken, function (req, res, next) {
   }).end();
 });
 
+function find_complete_location(req, ret) {
+  if (req.body.location_mode === true && req.body.gps_lat && req.body.gps_long) {
+    // fetch city and country from gps coord
+    fetch('http://api.positionstack.com/v1/reverse?access_key=' + process.env.POSITIONSTACK_API_KEY + '&query=' + encodeURI(req.body.gps_lat) + ',' + encodeURI(req.body.gps_long) + '&limit=1&output=json', {
+      method: 'GET',
+    })
+      .then(res => {
+        if (res.ok && res.status === 200) {
+          res.json().then((data) => {
+            if (data.data.length > 0) {
+              ret(null, data.data[0].locality, data.data[0].country, null, null)
+            }
+            else
+              ret('Fail to GET city/country from positionstack', null, null, null, null);
+          })
+        }
+      })
+      .catch(error => {
+        ret(error, null, null, null, null);
+      })
+  }
+  else if (req.body.location_mode === false && req.body.city === '' && req.body.country === '') {
+    // fetch city and country and gps coord from ip adress ( req.header('x-forwarded-for'))
+    console.log("fetch city and country and gps coord from ip adress")
+    var ipAddress = req.header('x-forwarded-for') || req.socket.remoteAddress;
+    console.log(ipAddress);
+    fetch('http://api.ipapi.com/' + ipAddress + '?access_key=' + process.env.IPAPI_API_KEY + '&fields=country_name,city,latitude,longitude&output=json', {
+      method: 'GET',
+    })
+      .then(res => {
+        if (res.ok && res.status === 200) {
+          res.json().then((data) => {
+            ret(null, data.city, data.country_name, data.longitude, data.latitude);
+          });
+        }
+      })
+      .catch(error => {
+        ret(error, null, null, null, null);
+      })
+  }
+  else if (req.body.location_mode === false && req.body.city && req.body.country) {
+    console.log("fetch gps coord from city and country")
+    find_gps_location(req.body.city, req.body.country, (gpserr, gpsres) => {
+      if (gpsres) {
+        ret(null, null, null, gpsres.long, gpsres.lat)
+      }
+      else {
+        ret(gpserr, null, null, null, null);
+      }
+    });
+  }
+  else {
+    console.log("no fetching for position")
+    ret(null, null, null, null, null);
+  }
+}
+
 /* POST /user - Update/change user profile informations */
 router.post('/', checkToken, function (req, res, next) {
+  // var idAddress = req.header('x-forwarded-for') || req.socket.remoteAddress;
+  // console.log(idAddress);
   /* Update user informations */
-  const user = new Models.User(res.locals.results.id, res.locals.results.username);
-  user.update(req.body, true, (error, results) => {
-    if (error) {
-      console.log(error);
+  find_complete_location(req, (locerr, city, country, gps_long, gps_lat) => {
+    if (locerr) {
+      console.log(locerr);
       res.status(400).end();
     }
     else {
-      user.find((error, results) => {
-        /* return user profile with new changed informations */
-        res.status(200).json({
-          status: "200",
-          isAuth: true,
-          isProfileComplete: results[0].complete,
-          id: results[0].id,
-          username: results[0].username,
-          email: results[0].email,
-          firstname: results[0].firstname,
-          lastname: results[0].lastname,
-          birth_date: results[0].birth_date,
-          isActivated: results[0].activated,
-          gender: results[0].gender,
-          preference: results[0].preference,
-          bio: results[0].bio,
-          position: {
-            long: results[0].gps_long,
-            lat: results[0].gps_lat
-          },
-          city: results[0].city,
-          country: results[0].country,
-          location_mode: results[0].location_mode,
-          images: {
-            img0: results[0].img0_path,
-            img1: results[0].img1_path,
-            img2: results[0].img2_path,
-            img3: results[0].img3_path,
-            img4: results[0].img4_path
-          },
-          likes: results[0].likes,
-          watches: results[0].watches,
-          fake: results[0].fake
-        }).end();
+      if (city)
+        req.body.city = city;
+      if (country)
+        req.body.country = country;
+      if (gps_long)
+        req.body.gps_long = gps_long;
+      if (gps_lat)
+        req.body.gps_lat = gps_lat;
+
+      const user = new Models.User(res.locals.results.id, res.locals.results.username);
+      user.update(req.body, true, (error, results) => {
+        if (error) {
+          console.log(error);
+          res.status(400).end();
+        }
+        else {
+          user.find((error, results) => {
+            /* return user profile with new changed informations */
+            res.status(200).json({
+              status: "200",
+              isAuth: true,
+              isProfileComplete: results[0].complete,
+              id: results[0].id,
+              username: results[0].username,
+              email: results[0].email,
+              firstname: results[0].firstname,
+              lastname: results[0].lastname,
+              birth_date: results[0].birth_date,
+              isActivated: results[0].activated,
+              gender: results[0].gender,
+              preference: results[0].preference,
+              bio: results[0].bio,
+              position: {
+                long: results[0].gps_long,
+                lat: results[0].gps_lat
+              },
+              city: results[0].city,
+              country: results[0].country,
+              location_mode: results[0].location_mode,
+              images: {
+                img0: results[0].img0_path,
+                img1: results[0].img1_path,
+                img2: results[0].img2_path,
+                img3: results[0].img3_path,
+                img4: results[0].img4_path
+              },
+              likes: results[0].likes,
+              watches: results[0].watches,
+              fake: results[0].fake
+            }).end();
+          });
+        }
       });
     }
   });
@@ -188,7 +264,6 @@ router.post('/find_match', checkToken, function (req, res, next) {
   // - Interests tags
   var location = null
 
-  console.log(req.body)
   if (req.body.city && req.body.country) {
     find_gps_location(req.body.city, req.body.country, (gpserr, gpsres) => {
       if (gpsres) {

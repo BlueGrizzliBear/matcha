@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Paper, Chip, Box, Button } from '@mui/material';
 import { ChipsArray, ChipsAdderWithAddOption } from './Chips'
 
@@ -9,6 +9,7 @@ function Interests(props) {
   const [chipAdderDisplay, setChipAdderDisplay] = React.useState(false)
   const { user } =
     props;
+  let textInput = useRef(null);
 
   const handleChipArrayDelete = (chipToDelete) => () => {
     fetch("http://" + process.env.REACT_APP_API_URL + 'tag', {
@@ -94,6 +95,12 @@ function Interests(props) {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (chipAdderDisplay) {
+      textInput.current.focus();
+    }
+  }, [chipAdderDisplay])
+
   return (
     <Paper >
       <h3>Interests :</h3>
@@ -106,8 +113,8 @@ function Interests(props) {
               label='+ Add interest'
               sx={{
                 width: 200,
-                m: '0px 0px',
-                p: '13px 0px'
+                m: '10px',
+                p: '13px 0px',
               }}
               key='add-interests-link'
               color="secondary"
@@ -125,7 +132,7 @@ function Interests(props) {
             }}
           >
             <Box sx={{ width: '64px' }}></Box>
-            <ChipsAdderWithAddOption handleChipArrayAdd={handleChipArrayAdd()} />
+            <ChipsAdderWithAddOption inputRef={textInput} handleChipArrayAdd={handleChipArrayAdd()} />
             <Button variant="contained" onClick={showChipAdd} >OK</Button>
           </Box>
         </>

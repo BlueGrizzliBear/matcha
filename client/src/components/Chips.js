@@ -90,7 +90,7 @@ export function ChipsAdderWithAddOption(props) {
 	const [value, setValue] = React.useState(null);
 	const [inputValue, setInputValue] = React.useState('');
 	const [options, setOptions] = React.useState([]);
-	const { handleChipArrayAdd } =
+	const { handleChipArrayAdd, inputRef } =
 		props;
 
 	const fetchChipList = useCallback((letter) => {
@@ -178,7 +178,7 @@ export function ChipsAdderWithAddOption(props) {
 				size="small"
 				renderOption={(props, option) => <li {...props}>{option.tag}</li>}
 				freeSolo
-				renderInput={(params) => <TextField variant="standard" {...params} inputProps={{ ...params.inputProps, maxLength: 30 }} label="Add Chip" />}
+				renderInput={(params) => <TextField inputRef={inputRef} variant="standard" {...params} inputProps={{ ...params.inputProps, maxLength: 30 }} label="Add Chip" />}
 			/>
 		</Box>
 	)

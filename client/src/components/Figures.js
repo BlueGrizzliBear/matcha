@@ -1,16 +1,12 @@
 
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
-import { Box, Chip, Stack, Tooltip, IconButton, Button, TextField } from '@mui/material';
+import { Box, Chip, Stack, Tooltip, IconButton, Button, TextField, Menu, MenuItem, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import StandaloneToggleButton from './ToggleButton';
 import LikeButton from './LikeButton';
-import { Visibility as VisibilityIcon, Favorite as FavoriteIcon, LocationOn as LocationOnIcon, Block as BlockIcon, ErrorOutline as ErrorOutlineIcon } from '@mui/icons-material';
-
-// import OptionButton from '../components/OptionButton'
-// import MoreVertIcon from '@mui/icons-material/MoreVert';
-
+import { MoreVert as MoreVertIcon, Chat as ChatIcon, Visibility as VisibilityIcon, Favorite as FavoriteIcon, LocationOn as LocationOnIcon, Block as BlockIcon, ErrorOutline as ErrorOutlineIcon } from '@mui/icons-material';
 import calculateAge from '../utility/utilities'
+import Chat from './Chat'
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -40,27 +36,21 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 	const classes = useStyles();
 	const [editLoc, setEditLoc] = React.useState(true);
 	const [ipAdress, setIpAdress] = React.useState(null);
-	let textInput = useRef(null);
 	const [values, setValues] = useState({
 		city: '',
-		country: ''
+		country: '',
+		report: ''
 	});
+	const [anchorChatEl, setAnchorChatEl] = useState(null);
+	const [anchorOptionsEl, setAnchorOptionsEl] = useState(null);
+	const openChat = Boolean(anchorChatEl);
+	const openOptions = Boolean(anchorOptionsEl);
+	const [receiverId, setReceiverId] = useState(null);
+	const [websocket, setWebsocket] = useState(null);
+	const [blocked, setBlocked] = useState(false);
+	const [openReport, setOpenReport] = React.useState(false);
 
-	// const changeAddress = (locationMode, tag) => {
-	// 	if (locationMode === true) {
-	// 		if ("geolocation" in navigator) {
-	// 			console.log("Geolocation is Available on navigator");
-	// 			navigator.geolocation.getCurrentPosition(function (position) {
-	// 				console.log("Latitude is :", position.coords.latitude);
-	// 				console.log("Longitude is :", position.coords.longitude);
-	// 				return (tag === 'city' ? 'Ecully' : 'France');
-	// 			});
-	// 		} else {
-	// 			console.log("Geolocation is Not Available on navigator");
-	// 		}
-	// 	}
-	// 	return (tag === 'country' ? 'France' : 'Lyon');
-	// }
+	let textInput = useRef(null);
 
 	const estimateAddress = (value, placeholder) => {
 		return (value ? value : placeholder);
@@ -101,6 +91,42 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 				})
 		}
 	};
+
+	const handleBlock = (e) => {
+		fetch("http://" + process.env.REACT_APP_API_URL + 'user/' + user.username + (blocked ? '/unblock' : '/block'), {
+			method: 'GET',
+			headers: {
+				'Authorization': "Bearer " + localStorage.getItem("token"),
+			},
+		})
+			.then(res => {
+				if (res.ok) {
+					fetch("http://" + process.env.REACT_APP_API_URL + 'user/' + user.username, {
+						method: 'GET',
+						headers: { 'Authorization': "Bearer " + localStorage.getItem("token") },
+					})
+						.then(res => {
+							if (res.ok && res.status === 200) {
+								return res.json().then((data) => {
+									updateUser(data);
+								})
+							}
+						})
+						.catch(error => {
+							console.log(error);
+							console.log("Fail to fetch user data");
+						})
+					setBlocked(!blocked);
+				}
+				else {
+					console.log("Fail to block user");
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+				console.log("Fail to block user");
+			})
+	}
 
 	const handleLocation = (e) => {
 		if (!user.location_mode) {
@@ -168,9 +194,65 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 		setValues({ ...values, [prop]: event.target.value });
 	};
 
+	const handleChatClick = (event) => {
+		setAnchorChatEl(props.footerref.current);
+		setReceiverId(user.id);
+	};
+
+	const handleOptionsClick = (event) => {
+		setAnchorOptionsEl(event.currentTarget);
+	};
+
+	const handleChatClose = () => {
+		setReceiverId(null);
+		setAnchorChatEl(null);
+	};
+
+	const handleOptionsClose = () => {
+		setAnchorOptionsEl(null);
+	};
+
+	const handleClickOpenReport = () => {
+		setOpenReport(true);
+		setAnchorOptionsEl(null);
+	};
+
+	const handleCloseReport = () => {
+		setOpenReport(false);
+	};
+
+	const handleSendReport = () => {
+		fetch("http://" + process.env.REACT_APP_API_URL + 'user/' + user.username + '/report', {
+			method: 'POST',
+			headers: {
+				'Authorization': "Bearer " + localStorage.getItem("token"),
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				reason: values.report,
+			})
+		})
+			.then(res => {
+				if (res.ok) {
+					setOpenReport(false);
+				}
+				else {
+					console.log("Fail to report user");
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	};
+
 	useEffect(() => {
-		setValues({ city: user.city, country: user.country });
+		if (user.city && user.country)
+			setValues({ city: user.city, country: user.country });
 	}, [user.city, user.country]);
+
+	useEffect(() => {
+		setBlocked(user.blocked);
+	}, [user.blocked]);
 
 	useEffect(() => {
 		if (!editLoc) {
@@ -179,21 +261,26 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 	}, [editLoc])
 
 	useEffect(() => {
-		fetch("http://api6.ipify.org/?format=json", {
-			method: 'GET',
-		})
-			.then(res => {
-				if (res.ok) {
-					return res.json().then((data) => {
-						setIpAdress(data.ip);
-					})
-				}
+		if (user) {
+			fetch("http://api6.ipify.org/?format=json", {
+				method: 'GET',
 			})
-			.catch(() => {
-				console.log("Fail to get client ip adress");
-			})
-	}, [])
+				.then(res => {
+					if (res.ok) {
+						return res.json().then((data) => {
+							setIpAdress(data.ip);
+						})
+					}
+				})
+				.catch(() => {
+					console.log("Fail to get client ip adress");
+				})
+		}
+	}, [user])
 
+	useEffect(() => {
+		setWebsocket(props.websocket);
+	}, [props.websocket])
 
 	return (
 		<>
@@ -220,7 +307,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 									inputRef={textInput}
 									id="filled-static"
 									label="City"
-									value={values.city}
+									value={values.city === null ? '' : values.city}
 									variant="filled"
 									onChange={handleChange('city')}
 								/>
@@ -228,7 +315,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 									disabled={editLoc}
 									id="filled-static"
 									label="Country"
-									value={values.country}
+									value={values.country === null ? '' : values.country}
 									variant="filled"
 									onChange={handleChange('country')}
 								/>
@@ -257,10 +344,77 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 							</Tooltip>
 						</>
 						:
-						<>
-							<StandaloneToggleButton component={<ErrorOutlineIcon />} firstColor='warning' />
-							<StandaloneToggleButton component={<BlockIcon />} firstColor='error' />
-						</>
+						<Box>
+							<IconButton
+								aria-label="send messages"
+								color="inherit"
+								aria-controls="send-message"
+								aria-haspopup="true"
+								aria-expanded={openChat ? 'true' : undefined}
+								onClick={handleChatClick}
+							>
+								<Tooltip title="Send Message">
+									<ChatIcon />
+								</Tooltip>
+							</IconButton>
+							<Chat
+								anchorel={anchorChatEl}
+								open={openChat}
+								receiverid={receiverId}
+								handleclose={handleChatClose}
+								websocket={websocket}
+							/>
+							<IconButton
+								aria-label="options menu"
+								sx={{ p: 0 }}
+								color="inherit"
+								aria-controls="options-menu"
+								aria-haspopup="true"
+								aria-expanded={openOptions ? 'true' : undefined}
+								onClick={handleOptionsClick}
+							>
+								<Tooltip title="Options">
+									<MoreVertIcon />
+								</Tooltip>
+							</IconButton>
+							<Menu
+								id="messages-menu"
+								anchorEl={anchorOptionsEl}
+								open={openOptions}
+								onClose={handleOptionsClose}
+								sx={{ width: '100%', maxWidth: 360 }}
+							>
+								<MenuItem onClick={handleClickOpenReport}>
+									<ErrorOutlineIcon /> Report
+								</MenuItem >
+								<MenuItem selected={blocked} onClick={handleBlock}>
+									<BlockIcon /> Block
+								</MenuItem >
+							</Menu>
+							<Dialog open={openReport} onClose={handleCloseReport}>
+								<DialogTitle>Report</DialogTitle>
+								<DialogContent>
+									<DialogContentText>
+										To report this user, please enter the reason.
+									</DialogContentText>
+									<TextField
+										autoFocus
+										margin="dense"
+										id="report"
+										label="Reason"
+										type="text"
+										fullWidth
+										variant="standard"
+										value={values.report}
+										onChange={handleChange('report')}
+									/>
+								</DialogContent>
+								<DialogActions>
+									<Button onClick={handleCloseReport}>Cancel</Button>
+									<Button onClick={handleSendReport}>Submit</Button>
+								</DialogActions>
+							</Dialog>
+						</Box>
 					}
 				</Stack>
 			</Box>

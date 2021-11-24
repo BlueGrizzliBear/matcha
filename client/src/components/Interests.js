@@ -102,42 +102,44 @@ function Interests(props) {
   }, [chipAdderDisplay])
 
   return (
-    <Paper >
-      <h3>Interests :</h3>
-      <ChipsArray handleChipDelete={user.isAuth ? handleChipArrayDelete : null} chipData={chipData} />
-      {user.isAuth &&
-        <>
-          {/* TODO : mettre animation et remplacer chip par la box (changer le format de la box pour ressemble a un chip avec textfield) */}
-          <Box display={chipAdderDisplay ? 'none' : 'block'}>
-            <Chip
-              label='+ Add interest'
+    <Box sx={{ maxWidth: 1552, m: '0px auto' }}>
+      <Paper >
+        <h3>Interests :</h3>
+        <ChipsArray handleChipDelete={user.isAuth ? handleChipArrayDelete : null} chipData={chipData} />
+        {user.isAuth &&
+          <>
+            {/* TODO : mettre animation et remplacer chip par la box (changer le format de la box pour ressemble a un chip avec textfield) */}
+            <Box display={chipAdderDisplay ? 'none' : 'block'}>
+              <Chip
+                label='+ Add interest'
+                sx={{
+                  width: 200,
+                  m: '10px',
+                  p: '13px 0px',
+                }}
+                key='add-interests-link'
+                color="secondary"
+                onClick={showChipAdd}
+              />
+            </Box>
+            <Box
+              key='add-interests-field'
+              display={chipAdderDisplay ? 'flex' : 'none'}
               sx={{
-                width: 200,
-                m: '10px',
-                p: '13px 0px',
+                m: '0px 15px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexWrap: 'wrap'
               }}
-              key='add-interests-link'
-              color="secondary"
-              onClick={showChipAdd}
-            />
-          </Box>
-          <Box
-            key='add-interests-field'
-            display={chipAdderDisplay ? 'flex' : 'none'}
-            sx={{
-              m: '0px 15px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexWrap: 'wrap'
-            }}
-          >
-            <Box sx={{ width: '64px' }}></Box>
-            <ChipsAdderWithAddOption inputRef={textInput} handleChipArrayAdd={handleChipArrayAdd()} />
-            <Button variant="contained" onClick={showChipAdd} >OK</Button>
-          </Box>
-        </>
-      }
-    </Paper>
+            >
+              <Box sx={{ width: '64px' }}></Box>
+              <ChipsAdderWithAddOption inputRef={textInput} handleChipArrayAdd={handleChipArrayAdd()} />
+              <Button variant="contained" onClick={showChipAdd} >OK</Button>
+            </Box>
+          </>
+        }
+      </Paper>
+    </Box>
   );
 }
 

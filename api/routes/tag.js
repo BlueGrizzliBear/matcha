@@ -73,7 +73,16 @@ router.get('/user/:user_id', checkToken, function (req, res, next) {
 			res.status(400).end();
 		}
 		else {
-			res.status(200).json(results).end();
+			const block = new Models.Block(res.locals.results.id, parseInt(req.params['user_id']));
+			block.blocked((blockerr, blockres) => {
+				if (blockerr) {
+					console.log(blockerr);
+					res.status(400).end();
+				}
+				else {
+					res.status(200).json(results).end();
+				}
+			});
 		}
 	});
 });

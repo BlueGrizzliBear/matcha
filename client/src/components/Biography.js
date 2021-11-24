@@ -60,7 +60,8 @@ function Biography(props) {
   }
 
   useEffect(() => {
-    setValue(bio);
+    if (bio)
+      setValue(bio);
   }, [bio]);
 
   useEffect(() => {
@@ -70,53 +71,55 @@ function Biography(props) {
   }, [editBio])
 
   return (
-    <Paper sx={{ paddingBottom: '10px' }} >
-      <h3>Biography :</h3>
-      {editable ?
-        <Box
-          display='flex'
-          sx={{
-            m: '0px 15px',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexWrap: 'wrap'
-          }}
-        >
-          <Box sx={{ width: '70px' }} />
-          <Box sx={{ width: '242px' }}>
-            <TextField
-              fullWidth
-              sx={{
-                m: '10px',
-              }}
-              inputRef={textInput}
-              disabled={editBio}
-              className={classes.root}
-              id="filled-multiline-static"
-              label="Biography"
-              multiline
-              rows={4}
-              value={value}
-              variant="filled"
-              onChange={handleChange}
-            />
+    <Box sx={{ maxWidth: 1552, m: '0px auto' }}>
+      <Paper sx={{ paddingBottom: '10px' }} >
+        <h3>Biography :</h3>
+        {editable ?
+          <Box
+            display='flex'
+            sx={{
+              m: '0px 15px',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexWrap: 'wrap'
+            }}
+          >
+            <Box sx={{ width: '70px' }} />
+            <Box sx={{ width: '242px' }}>
+              <TextField
+                fullWidth
+                sx={{
+                  m: '10px',
+                }}
+                inputRef={textInput}
+                disabled={editBio}
+                className={classes.root}
+                id="filled-multiline-static"
+                label="Biography"
+                multiline
+                rows={4}
+                value={value}
+                variant="filled"
+                onChange={handleChange}
+              />
+            </Box>
+            <Button sx={{ width: '70px' }} variant="contained" onClick={handleEditBio} >{editBio ? 'EDIT' : 'OK'}</Button>
           </Box>
-          <Button sx={{ width: '70px' }} variant="contained" onClick={handleEditBio} >{editBio ? 'EDIT' : 'OK'}</Button>
-        </Box>
-        :
-        <Box
-          display='flex'
-          sx={{
-            m: '0px 15px',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexWrap: 'wrap'
-          }}
-        >
-          {value}
-        </Box>
-      }
-    </Paper>
+          :
+          <Box
+            display='flex'
+            sx={{
+              m: '0px 15px',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexWrap: 'wrap'
+            }}
+          >
+            {value}
+          </Box>
+        }
+      </Paper>
+    </Box>
   );
 }
 

@@ -445,7 +445,13 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
                 }
                 else {
                   if (blockres == true)
-                    res.status(200).json({ blocked: blockres }).end();
+                    res.status(200).json({
+                      id: results[0].id,
+                      firstname: results[0].firstname,
+                      lastname: results[0].lastname,
+                      username: results[0].username,
+                      blocked: blockres
+                    }).end();
                   else {
                     websocket.sendNotification(results[0].id, 3);
                     fetchProfileImageURL(results[0], user, (imageUrl) => {

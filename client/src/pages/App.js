@@ -187,9 +187,9 @@ class App extends Component {
                   <ProtectedRoute exact path='/' component={UserHomepage} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   {/* <ProtectedRoute exact path='/notifications' component={Notifications} toRedirect="/profile" condition={!this.state.isProfileComplete} /> */}
                   <ProtectedRoute exact path='/chat' component={Chat} toRedirect="/profile" condition={!this.state.isProfileComplete} />
-                  <ProtectedRoute exact path='/profile' component={Profile} setValue={this.setValue} />
+                  <ProtectedRoute exact path='/profile' component={Profile} websocket={this.state.websocket} footerref={this.footerRef} setValue={this.setValue} />
                   <ProtectedRoute path='/reset_password/:token' component={ResetPassword} toRedirect="/profile" condition={!this.state.isProfileComplete} />
-                  <ProtectedRoute path='/profile/:username' component={Profile} toRedirect="/profile" condition={!this.state.isProfileComplete} />
+                  <ProtectedRoute path='/profile/:username' component={Profile} websocket={this.state.websocket} footerref={this.footerRef} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute path='/' component={NotFound} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                 </Switch>
               </>

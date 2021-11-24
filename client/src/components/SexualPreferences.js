@@ -109,20 +109,22 @@ function SexualPreferences(props) {
   }, [preference]);
 
   return (
-    <Paper className={classes.root}>
-      <h3>Interested in :</h3>
-      {editable ?
-        <>
-          <FormControlLabel control={<Switch disabled={!editable} checked={man} onChange={handleChange(setMan)} />} label="Man" />
-          <FormControlLabel control={<Switch disabled={!editable} checked={woman} onChange={handleChange(setWoman)} />} label="Woman" />
-          <FormControlLabel control={<Switch disabled={!editable} checked={nonBinary} onChange={handleChange(setNonBinary)} />} label="Non-Binary" />
-        </>
-        :
-        <Box sx={{ paddingBottom: '10px' }}>
-          {preferences}
-        </Box>
-      }
-    </Paper>
+    <Box sx={{ maxWidth: 1552, m: '0px auto' }}>
+      <Paper className={classes.root}>
+        <h3>Interested in :</h3>
+        {editable ?
+          <>
+            <FormControlLabel control={<Switch disabled={!editable} checked={man} onChange={handleChange(setMan)} />} label="Man" />
+            <FormControlLabel control={<Switch disabled={!editable} checked={woman} onChange={handleChange(setWoman)} />} label="Woman" />
+            <FormControlLabel control={<Switch disabled={!editable} checked={nonBinary} onChange={handleChange(setNonBinary)} />} label="Non-Binary" />
+          </>
+          :
+          <Box sx={{ paddingBottom: '10px' }}>
+            {preferences}
+          </Box>
+        }
+      </Paper>
+    </Box>
   );
 }
 

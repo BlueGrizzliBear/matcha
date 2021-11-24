@@ -76,25 +76,27 @@ function Gender(props) {
   }, [gender]);
 
   return (
-    <Paper className={classes.root}>
-      <h3>Gender :</h3>
-      {editable ?
-        <Slider
-          sx={{ width: 200 }}
-          track={false}
-          onChange={handleValueChange}
-          aria-label="Restricted values"
-          value={value}
-          getAriaValueText={valuetext}
-          step={null}
-          marks={marks}
-        />
-        :
-        <Box sx={{ paddingBottom: '10px' }}>
-          {gender}
-        </Box>
-      }
-    </Paper>
+    <Box sx={{ maxWidth: 1552, m: '0px auto' }}>
+      <Paper className={classes.root}>
+        <h3>Gender :</h3>
+        {editable ?
+          <Slider
+            sx={{ width: 200 }}
+            track={false}
+            onChange={handleValueChange}
+            aria-label="Restricted values"
+            value={value}
+            getAriaValueText={valuetext}
+            step={null}
+            marks={marks}
+          />
+          :
+          <Box sx={{ paddingBottom: '10px' }}>
+            {gender}
+          </Box>
+        }
+      </Paper>
+    </Box>
   );
 }
 

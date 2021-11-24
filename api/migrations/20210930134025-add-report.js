@@ -58,18 +58,6 @@ exports.up = function (db) {
       notNull: true,
     },
   })
-    .then(
-      function (result) {
-        return db.runSql('ALTER TABLE reports ADD CONSTRAINT uc_reporting_reported UNIQUE (reporting_user_id, reported_user_id)',
-          (err) => {
-            if (err)
-              console.log(err);
-          });
-      },
-      function (err) {
-        return;
-      }
-    );
 };
 
 exports.down = function (db) {

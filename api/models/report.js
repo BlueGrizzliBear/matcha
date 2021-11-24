@@ -46,14 +46,14 @@ class Report {
 		const set = {
 			reporting_user_id: this.reporting_user_id,
 			reported_user_id: this.reported_user_id,
-			reason: this.reason
+			reason: this.reason ? this.reason : 'No reason'
 		}
 		this.validate(set, (verr) => {
 			if (verr) {
 				ret('Validation failed: ' + verr, null);
 			}
 			else {
-				set.reason = validators.escapeHTML(this.reason);
+				set.reason = validators.escapeHTML(set.reason);
 				connection.query('INSERT INTO reports SET ?', [set], async (error, results, fields) => {
 					if (error) {
 						console.log("Error occured on reports creation inside model");

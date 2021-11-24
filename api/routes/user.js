@@ -102,8 +102,6 @@ function find_complete_location(req, ret) {
 
 /* POST /user - Update/change user profile informations */
 router.post('/', checkToken, function (req, res, next) {
-  // var idAddress = req.header('x-forwarded-for') || req.socket.remoteAddress;
-  // console.log(idAddress);
   /* Update user informations */
   find_complete_location(req, (locerr, city, country, gps_long, gps_lat) => {
     if (locerr) {
@@ -281,45 +279,6 @@ router.post('/find_match', checkToken, function (req, res, next) {
   }
 
 });
-
-// /* GET /user/find_match - Return a list of matching users */
-// router.get('/find_match', checkToken, function (req, res, next) {
-
-//   // Matching Criteria :
-//   // 1 - Sexual orientation
-//   // 2 - Geographical Location
-//   // 3 - Interests tags
-//   // 4 - Fame (views/likes ratio)
-//   const tag = new Models.Tag(res.locals.results.id);
-
-//   tag.findUserTags((tagerr, tagres) => {
-//     if (tagerr) {
-//       console.log(tagerr);
-//       res.status(400).end();
-//     }
-//     else {
-//       const set = {
-//         gender: res.locals.results.gender,
-//         preference: res.locals.results.preference,
-//         age: { min: 5000, max: 0 },
-//         fame: { min: 0, max: 1 },
-//         location: { lat: res.locals.results.gps_lat, long: res.locals.results.gps_long },
-//         tags: tagres
-//       }
-
-//       const match = new Models.Match(res.locals.results.id, res.locals.results.username);
-//       match.find_match(set, (usererr, userres) => {
-//         if (usererr) {
-//           console.log(usererr);
-//           res.status(400).end();
-//         }
-//         else {
-//           res.status(200).json(userres).end();
-//         }
-//       });
-//     }
-//   });
-// });
 
 /* GET /user/username/like - Like username's profile */
 router.get('/:username/like', checkToken, function (req, res, next) {

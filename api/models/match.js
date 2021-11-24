@@ -98,7 +98,7 @@ function add_match_score(results, set, userId) {
 			(1 / results[i].proximity) * 10000	/* (Distance: 10km = 1000 -> 100km = 100 -> 1000km = 10) */
 			+ results[i].common_tags * 10		/* (Tags: 0 tag: 0 -> 5 tags: 50) */
 			+ results[i].fame * 10				/* (Fame : no fame: 0 -> max fame: 10) */
-		if (search.length < 100 && /*results[i].match_score > 50 && */results[i].id !== userId && results[i].fame <= set.fame.max && results[i].fame >= set.fame.min)
+		if (/*search.length < 100 && results[i].match_score > 50 && */results[i].id !== userId && results[i].fame <= set.fame.max && results[i].fame >= set.fame.min)
 			search.push(results[i])
 	});
 	return search;

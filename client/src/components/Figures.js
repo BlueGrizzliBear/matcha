@@ -131,10 +131,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 	const handleLocation = (e) => {
 		if (!user.location_mode) {
 			if ("geolocation" in navigator) {
-				console.log("Geolocation is Available on navigator");
 				navigator.geolocation.getCurrentPosition(function (position) {
-					console.log("Latitude is :", position.coords.latitude);
-					console.log("Longitude is :", position.coords.longitude);
 					fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
 						method: 'POST',
 						headers: {

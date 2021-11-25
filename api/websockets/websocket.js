@@ -46,6 +46,8 @@ wss.on('connection', function (ws, request, client) {
 		});
 		ws.on('close', function close() {
 			sendFriends(ws.id, { type: "Online", user: ws.id, online: false });
+			const user = new Models.User(null, ws.username)
+			user.updateLastConnected();
 			// send message to all clients conversations and watching person to see offline
 			console.log(`Socket connection closed from user ${client.id}`);
 		});

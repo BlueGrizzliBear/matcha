@@ -4,7 +4,7 @@ const fs = require('fs');
 var bcrypt = require('bcrypt');
 
 function isProfileComplete(results) {
-	if (/*results.birth_date && results.gender && */results.img0_path)
+	if (results.birth_date && results.gender && results.img0_path)
 		return true;
 	return false;
 }
@@ -166,6 +166,18 @@ class User {
 			}
 		});
 	};
+
+	updateLastConnected() {
+		connection.query('UPDATE users SET ? WHERE username = ?', [{ 'last_connection': (new Date(Date.now())).toISOString().slice(0, 19).replace('T', ' ') }, this.username], async (error, results, fields) => {
+			if (error) {
+				console.log("Error occured on updating last connection on user database");
+				console.log(error);
+			}
+			else {
+				console.log("Last connection updated on user database");
+			}
+		});
+	}
 
 	find(ret) {
 		// VALIDATE SET (age + fame + location + tags)

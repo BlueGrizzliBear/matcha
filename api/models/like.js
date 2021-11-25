@@ -43,7 +43,6 @@ class Like {
 				ret(error, results);
 			}
 			else {
-				// console.log("Like registered sucessfully inside model");
 				ret(error, results);
 			}
 		});

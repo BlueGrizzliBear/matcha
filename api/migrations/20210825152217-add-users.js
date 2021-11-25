@@ -76,6 +76,7 @@ exports.up = function (db) {
       defaultValue: false,
       notNull: true
     },
+    last_connection: 'datetime',
   })
     .then(
       function (result) {

@@ -30,7 +30,8 @@ router.post('/', function (req, res, next) {
                 res.status(400).end();
               }
               else {
-                console.log("User login successfull");
+                // console.log("User login successfull");
+                user.updateLastConnected();
                 res.status(200).json({
                   id: user.getUserId(),
                   username: user.getUsername(),

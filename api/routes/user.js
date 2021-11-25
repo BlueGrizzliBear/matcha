@@ -39,7 +39,8 @@ router.get('/', checkToken, function (req, res, next) {
     },
     likes: res.locals.results.likes,
     watches: res.locals.results.watches,
-    fake: res.locals.results.fake
+    fake: res.locals.results.fake,
+    lastConnection: res.locals.results.last_connection
   }).end();
 });
 
@@ -157,7 +158,8 @@ router.post('/', checkToken, function (req, res, next) {
               },
               likes: results[0].likes,
               watches: results[0].watches,
-              fake: results[0].fake
+              fake: results[0].fake,
+              lastConnection: results[0].last_connection
             }).end();
           });
         }
@@ -357,7 +359,6 @@ const fetchProfileImageURL = function (results, user, ret) {
             ret(results.img0_path);
           }
           else {
-            console.log("Je suis ici");
             ret(res.url);
           }
         });
@@ -443,7 +444,8 @@ router.get('/:username', checkToken, watchedUser, function (req, res, next) {
                         liked: likedres,
                         watches: results[0].watches,
                         blocked: blockres,
-                        fake: results[0].fake
+                        fake: results[0].fake,
+                        lastConnection: results[0].last_connection
                       }).end();
                     });
                   }

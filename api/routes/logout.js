@@ -13,6 +13,8 @@ router.get('/', checkToken, function (req, res, next) {
       res.status(400).end();
     }
     else {
+      const user = new Models.User(null, res.locals.results.username)
+      user.updateLastConnected();
       console.log("Logout successfull");
       res.status(200).end();
     }

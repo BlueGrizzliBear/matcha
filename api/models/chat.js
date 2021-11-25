@@ -160,30 +160,6 @@ LIMIT 100', [this.sender_id, this.sender_id, this.sender_id, this.receiver_id, t
 		});
 	}
 
-	// delete(ret) {
-	// 	connection.query('DELETE FROM messages WHERE (sender_user_id = ? AND receiver_user_id = ?) OR (sender_user_id = ? AND receiver_user_id = ?)', [this.sender_user_id, this.receiver_user_id, this.receiver_user_id, this.sender_user_id], async (error, results, fields) => {
-	// 		if (error) {
-	// 			console.log("Error occured deleting all messages in messages table");
-	// 			console.log(error);
-	// 			ret(error, null);
-	// 		}
-	// 		else {
-	// 			if (results.length > 0) {
-	// 				ret(null, results);
-	// 			}
-	// 			else
-	// 				ret("No results", null);
-	// 		}
-	// 	});
-	// }
-
 }
 
 module.exports = Chat;
-
-// SELECT ANY_VALUE(t1.id), t1.sender_user_id, t1.receiver_user_id, ANY_VALUE(t1.message), ANY_VALUE(t1.read), MAX(t1.sent_date)
-// FROM messages t1
-// LEFT JOIN messages t2
-// ON t1.sender_user_id = t2.receiver_user_id AND t1.receiver_user_id = t2.sender_user_id
-// WHERE (t1.sender_user_id < t2.sender_user_id OR t2.sender_user_id IS NULL) AND (t1.sender_user_id = 1003 OR t1.receiver_user_id = 1003)
-// GROUP BY t1.sender_user_id, t1.receiver_user_id

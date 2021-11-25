@@ -1,12 +1,14 @@
 
 import React from 'react';
-import { useState, useEffect, useRef } from 'react';
-import { Box, Chip, Stack, Tooltip, IconButton, Button, TextField, Menu, MenuItem, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from '@mui/material';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Typography, Box, Chip, Stack, Tooltip, IconButton, Button, TextField, Menu, MenuItem, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import LikeButton from './LikeButton';
 import { MoreVert as MoreVertIcon, Chat as ChatIcon, Visibility as VisibilityIcon, Favorite as FavoriteIcon, LocationOn as LocationOnIcon, Block as BlockIcon, ErrorOutline as ErrorOutlineIcon } from '@mui/icons-material';
 import calculateAge from '../utility/utilities'
 import Chat from './Chat'
+import { DatePicker, LocalizationProvider } from '@mui/lab';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -35,33 +37,34 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 
 	const classes = useStyles();
 	const [editLoc, setEditLoc] = React.useState(true);
-	const [ipAdress, setIpAdress] = React.useState(null);
+	const [editName, setEditName] = React.useState(true);
+	const [ipAdress, setIpAdress] = React.useState(0);
 	const [values, setValues] = useState({
-		city: '',
-		country: '',
-		report: ''
+		city: 'Unknown',
+		country: 'Location',
+		report: '',
+		firstname: 'Unknown',
+		lastname: 'Name',
 	});
+	const [birthdate, setBirthdate] = React.useState(new Date());
 	const [anchorChatEl, setAnchorChatEl] = useState(null);
 	const [anchorOptionsEl, setAnchorOptionsEl] = useState(null);
 	const openChat = Boolean(anchorChatEl);
 	const openOptions = Boolean(anchorOptionsEl);
 	const [receiverId, setReceiverId] = useState(null);
-	const [websocket, setWebsocket] = useState(null);
+	// const [websocket, setWebsocket] = useState(null);
 	const [blocked, setBlocked] = useState(false);
 	const [openReport, setOpenReport] = React.useState(false);
+	const [isOnline, setIsOnline] = useState({ id: null, online: false });
 
 	let textInput = useRef(null);
-
-	const estimateAddress = (value, placeholder) => {
-		return (value ? value : placeholder);
-	}
+	let textInputName = useRef(null);
 
 	const handleEditLocation = () => {
 		if (editLoc) {
 			setEditLoc(false);
 		}
 		else {
-			console.log(values);
 			fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
 				method: 'POST',
 				headers: {
@@ -83,14 +86,49 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 						})
 					}
 					else {
-						console.log("Fail to add bio");
+						console.log("Fail to add location");
 					}
 				})
 				.catch(() => {
-					console.log("Fail to add bio");
+					console.log("Fail to add location");
 				})
 		}
 	};
+
+	const handleEditName = () => {
+		if (editName) {
+			setEditName(false);
+		}
+		else {
+			fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
+				method: 'POST',
+				headers: {
+					'Authorization': "Bearer " + localStorage.getItem("token"),
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					firstname: values.firstname,
+					lastname: values.lastname,
+					birth_date: birthdate.toJSON().split('T')[0]
+				})
+			})
+				.then(res => {
+					if (res.ok) {
+						return res.json().then((data) => {
+							updateUser(data);
+							setEditName(true);
+						})
+					}
+					else {
+						console.log("Fail to change name or birthdate");
+					}
+				})
+				.catch(() => {
+					console.log("Fail to change name or birthdate");
+				})
+		}
+	};
+
 
 	const handleBlock = (e) => {
 		fetch("http://" + process.env.REACT_APP_API_URL + 'user/' + user.username + (blocked ? '/unblock' : '/block'), {
@@ -244,8 +282,15 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 
 	useEffect(() => {
 		if (user.city && user.country)
-			setValues({ city: user.city, country: user.country });
-	}, [user.city, user.country]);
+			setValues({ city: user.city, country: user.country, firstname: user.firstname, lastname: user.lastname, report: '' });
+		else
+			setValues({ city: 'Unknown', country: 'Location', firstname: user.firstname, lastname: user.lastname, report: '' });
+	}, [user.city, user.country, user.firstname, user.lastname, user.lastConnection]);
+
+	useEffect(() => {
+		if (user.birth_date)
+			setBirthdate(new Date(user.birth_date));
+	}, [user.birth_date]);
 
 	useEffect(() => {
 		setBlocked(user.blocked);
@@ -256,6 +301,12 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 			textInput.current.focus();
 		}
 	}, [editLoc])
+
+	useEffect(() => {
+		if (!editName) {
+			textInputName.current.focus();
+		}
+	}, [editName])
 
 	useEffect(() => {
 		if (user) {
@@ -275,19 +326,88 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 		}
 	}, [user])
 
+	const listenMessages = useCallback((msg) => {
+		if (user) {
+			msg = JSON.parse(msg.data);
+			if (msg && msg.type === "Online" && msg.user) {
+				setIsOnline(msg);
+			}
+		}
+	}, [user])
+
 	useEffect(() => {
-		setWebsocket(props.websocket);
-	}, [props.websocket])
+		if (props.websocket != null) {
+			props.websocket.addEventListener('message', listenMessages);
+		}
+		if (user.id)
+			props.websocket.send(JSON.stringify({ isUserOnline: user.id }))
+	}, [props.websocket, listenMessages, user.id]);
 
 	return (
 		<>
 			<Box sx={{ maxWidth: 1552 }} className={classes.root}>
 				<Stack direction="column" spacing={1}>
-					<h2 style={{ 'margin': '4px', 'textAlign': 'left', 'paddingLeft': '8px' }} >{user.firstname} {user.lastname}{user.birth_date ? ", " + calculateAge(user.birth_date) : ''}</h2>
+					{editable ?
+						<Box display="flex" direction="row" sx={{ m: 0, p: 0, gap: '5px', width: '500px', alignItems: 'center' }}>
+							<TextField
+								disabled={editName}
+								inputRef={textInputName}
+								id="filled-static"
+								label="Firstname"
+								value={values.firstname === null ? '' : values.firstname}
+								variant="filled"
+								onChange={handleChange('firstname')}
+							/>
+							<TextField
+								disabled={editName}
+								id="filled-static"
+								label="Lastname"
+								value={values.lastname === null ? '' : values.lastname}
+								variant="filled"
+								onChange={handleChange('lastname')}
+							/>
+							<LocalizationProvider dateAdapter={AdapterDateFns}>
+								<DatePicker
+									disableFuture
+									disabled={editName}
+									label="Birth Date"
+									openTo="year"
+									views={['year', 'day']} //can't put month for now, DatePicker is still in development mod
+									value={birthdate}
+									onChange={(newValue) => {
+										setBirthdate(newValue);
+									}}
+									renderInput={(params) => <TextField variant="filled" {...params} helperText={null} />}
+								/>
+							</LocalizationProvider>
+							<Button sx={{ width: '70px' }} variant="contained" onClick={handleEditName} >{editName ? 'EDIT' : 'OK'}</Button>
+						</Box>
+						:
+						<Box display="flex" direction="row" sx={{ m: 0, p: 0, gap: '5px', alignItems: 'end' }}>
+							<h2
+								style={{
+									margin: '4px',
+									textAlign: 'left',
+									paddingLeft: '8px'
+								}}
+							>
+								{user.firstname} {user.lastname}{user.birth_date ? ", " + calculateAge(user.birth_date) : ''}
+							</h2>
+							<Typography sx={{ m: '4px', p: '0 0 0 8px', fontSize: '12px' }}>
+								{' Last activity: ' + (isOnline.online ? 'Just now' : (user.lastConnection ? (new Date(user.lastConnection)).toLocaleString() : 'Never'))}
+							</Typography>
+						</Box>
+					}
 					<Box className={classes.FigureRoot} style={{ 'margin': '4px' }}>
 						{editable ?
 							<Tooltip title={user.location_mode ? "Automatic" : "Manual"}>
-								<IconButton sx={{ 'padding': '2px 8px' }} aria-label="Activate/Desactive Automatic Location" color={user.location_mode ? "primary" : "inherit"} clickable="true" onClick={handleLocation}>
+								<IconButton
+									sx={{ padding: '2px 8px' }}
+									aria-label="Activate/Desactive Automatic Location"
+									color={user.location_mode ? "primary" : "inherit"}
+									clickable="true"
+									onClick={handleLocation}
+								>
 									<LocationOnIcon />
 								</IconButton>
 							</Tooltip>
@@ -319,7 +439,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 								<Button sx={{ width: '70px' }} variant="contained" onClick={handleEditLocation} >{editLoc ? 'EDIT' : 'OK'}</Button>
 							</Box>
 							:
-							<Box>{estimateAddress(user.city, 'cityPlaceholder')}, {estimateAddress(user.country, 'countryPlaceholder')}</Box>
+							<Box>{user.city ? user.city : 'Unknown'}, {user.country ? user.country : 'Location'}</Box>
 						}
 					</Box>
 				</Stack>
@@ -359,7 +479,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 								open={openChat}
 								receiverid={receiverId}
 								handleclose={handleChatClose}
-								websocket={websocket}
+								websocket={props.websocket}
 							/>
 							<IconButton
 								aria-label="options menu"

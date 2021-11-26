@@ -101,14 +101,14 @@ const sendNotification = function (userId, type, from, message = null) {
 		// console.log(client.id);
 		// Check that connect are open and still alive to avoid socket error
 		if (client.readyState === 1 && client.id === userId) {
-			if (type == 1)
-				client.send(JSON.stringify({ type: "Notification" }));
-			else if (type == 2)
-				client.send(JSON.stringify({ type: "Notification" }));
-			else if (type == 3)
-				client.send(JSON.stringify({ type: "Notification" }));
-			else if (type == 4)
-				client.send(JSON.stringify({ type: "Notification" }));
+			client.send(JSON.stringify({ type: "Notification" }));
+			/* type = 1 : messages */
+			if (type == 2) /* Like */
+				client.send(JSON.stringify({ type: "Like", 'from': from }));
+			else if (type == 3) /* Watch */
+				client.send(JSON.stringify({ type: "Watches" }));
+			else if (type == 4) /* Unlike */
+				client.send(JSON.stringify({ type: "Unlike", 'from': from }));
 		}
 	});
 }

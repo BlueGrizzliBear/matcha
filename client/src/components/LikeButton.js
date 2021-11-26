@@ -12,6 +12,7 @@ function LikeButton({ match = 'match', isLiked = 'primary', standard = 'secondar
     })
       .then(res => {
         if (res.ok && res.status === 200) {
+          props.setliking(!selected);
           setSelected(!selected);
         }
         else {
@@ -44,7 +45,6 @@ function LikeButton({ match = 'match', isLiked = 'primary', standard = 'secondar
           likeProfile();
         else
           unlikeProfile();
-        setSelected(!selected);
       }
       }
     >

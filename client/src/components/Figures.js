@@ -56,6 +56,11 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 	const [blocked, setBlocked] = useState(false);
 	const [openReport, setOpenReport] = React.useState(false);
 	const [isOnline, setIsOnline] = useState({ id: null, online: false });
+	const [mutualLike, setMutualLike] = useState(false);
+	const [liking, setLiking] = useState(false);
+	const [liked, setLiked] = useState(false);
+	const [likes, setLikes] = useState(0);
+	const [watches, setWatches] = useState(0);
 
 	let textInput = useRef(null);
 	let textInputName = useRef(null);
@@ -288,6 +293,33 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 	}, [user.city, user.country, user.firstname, user.lastname, user.lastConnection]);
 
 	useEffect(() => {
+		if (user.liking)
+			setLiking(user.liking);
+	}, [user.liking]);
+
+	useEffect(() => {
+		if (user.liked)
+			setLiked(user.liked);
+	}, [user.liked]);
+
+	useEffect(() => {
+		if (liking && liked)
+			setMutualLike(true);
+		else
+			setMutualLike(false);
+	}, [liking, liked]);
+
+	useEffect(() => {
+		if (user.watches)
+			setWatches(user.watches);
+	}, [user.watches]);
+
+	useEffect(() => {
+		if (user.likes)
+			setLikes(user.likes);
+	}, [user.likes]);
+
+	useEffect(() => {
 		if (user.birth_date)
 			setBirthdate(new Date(user.birth_date));
 	}, [user.birth_date]);
@@ -309,38 +341,61 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 	}, [editName])
 
 	useEffect(() => {
-		if (user) {
-			fetch("http://api6.ipify.org/?format=json", {
-				method: 'GET',
-			})
-				.then(res => {
-					if (res.ok) {
-						return res.json().then((data) => {
+		let isCancelled = false;
+		fetch("http://api6.ipify.org/?format=json", {
+			method: 'GET',
+		})
+			.then(res => {
+				if (res.ok) {
+					return res.json().then((data) => {
+						if (!isCancelled)
 							setIpAdress(data.ip);
-						})
-					}
-				})
-				.catch(() => {
-					console.log("Fail to get client ip adress");
-				})
-		}
-	}, [user])
+					})
+				}
+			})
+			.catch(() => {
+				console.log("Fail to get client ip adress");
+			})
+		return () => {
+			isCancelled = true;
+		};
+	}, [])
 
-	const listenMessages = useCallback((msg) => {
-		if (user) {
-			msg = JSON.parse(msg.data);
-			if (msg && msg.type === "Online" && msg.user) {
-				setIsOnline(msg);
-			}
+	const listenMessages = useCallback((msg, isCancelled) => {
+		msg = JSON.parse(msg.data);
+		if (!isCancelled && msg && msg.type === "Online" && msg.user) {
+			setIsOnline(msg);
 		}
-	}, [user])
+		if (!isCancelled && msg && msg.type === "Like") {
+			setLikes(prevLikes => prevLikes + 1);
+		}
+
+		if (!isCancelled && msg && msg.type === "Like" && msg.from === user.id) {
+			setLiked(true);
+		}
+		if (!isCancelled && msg && msg.type === "Unlike" && msg.from === user.id) {
+			setLiked(false);
+		}
+		if (!isCancelled && msg && msg.type === "Unlike") {
+			setLikes(prevLikes => prevLikes - 1);
+		}
+		if (!isCancelled && msg && msg.type === "Watches") {
+			setWatches(prevWatches => prevWatches + 1);
+		}
+	}, [user.id])
 
 	useEffect(() => {
+		let isCancelled = false;
 		if (props.websocket != null) {
-			props.websocket.addEventListener('message', listenMessages);
+			props.websocket.addEventListener('message', (event) => {
+				listenMessages(event, isCancelled)
+			});
 		}
 		if (user.id)
 			props.websocket.send(JSON.stringify({ isUserOnline: user.id }))
+		return () => {
+			isCancelled = true;
+		};
 	}, [props.websocket, listenMessages, user.id]);
 
 	return (
@@ -445,7 +500,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 				</Stack>
 				{likeable ?
 					<Stack>
-						<LikeButton liking={user.liking} {...props} />
+						<LikeButton liking={user.liking} setliking={setLiking} {...props} />
 					</Stack>
 					:
 					<></>
@@ -454,36 +509,43 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 					{editable ?
 						<>
 							<Tooltip title="Who liked you">
-								<Chip icon={<FavoriteIcon />} color={"primary"} label={user.likes} clickable sx={{ fontSize: "20px" }} />
+								<Chip icon={<FavoriteIcon />} color={"primary"} label={likes} clickable sx={{ fontSize: "20px" }} />
 							</Tooltip>
 							<Tooltip title="Who saw your profile">
-								<Chip icon={<VisibilityIcon />} color="secondary" label={user.watches} clickable sx={{ fontSize: "20px" }} />
+								<Chip icon={<VisibilityIcon />} color="secondary" label={watches} clickable sx={{ fontSize: "20px" }} />
 							</Tooltip>
 						</>
 						:
-						<Box>
-							<IconButton
-								aria-label="send messages"
-								color="inherit"
-								aria-controls="send-message"
-								aria-haspopup="true"
-								aria-expanded={openChat ? 'true' : undefined}
-								onClick={handleChatClick}
-							>
-								<Tooltip title="Send Message">
-									<ChatIcon />
-								</Tooltip>
-							</IconButton>
-							<Chat
-								anchorel={anchorChatEl}
-								open={openChat}
-								receiverid={receiverId}
-								handleclose={handleChatClose}
-								websocket={props.websocket}
-							/>
+						<Box display='flex' direction="row">
+							{mutualLike ?
+								<Box>
+									<IconButton
+										aria-label="send messages"
+										color="inherit"
+										aria-controls="send-message"
+										aria-haspopup="true"
+										aria-expanded={openChat ? 'true' : undefined}
+										onClick={handleChatClick}
+									>
+										<Tooltip title="Send Message">
+											<ChatIcon />
+										</Tooltip>
+									</IconButton>
+									<Chat
+										anchorel={anchorChatEl}
+										open={openChat}
+										receiverid={receiverId}
+										handleclose={handleChatClose}
+										websocket={props.websocket}
+									/>
+								</Box>
+								:
+								<>
+								</>
+							}
 							<IconButton
 								aria-label="options menu"
-								sx={{ p: 0 }}
+								sx={{ p: 1 }}
 								color="inherit"
 								aria-controls="options-menu"
 								aria-haspopup="true"

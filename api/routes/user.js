@@ -306,7 +306,7 @@ router.get('/:username/like', checkToken, function (req, res, next) {
             }
             else {
               // TODO: trigger websocket event
-              websocket.sendNotification(results[0].id, 2);
+              websocket.sendNotification(results[0].id, 2, res.locals.results.id);
               res.status(200).end();
             }
           });
@@ -333,7 +333,7 @@ router.get('/:username/unlike', checkToken, function (req, res, next) {
         }
         else {
           // TODO: trigger websocket event
-          websocket.sendNotification(results[0].id, 4);
+          websocket.sendNotification(results[0].id, 4, res.locals.results.id);
           res.status(200).end();
         }
       })

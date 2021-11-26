@@ -212,24 +212,31 @@ export default function Messages(props) {
         // })
     }, [])
 
-    const listenMessages = useCallback((msg) => {
+    const listenMessages = useCallback((msg, isCancelled) => {
         msg = JSON.parse(msg.data);
         if (msg && props.receiverid) {
             if (msg.type === "Message" && msg.id === props.receiverid) {
                 fetchConversation(props.receiverid, false)
             }
         }
-        else if (msg && msg.type === "Online" && msg.user) {
+        else if (!isCancelled && msg && msg.type === "Online" && msg.user) {
             setIsOnline(msg);
         }
+
     }, [props.receiverid, fetchConversation])
 
     useEffect(() => {
+        let isCancelled = false;
         if (props.websocket) {
-            props.websocket.addEventListener('message', listenMessages);
+            props.websocket.addEventListener('message', (event) => {
+                listenMessages(event, isCancelled)
+            });
         }
         if (props.receiverid)
             fetchConversation(props.receiverid, true)
+        return () => {
+            isCancelled = true;
+        };
     }, [props.receiverid, props.websocket, fetchConversation, listenMessages]);
 
     return (

@@ -39,13 +39,6 @@ export default function MessagesMenu(props) {
 		setMessages(messages);
 	}
 
-	const requestIsOnline = useCallback((messages) => {
-		messages.forEach((item, i) => {
-			if (props.websocket)
-				props.websocket.send(JSON.stringify({ isUserOnline: item.user_id === item.sender_user_id ? item.receiver_user_id : item.sender_user_id }))
-		})
-	}, [props.websocket])
-
 	const handleMessageClick = (event) => {
 		setAnchorMessagesEl(event.currentTarget);
 	};
@@ -77,7 +70,8 @@ export default function MessagesMenu(props) {
 					primary={props.item.user_id === props.item.receiver_user_id ? props.item.sender : props.item.receiver}
 					secondary={(props.item.user_id === props.item.sender_user_id ? 'You: ' : '') + parser.parseFromString('<!doctype html><body>' + props.item.message, 'text/html').body.textContent.substr(0, props.item.user_id === props.item.sender_user_id ? 30 : 35) + ' - ' + new Date(props.item.sent_date).toLocaleDateString("en-US", dateOptions)}
 				/>
-				<CircleIcon sx={{ width: "12px", marginLeft: "12px", color: ((props.item.user_id === props.item.receiver_user_id && isOnline.user === props.item.sender_user_id) || (props.item.user_id === props.item.sender_user_id && isOnline.user === props.item.receiver_user_id)) && isOnline.online ? "green" : "red" }} />
+				<CircleIcon sx={{ width: "12px", marginLeft: "12px", color: (props.item.isOnline ? "green" : "red") }} />
+				{/* <CircleIcon sx={{ width: "12px", marginLeft: "12px", color: ((props.item.user_id === props.item.receiver_user_id && isOnline.user === props.item.sender_user_id) || (props.item.user_id === props.item.sender_user_id && isOnline.user === props.item.receiver_user_id)) && isOnline.online ? "green" : "red" }} /> */}
 			</MenuItem>
 		);
 	}
@@ -114,7 +108,7 @@ export default function MessagesMenu(props) {
 		setAnchorChatEl(null);
 	};
 
-	const fetchMessages = useCallback(() => {
+	const fetchMessages = useCallback((isCancelled) => {
 		setMenuIsLoading(true);
 		// sleep(2000).then(() => {
 		fetch("http://" + process.env.REACT_APP_API_URL + "chat", {
@@ -125,8 +119,12 @@ export default function MessagesMenu(props) {
 				if (res.ok && res.status === 200) {
 					return res.json().then((data) => {
 						if (data.length) {
-							setMessages(data);
-							requestIsOnline(data);
+							data.forEach((item, i) => {
+								item.isOnline = false;
+							})
+							if (!isCancelled) {
+								setMessages(data);
+							}
 						}
 						setMenuIsLoading(false);
 					})
@@ -142,22 +140,50 @@ export default function MessagesMenu(props) {
 				setMenuIsLoading(false);
 			})
 		// })
-	}, [requestIsOnline]);
+	}, []);
 
 	useEffect(() => {
+		let isCancelled = false;
 		if (props.websocket != null) {
 			props.websocket.addEventListener('message', function (msg) {
 				msg = JSON.parse(msg.data);
 				if (msg && msg.type === 'Message') {
-					fetchMessages();
+					fetchMessages(isCancelled);
 				}
 				else if (msg && msg.type === "Online" && msg.user) {
 					setIsOnline(msg);
 				}
 			});
 		}
-		fetchMessages();
+		fetchMessages(isCancelled);
+		return () => {
+			isCancelled = true;
+		};
 	}, [props.websocket, fetchMessages]);
+
+	const refreshOnlineStatus = useCallback(() => {
+		let msgs = messages;
+
+		msgs.forEach((item, i) => {
+			if (isOnline.user !== item.user_id && (isOnline.user === item.sender_user_id || isOnline.user === item.receiver_user_id)) {
+				item.isOnline = isOnline.online
+			}
+		})
+		setMessages(msgs);
+	}, [isOnline, messages]);
+
+	useEffect(() => {
+		refreshOnlineStatus()
+	}, [isOnline, refreshOnlineStatus]);
+
+	useEffect(() => {
+		messages.forEach((item, i) => {
+			if (props.websocket != null && props.websocket.readyState === 1) {
+				props.websocket.send(JSON.stringify({ isUserOnline: item.user_id === item.sender_user_id ? item.receiver_user_id : item.sender_user_id }))
+			}
+		})
+	}, [messages, props.websocket]);
+
 
 	return (
 		<>

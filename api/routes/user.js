@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 var checkToken = require('../middleware/token');
 var watchedUser = require('../middleware/watch');
+var activation = require("./activation");
 var Models = require('../models/models');
 const connection = require('../config/db');
 const websocket = require('../websockets/websocket.js');
@@ -67,7 +68,7 @@ function find_complete_location(req, ret) {
   }
   else if (req.body.location_mode === false && req.body.city === '' && req.body.country === '') {
     // fetch city and country and gps coord from ip adress ( req.header('x-forwarded-for'))
-    console.log("fetch city and country and gps coord from ip adress")
+    // console.log("fetch city and country and gps coord from ip adress")
     var ipAddress = req.header('x-forwarded-for') || req.socket.remoteAddress;
     console.log(ipAddress);
     fetch('http://api.ipapi.com/' + ipAddress + '?access_key=' + process.env.IPAPI_API_KEY + '&fields=country_name,city,latitude,longitude&output=json', {
@@ -85,7 +86,7 @@ function find_complete_location(req, ret) {
       })
   }
   else if (req.body.location_mode === false && req.body.city && req.body.country) {
-    console.log("fetch gps coord from city and country")
+    // console.log("fetch gps coord from city and country")
     find_gps_location(req.body.city, req.body.country, (gpserr, gpsres) => {
       if (gpsres) {
         ret(null, null, null, gpsres.long, gpsres.lat)
@@ -96,7 +97,7 @@ function find_complete_location(req, ret) {
     });
   }
   else {
-    console.log("no fetching for position")
+    // console.log("no fetching for position")
     ret(null, null, null, null, null);
   }
 }
@@ -123,45 +124,64 @@ router.post('/', checkToken, function (req, res, next) {
       user.update(req.body, true, (error, results) => {
         if (error) {
           console.log(error);
-          res.status(400).end();
+          res.status((error.code === 'ER_DUP_ENTRY' ? 409 : 400)).end();
+          // res.status(400).end();
         }
         else {
-          user.find((error, results) => {
-            /* return user profile with new changed informations */
-            res.status(200).json({
-              status: "200",
-              isAuth: true,
-              isProfileComplete: results[0].complete,
-              id: results[0].id,
-              username: results[0].username,
-              email: results[0].email,
-              firstname: results[0].firstname,
-              lastname: results[0].lastname,
-              birth_date: results[0].birth_date,
-              isActivated: results[0].activated,
-              gender: results[0].gender,
-              preference: results[0].preference,
-              bio: results[0].bio,
-              position: {
-                long: results[0].gps_long,
-                lat: results[0].gps_lat
-              },
-              city: results[0].city,
-              country: results[0].country,
-              location_mode: results[0].location_mode,
-              images: {
-                img0: results[0].img0_path,
-                img1: results[0].img1_path,
-                img2: results[0].img2_path,
-                img3: results[0].img3_path,
-                img4: results[0].img4_path
-              },
-              likes: results[0].likes,
-              watches: results[0].watches,
-              fake: results[0].fake,
-              lastConnection: results[0].last_connection
-            }).end();
-          });
+          if (req.body.email) {
+            const token = new Models.Token(res.locals.results.id, req.headers.authorization.split(' ')[1])
+            token.revokeAllUserTokens((tokerr, tokres) => {
+              if (tokerr) {
+                console.log(tokerr);
+                res.status(400).end();
+              }
+              else {
+                req.body.id = res.locals.results.id;
+                req.body.username = res.locals.results.username;
+                activation.sendLinkVerification(req, res);
+                activation.sendRevertEmail(req, res, res.locals.results.email);
+                res.status(200).end();
+              }
+            });
+          }
+          else {
+            user.find((error, results) => {
+              /* return user profile with new changed informations */
+              res.status(200).json({
+                status: "200",
+                isAuth: true,
+                isProfileComplete: results[0].complete,
+                id: results[0].id,
+                username: results[0].username,
+                email: results[0].email,
+                firstname: results[0].firstname,
+                lastname: results[0].lastname,
+                birth_date: results[0].birth_date,
+                isActivated: results[0].activated,
+                gender: results[0].gender,
+                preference: results[0].preference,
+                bio: results[0].bio,
+                position: {
+                  long: results[0].gps_long,
+                  lat: results[0].gps_lat
+                },
+                city: results[0].city,
+                country: results[0].country,
+                location_mode: results[0].location_mode,
+                images: {
+                  img0: results[0].img0_path,
+                  img1: results[0].img1_path,
+                  img2: results[0].img2_path,
+                  img3: results[0].img3_path,
+                  img4: results[0].img4_path
+                },
+                likes: results[0].likes,
+                watches: results[0].watches,
+                fake: results[0].fake,
+                lastConnection: results[0].last_connection
+              }).end();
+            });
+          }
         }
       });
     }
@@ -332,7 +352,6 @@ router.get('/:username/unlike', checkToken, function (req, res, next) {
           res.status(400).end();
         }
         else {
-          // TODO: trigger websocket event
           websocket.sendNotification(results[0].id, 4, res.locals.results.id);
           res.status(200).end();
         }

@@ -9,6 +9,7 @@ import calculateAge from '../utility/utilities'
 import Chat from './Chat'
 import { DatePicker, LocalizationProvider } from '@mui/lab';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -43,6 +44,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 		city: 'Unknown',
 		country: 'Location',
 		report: '',
+		email: '',
 		firstname: 'Unknown',
 		lastname: 'Name',
 	});
@@ -55,82 +57,154 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 	// const [websocket, setWebsocket] = useState(null);
 	const [blocked, setBlocked] = useState(false);
 	const [openReport, setOpenReport] = React.useState(false);
+	const [openEmailEdit, setOpenEmailEdit] = React.useState(false);
 	const [isOnline, setIsOnline] = useState({ id: null, online: false });
 	const [mutualLike, setMutualLike] = useState(false);
 	const [liking, setLiking] = useState(false);
 	const [liked, setLiked] = useState(false);
 	const [likes, setLikes] = useState(0);
 	const [watches, setWatches] = useState(0);
+	const history = useHistory();
+	const [errors, setErrors] = useState({});
 
 	let textInput = useRef(null);
 	let textInputName = useRef(null);
 
-	const handleEditLocation = () => {
-		if (editLoc) {
-			setEditLoc(false);
+	const handleLogout = () => {
+		props.logout();
+		history.push(`/`);
+	}
+
+	const regexMatch = function (value, regex) {
+		if (typeof value === 'string' && value.match(regex))
+			return true;
+		return false;
+	}
+
+	const isEmail = function (value) {
+		if (value === '')
+			return true
+		// eslint-disable-next-line
+		if (regexMatch(value, /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i))
+			return true;
+		return false;
+	}
+
+
+	const isAddress = function (value) {
+		if (regexMatch(value, /^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$/))
+			return true;
+		return false;
+	}
+
+	const isAlpha = function (value) {
+		if (regexMatch(value, /^[a-zA-Z]+$/))
+			return true;
+		return false;
+	}
+
+	const validateFields = (values) => {
+		let errorsArr = { ...errors };
+		let formIsValid = true;
+
+		for (let field in values) {
+			if ((field === 'email' && !isEmail(values[field])) ||
+				(field === 'city' && !isAddress(values[field])) ||
+				(field === 'country' && !isAddress(values[field])) ||
+				(field === 'lastname' && !isAlpha(values[field])) ||
+				(field === 'firstname' && !isAlpha(values[field]))) {
+				errorsArr[field] = "Incorrect entry.";
+				formIsValid = false;
+			}
+			else
+				delete errorsArr[field];
 		}
-		else {
-			fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
-				method: 'POST',
-				headers: {
-					'Authorization': "Bearer " + localStorage.getItem("token"),
-					'Content-Type': 'application/json',
-					'x-forwarded-for': ipAdress
-				},
-				body: JSON.stringify({
-					location_mode: false,
-					city: values.city,
-					country: values.country
+		setErrors(errorsArr);
+		return (formIsValid);
+	}
+
+	const handleEditLocation = () => {
+		if (validateFields(values)) {
+
+			if (editLoc) {
+				setEditLoc(false);
+			}
+			else {
+				fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
+					method: 'POST',
+					headers: {
+						'Authorization': "Bearer " + localStorage.getItem("token"),
+						'Content-Type': 'application/json',
+						'x-forwarded-for': ipAdress
+					},
+					body: JSON.stringify({
+						location_mode: false,
+						city: values.city,
+						country: values.country
+					})
 				})
-			})
-				.then(res => {
-					if (res.ok) {
-						return res.json().then((data) => {
-							updateUser(data);
-							setEditLoc(true);
-						})
-					}
-					else {
+					.then(res => {
+						if (res.ok) {
+							return res.json().then((data) => {
+								updateUser(data);
+								setEditLoc(true);
+							})
+						}
+						else {
+							console.log("Fail to add location");
+						}
+					})
+					.catch(() => {
 						console.log("Fail to add location");
-					}
-				})
-				.catch(() => {
-					console.log("Fail to add location");
-				})
+					})
+			}
 		}
 	};
 
+	const handleOpenEmailEdit = () => {
+		setOpenEmailEdit(true);
+	}
+
+	const handleCloseEmailEdit = () => {
+		let newValues = { city: values.city, country: values.country, firstname: values.firstname, lastname: values.lastname, report: values.report, email: '' };
+
+		setValues(newValues);
+		setOpenEmailEdit(false);
+	};
+
 	const handleEditName = () => {
-		if (editName) {
-			setEditName(false);
-		}
-		else {
-			fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
-				method: 'POST',
-				headers: {
-					'Authorization': "Bearer " + localStorage.getItem("token"),
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					firstname: values.firstname,
-					lastname: values.lastname,
-					birth_date: birthdate.toJSON().split('T')[0]
+		if (validateFields(values)) {
+			if (editName) {
+				setEditName(false);
+			}
+			else {
+				fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
+					method: 'POST',
+					headers: {
+						'Authorization': "Bearer " + localStorage.getItem("token"),
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						firstname: values.firstname,
+						lastname: values.lastname,
+						birth_date: birthdate.toJSON().split('T')[0]
+					})
 				})
-			})
-				.then(res => {
-					if (res.ok) {
-						return res.json().then((data) => {
-							updateUser(data);
-							setEditName(true);
-						})
-					}
-					else {
+					.then(res => {
+						if (res.ok) {
+							return res.json().then((data) => {
+								updateUser(data);
+								setEditName(true);
+							})
+						}
+						else {
+							console.log("Fail to change name or birthdate");
+						}
+					})
+					.catch(() => {
 						console.log("Fail to change name or birthdate");
-					}
-				})
-				.catch(() => {
-					console.log("Fail to change name or birthdate");
-				})
+					})
+			}
 		}
 	};
 
@@ -231,6 +305,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 	}
 
 	const handleChange = (prop) => (event) => {
+		validateFields({ [event.target.name]: event.target.value });
 		setValues({ ...values, [prop]: event.target.value });
 	};
 
@@ -285,11 +360,44 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 			})
 	};
 
+	const handleSendEmailEdit = () => {
+		if (validateFields(values)) {
+
+			fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
+				method: 'POST',
+				headers: {
+					'Authorization': "Bearer " + localStorage.getItem("token"),
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					email: values.email,
+				})
+			})
+				.then(res => {
+					if (res.ok) {
+						setOpenEmailEdit(false);
+						handleLogout();
+					}
+					else if (res.status === 409) {
+						let errorsArr = { ...errors };
+						errorsArr['email'] = "Email already exists on another account.";
+						setErrors(errorsArr);
+					}
+					else {
+						console.log("Fail to change Email");
+					}
+				})
+				.catch((error) => {
+					console.log(error);
+				})
+		}
+	};
+
 	useEffect(() => {
 		if (user.city && user.country)
-			setValues({ city: user.city, country: user.country, firstname: user.firstname, lastname: user.lastname, report: '' });
+			setValues({ city: user.city, country: user.country, firstname: user.firstname, lastname: user.lastname, report: '', email: '' });
 		else
-			setValues({ city: 'Unknown', country: 'Location', firstname: user.firstname, lastname: user.lastname, report: '' });
+			setValues({ city: 'Unknown', country: 'Location', firstname: user.firstname, lastname: user.lastname, report: '', email: '' });
 	}, [user.city, user.country, user.firstname, user.lastname, user.lastConnection]);
 
 	useEffect(() => {
@@ -391,7 +499,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 				listenMessages(event, isCancelled)
 			});
 		}
-		if (user.id)
+		if (user.id && props.websocket != null)
 			props.websocket.send(JSON.stringify({ isUserOnline: user.id }))
 		return () => {
 			isCancelled = true;
@@ -403,8 +511,10 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 			<Box sx={{ maxWidth: 1552 }} className={classes.root}>
 				<Stack direction="column" spacing={1}>
 					{editable ?
-						<Box display="flex" direction="row" sx={{ m: 0, p: 0, gap: '5px', width: '500px', alignItems: 'center' }}>
+						<Box display="flex" flexWrap='wrap' sx={{ m: 0, p: 0, gap: '5px', width: '100%', alignItems: 'center' }}>
 							<TextField
+								error={'firstname' in errors}
+								helperText={'firstname' in errors && errors['firstname']}
 								disabled={editName}
 								inputRef={textInputName}
 								id="filled-static"
@@ -415,6 +525,8 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 							/>
 							<TextField
 								disabled={editName}
+								error={'lastname' in errors}
+								helperText={'lastname' in errors && errors['lastname']}
 								id="filled-static"
 								label="Lastname"
 								value={values.lastname === null ? '' : values.lastname}
@@ -423,6 +535,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 							/>
 							<LocalizationProvider dateAdapter={AdapterDateFns}>
 								<DatePicker
+
 									disableFuture
 									disabled={editName}
 									label="Birth Date"
@@ -432,10 +545,36 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 									onChange={(newValue) => {
 										setBirthdate(newValue);
 									}}
-									renderInput={(params) => <TextField variant="filled" {...params} helperText={null} />}
+									renderInput={(params) => <TextField variant="filled" sx={{ width: '140px' }} {...params} helperText={null} />}
 								/>
 							</LocalizationProvider>
 							<Button sx={{ width: '70px' }} variant="contained" onClick={handleEditName} >{editName ? 'EDIT' : 'OK'}</Button>
+							<Button sx={{ width: '120px' }} variant="contained" onClick={handleOpenEmailEdit} >edit email</Button>
+							<Dialog open={openEmailEdit} onClose={handleCloseEmailEdit}>
+								<DialogTitle>Change Email address</DialogTitle>
+								<DialogContent>
+									<DialogContentText>
+										Your current email is {user.email ? user.email : 'Unknown'}. You're about to change your Email adress, this action will disconnect you from your account. Please check your mails to validate your new Email address.
+									</DialogContentText>
+									<TextField
+										error={'email' in errors}
+										helperText={'email' in errors && errors['email']}
+										autoFocus
+										margin="dense"
+										id="email-standard"
+										label="New Email"
+										type="email"
+										fullWidth
+										variant="standard"
+										value={values.email === null ? '' : values.email}
+										onChange={handleChange('email')}
+									/>
+								</DialogContent>
+								<DialogActions>
+									<Button onClick={handleCloseEmailEdit}>Cancel</Button>
+									<Button onClick={handleSendEmailEdit}>Change Email</Button>
+								</DialogActions>
+							</Dialog>
 						</Box>
 						:
 						<Box display="flex" direction="row" sx={{ m: 0, p: 0, gap: '5px', alignItems: 'end' }}>
@@ -473,8 +612,11 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 
 						}
 						{editable && !user.location_mode ?
-							<Box display="flex" direction="row" sx={{ m: 0, p: 0, gap: '5px', width: '300px', alignItems: 'center' }}>
+							<Box display="flex" direction="row" flexWrap='wrap' sx={{ m: 0, p: 0, gap: '5px', width: '90%', alignItems: 'center' }}>
 								<TextField
+									sx={{ width: '150px' }}
+									error={'city' in errors}
+									helperText={'city' in errors && errors['city']}
 									disabled={editLoc}
 									inputRef={textInput}
 									id="filled-static"
@@ -484,6 +626,9 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 									onChange={handleChange('city')}
 								/>
 								<TextField
+									sx={{ width: '150px' }}
+									error={'country' in errors}
+									helperText={'country' in errors && errors['country']}
 									disabled={editLoc}
 									id="filled-static"
 									label="Country"

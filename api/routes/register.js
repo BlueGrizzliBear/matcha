@@ -14,7 +14,7 @@ router.post('/', function (req, res, next) {
 		}
 		else {
 			req.body.id = results.insertId;
-			console.log("User registered sucessfully");
+			// console.log("User registered sucessfully");
 			/* Sending verification link to activate user account */
 			activation.sendLinkVerification(req, res);
 			res.status(200).end();
@@ -24,6 +24,11 @@ router.post('/', function (req, res, next) {
 
 /* GET /regsiter/verify?id=token - Verify a generated token link to verify user email */
 router.get('/verify', function (req, res, next) {
+	activation.verifyLink(req, res);
+});
+
+/* GET /regsiter/revert_email?id=token - Verify a generated token link to revert user email to his previous email */
+router.get('/revert', function (req, res, next) {
 	activation.verifyLink(req, res);
 });
 

@@ -65,7 +65,7 @@ class Token {
 						ret(error, results);
 					}
 					else {
-						console.log("Token registered sucessfully inside model");
+						// console.log("Token registered sucessfully inside model");
 						ret(error, results);
 					}
 				});
@@ -83,7 +83,7 @@ class Token {
 				ret(error, results);
 			}
 			else {
-				console.log("Token registered sucessfully inside model");
+				// console.log("Token registered sucessfully inside model");
 				ret(error, results);
 			}
 		});
@@ -110,6 +110,18 @@ class Token {
 		connection.query('DELETE FROM tokens WHERE user_id = ? AND token = ?', [this.user_id, this.token], async (error, results, fields) => {
 			if (error) {
 				console.log("Error occured erasing token in tokens table");
+				console.log(error);
+				ret(error, null);
+			}
+			else
+				ret(null, results);
+		});
+	};
+
+	revokeAllUserTokens(ret) {
+		connection.query('DELETE FROM tokens WHERE user_id = ?', [this.user_id], async (error, results, fields) => {
+			if (error) {
+				console.log("Error occured erasing all user tokens in tokens table");
 				console.log(error);
 				ret(error, null);
 			}

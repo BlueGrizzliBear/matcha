@@ -139,19 +139,20 @@ class User {
 			for (let i in set) {
 				if (i == 'bio')
 					set[i] = validators.escapeHTML(set[i]);
+				if (i == 'email')
+					set.activated = 0;
 				if (!validators.validateKey(i, ['email', 'password', 'firstname', 'lastname', 'birth_date', 'gender', 'preference', 'bio', 'gps_long', 'gps_lat', 'city', 'country', 'location_mode'])) {
 					ret('Validation failed: Unauthorized key', null);
 					return;
 				}
 			}
 		}
+		console.log('after push')
 		this.validate(set, (err) => {
 			if (err) {
 				ret('Validation failed: ' + err, null);
 			}
 			else {
-				// si email change => desactiver profile et renvoyer un lien verification par email
-				// si password change => reset tous les token sauf celui sur lequel connecté
 				connection.query('UPDATE users SET ? WHERE username = ?', [set, this.username], async (error, results, fields) => {
 					if (error) {
 						console.log("Error occured on updating user database");

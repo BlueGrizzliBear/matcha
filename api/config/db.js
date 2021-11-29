@@ -6,7 +6,7 @@ const connection = mysql.createConnection({
 	password: 'root',
 	database: 'matcha_db'
 }).on('error', function (err) {
-	throw err.code; // 'ER_BAD_DB_ERROR'
+	console.log(err.code); // 'ER_BAD_DB_ERROR'
 });
 
 module.exports = connection;

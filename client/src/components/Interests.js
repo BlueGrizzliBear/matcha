@@ -1,15 +1,23 @@
 import React from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { Paper, Chip, Box, Button } from '@mui/material';
 import { ChipsArray, ChipsAdderWithAddOption } from './Chips'
+import { useHistory } from "react-router-dom";
 
 function Interests(props) {
 
+  const history = useHistory();
+
   const [chipData, setChipData] = React.useState([]);
   const [chipAdderDisplay, setChipAdderDisplay] = React.useState(false)
-  const { user } =
+  const { user, logout } =
     props;
   let textInput = useRef(null);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    history.push(`/`);
+  }, [history, logout]);
 
   const handleChipArrayDelete = (chipToDelete) => () => {
     fetch("http://" + process.env.REACT_APP_API_URL + 'tag', {
@@ -27,8 +35,14 @@ function Interests(props) {
           setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
           return;
         }
+        else if (res.status === 401) {
+          handleLogout();
+        }
+        else
+          console.log("Fail to delete tag");
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log(error);
         console.log("Fail to delete tag");
       })
   };
@@ -59,8 +73,14 @@ function Interests(props) {
           setChipData(newChipData);
           showChipAdd();
         }
+        else if (res.status === 401) {
+          handleLogout();
+        }
+        else
+          console.log("Fail to add tag");
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log(error);
         console.log("Fail to add tag");
       })
   };
@@ -88,12 +108,18 @@ function Interests(props) {
               setChipData(newChipData)
             })
           }
+          else if (res.status === 401) {
+            handleLogout();
+          }
+          else
+            console.log("Fail to register user to server");
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log(error);
           console.log("Fail to register user to server");
         })
     }
-  }, [user]);
+  }, [user, handleLogout]);
 
   useEffect(() => {
     if (chipAdderDisplay) {
@@ -108,7 +134,6 @@ function Interests(props) {
         <ChipsArray handleChipDelete={user.isAuth ? handleChipArrayDelete : null} chipData={chipData} />
         {user.isAuth &&
           <>
-            {/* TODO : mettre animation et remplacer chip par la box (changer le format de la box pour ressemble a un chip avec textfield) */}
             <Box display={chipAdderDisplay ? 'none' : 'block'}>
               <Chip
                 label='+ Add interest'

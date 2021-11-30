@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Chip, Stack, Tooltip, IconButton } from '@mui/material';
@@ -6,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 import LikeButton from './LikeButton';
 import { Chat as ChatIcon, Visibility as VisibilityIcon, Favorite as FavoriteIcon } from '@mui/icons-material';
 import Chat from './Chat'
-import NameAndBirth from './NameAndBirth'
+import NameBirthEmail from './NameBirthEmail'
 import Location from './Location'
 import BlockReportMenu from './BlockReportMenu'
 
@@ -124,8 +123,8 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 		<>
 			<Box sx={{ maxWidth: 1552 }} className={classes.root}>
 				<Stack direction="column" spacing={1}>
-					<NameAndBirth isOnline={isOnline} user={user} editable={editable} updateUser={updateUser} {...props} />
-					<Location user={user} editable={editable} updateUser={updateUser} />
+					<NameBirthEmail {...props} isOnline={isOnline} user={user} editable={editable} updateUser={updateUser} {...props} />
+					<Location {...props} user={user} editable={editable} updateUser={updateUser} />
 				</Stack>
 				{likeable ?
 					<Stack>
@@ -172,7 +171,7 @@ function Figures({ user, editable, likeable, updateUser, ...props }) {
 								<>
 								</>
 							}
-							<BlockReportMenu user={user} updateUser={updateUser} />
+							<BlockReportMenu {...props} user={user} updateUser={updateUser} />
 						</Box>
 					}
 				</Stack>

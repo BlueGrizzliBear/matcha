@@ -1,19 +1,11 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { Paper, FormControlLabel, Switch, Box } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    // display: 'flex',
-    // flexWrap: 'wrap',
-    // justifyContent: 'space-around',
-    // overflow: 'hidden',
-  },
-}));
+import { useHistory } from "react-router-dom";
 
 function SexualPreferences(props) {
-  const classes = useStyles();
+
+  const history = useHistory();
 
   const { preference, editable } =
     props;
@@ -69,9 +61,17 @@ function SexualPreferences(props) {
         if (res.ok) {
           setChecked(!event.target.checked);
         }
+        else if (res.status === 401) {
+          props.logout();
+          history.push(`/`);
+        }
+        else {
+          console.log("Fail to change sexual preference");
+        }
       })
-      .catch(() => {
-        console.log("Fail to add tag");
+      .catch((error) => {
+        console.log(error);
+        console.log("Fail to change sexual preference");
       })
   };
 
@@ -110,7 +110,7 @@ function SexualPreferences(props) {
 
   return (
     <Box sx={{ maxWidth: 1552, m: '0px auto' }}>
-      <Paper className={classes.root}>
+      <Paper>
         <h3>Interested in :</h3>
         {editable ?
           <>

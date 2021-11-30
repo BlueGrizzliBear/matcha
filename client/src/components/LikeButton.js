@@ -1,9 +1,18 @@
 import * as React from 'react';
 import ToggleButton from '@mui/material/ToggleButton';
 import { Favorite as FavoriteIcon } from '@mui/icons-material';
+import { useHistory } from "react-router-dom";
 
 function LikeButton({ match = 'match', isLiked = 'primary', standard = 'secondary', user = {}, ...props }) {
+
+  const history = useHistory();
+
   const [selected, setSelected] = React.useState(props.liking);
+
+  const handleLogout = () => {
+    props.logout();
+    history.push(`/`);
+  }
 
   const fetchLike = (path) => {
     fetch(path, {
@@ -14,6 +23,9 @@ function LikeButton({ match = 'match', isLiked = 'primary', standard = 'secondar
         if (res.ok && res.status === 200) {
           props.setliking(!selected);
           setSelected(!selected);
+        }
+        else if (res.status === 401) {
+          handleLogout();
         }
         else {
           console.log("Error in liking the profile");

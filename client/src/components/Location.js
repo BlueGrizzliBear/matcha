@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Box, Tooltip, IconButton, Button, TextField } from '@mui/material';
 import { LocationOn as LocationOnIcon } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -28,8 +28,9 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-function Location({ user, editable, updateUser }) {
+function Location({ user, editable, updateUser, ...props }) {
 
+	const history = useHistory();
 	const classes = useStyles();
 
 	const [editLoc, setEditLoc] = React.useState(true);
@@ -40,6 +41,11 @@ function Location({ user, editable, updateUser }) {
 		country: 'Location',
 	});
 	let textInput = useRef(null);
+
+	const handleLogout = () => {
+		props.logout();
+		history.push(`/`);
+	}
 
 	const regexMatch = function (value, regex) {
 		if (typeof value === 'string' && value.match(regex))
@@ -92,8 +98,15 @@ function Location({ user, editable, updateUser }) {
 									updateUser(data);
 								})
 							}
+							else if (res.status === 401) {
+								handleLogout();
+							}
+							else {
+								console.log("Fail to update user location to server");
+							}
 						})
-						.catch(() => {
+						.catch((error) => {
+							console.log(error);
 							console.log("Fail to update user location to server");
 						})
 				});
@@ -122,8 +135,15 @@ function Location({ user, editable, updateUser }) {
 							updateUser(data);
 						})
 					}
+					else if (res.status === 401) {
+						handleLogout();
+					}
+					else {
+						console.log("Fail to update user location to server");
+					}
 				})
-				.catch(() => {
+				.catch((error) => {
+					console.log(error);
 					console.log("Fail to update user location to server");
 				})
 		}
@@ -174,11 +194,15 @@ function Location({ user, editable, updateUser }) {
 								setEditLoc(true);
 							})
 						}
+						else if (res.status === 401) {
+							handleLogout();
+						}
 						else {
 							console.log("Fail to add location");
 						}
 					})
-					.catch(() => {
+					.catch((error) => {
+						console.log(error);
 						console.log("Fail to add location");
 					})
 			}
@@ -198,7 +222,8 @@ function Location({ user, editable, updateUser }) {
 					})
 				}
 			})
-			.catch(() => {
+			.catch((error) => {
+				console.log(error);
 				console.log("Fail to get client ip adress");
 			})
 		return () => {

@@ -7,12 +7,14 @@ import calculateAge from '../utility/utilities'
 import { ChipsArray, ChipsAdder } from '../components/Chips'
 
 const year = new Date().getFullYear()
+const parser = new DOMParser();
 
 const ListItem = styled('li')(({ theme }) => ({
 	margin: theme.spacing(0.5),
 }));
 
 function createData(id, username, firstname, lastname, birth_date, gender, preference, city, country, bio, img0_path, fame, tags, proximity, common_tags, match) {
+
 	return {
 		id,
 		username,
@@ -509,7 +511,7 @@ function UserHomepage() {
 											<Typography>{row.firstname + ' ' + row.lastname + ', ' + calculateAge(row.birth_date)}</Typography>
 											<Typography>{row.gender + ' interested in ' + row.preference}</Typography>
 											<Typography>{'Lives in ' + row.city + ', ' + row.country}</Typography>
-											<Typography>{row.bio}</Typography>
+											<Typography>{parser.parseFromString(`<!doctype html><body>${row.bio}`, 'text/html').body.textContent}</Typography>
 											<Typography>{row.tags && ('Interests: ' + row.tags)}</Typography>
 											<Typography>{'Fame: ' + row.fame}</Typography>
 										</Box>

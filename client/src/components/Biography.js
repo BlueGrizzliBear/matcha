@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useRef } from 'react';
 import { Paper, TextField, Button, Box } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,6 +20,8 @@ const useStyles = makeStyles((theme) => ({
 const parser = new DOMParser();
 
 function Biography(props) {
+
+  const history = useHistory();
 
   const classes = useStyles();
   const { bio, editable } =
@@ -45,6 +48,10 @@ function Biography(props) {
         .then(res => {
           if (res.ok) {
             setEditBio(true);
+          }
+          else if (res.status === 401) {
+            props.logout();
+            history.push(`/`);
           }
           else {
             console.log("Fail to add bio");

@@ -38,8 +38,8 @@ function NavBar(props) {
               </Route>
               <Route path="/">
                 <Box style={{ display: "flex", alignItems: "center" }}>
-                  <Notifications websocket={props.websocket} />
-                  <MessagesMenu footerref={props.footerref} websocket={props.websocket} />
+                  <Notifications handleLogout={handleLogout} websocket={props.websocket} />
+                  <MessagesMenu handleLogout={handleLogout} footerref={props.footerref} websocket={props.websocket} />
                   <IconButton aria-label="show profile" color="inherit" component={Link} to="/profile" style={{ height: "24px" }}>
                     <Tooltip title="Profile">
                       <ProfileIcon />

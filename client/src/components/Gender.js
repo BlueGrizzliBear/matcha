@@ -1,16 +1,7 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { Paper, Slider, Box } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    // display: 'flex',
-    // flexWrap: 'wrap',
-    // justifyContent: 'space-around',
-    // overflow: 'hidden',
-  },
-}));
+import { useHistory } from "react-router-dom";
 
 const marks = [
   {
@@ -32,11 +23,12 @@ function valuetext(value) {
 }
 
 function Gender(props) {
-  const classes = useStyles();
+
+  const history = useHistory();
+
   const { gender, editable } =
     props;
   const [value, setValue] = React.useState(100);
-
 
   const handleValueChange = (event, newValue) => {
     let newGender = '';
@@ -60,9 +52,17 @@ function Gender(props) {
         if (res.ok) {
           setValue(newValue);
         }
+        else if (res.status === 401) {
+          props.logout();
+          history.push(`/`);
+        }
+        else {
+          console.log("Fail to change user gender");
+        }
       })
-      .catch(() => {
-        console.log("Fail to add tag");
+      .catch((error) => {
+        console.log(error);
+        console.log("Fail to change user gender");
       })
   };
 
@@ -77,7 +77,7 @@ function Gender(props) {
 
   return (
     <Box sx={{ maxWidth: 1552, m: '0px auto' }}>
-      <Paper className={classes.root}>
+      <Paper >
         <h3>Gender :</h3>
         {editable ?
           <Slider

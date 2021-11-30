@@ -16,6 +16,8 @@ function Profile(props) {
 	const history = useHistory();
 	const [user, setUser] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const { logout } =
+		props;
 
 	useEffect(() => {
 		// document.title = 'MATCHA - Profile'
@@ -32,6 +34,11 @@ function Profile(props) {
 						setIsLoading(false);
 					})
 				}
+				else if (res.status === 401) {
+					setIsLoading(false);
+					logout();
+					history.push(`/`);
+				}
 				else {
 					localStorage.removeItem("token");
 					setIsLoading(false);
@@ -44,7 +51,7 @@ function Profile(props) {
 				setIsLoading(false);
 				history.push(`/`);
 			})
-	}, [props.path, props.computedMatch, history, props.user]);
+	}, [props.path, props.computedMatch, history, props.user, logout]);
 
 	return (
 		<>
@@ -55,10 +62,10 @@ function Profile(props) {
 					<>
 						<Figures {...props} user={user} updateUser={setUser} editable={user.isAuth} likeable={!user.isAuth} />
 						<ImageGallery {...props} user={user} editable={user.isAuth} />
-						<Interests user={user} />
-						<Biography bio={user.bio} editable={user.isAuth} />
-						<Gender gender={user.gender} editable={user.isAuth} />
-						<SexualPreferences preference={user.preference} editable={user.isAuth} />
+						<Interests {...props} user={user} />
+						<Biography {...props} bio={user.bio} editable={user.isAuth} />
+						<Gender {...props} gender={user.gender} editable={user.isAuth} />
+						<SexualPreferences {...props} preference={user.preference} editable={user.isAuth} />
 					</>
 			}
 		</>

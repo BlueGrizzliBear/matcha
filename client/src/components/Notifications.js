@@ -127,6 +127,9 @@ export default function Notifications(props) {
 					setNotifications(changeNotificationsToRead(notifications));
 					setIsLoading(false);
 				}
+				else if (res.status === 401) {
+					props.handleLogout();
+				}
 				else {
 					console.log("Fail to put status read on notifications");
 					setIsLoading(false);

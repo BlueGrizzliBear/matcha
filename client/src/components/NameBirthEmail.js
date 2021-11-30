@@ -6,7 +6,7 @@ import { DatePicker, LocalizationProvider } from '@mui/lab';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import { useHistory } from "react-router-dom";
 
-function NameAndBirth({ user, editable, updateUser, isOnline, ...props }) {
+function NameBirthEmail({ user, editable, updateUser, isOnline, ...props }) {
 
 	const history = useHistory();
 
@@ -108,11 +108,15 @@ function NameAndBirth({ user, editable, updateUser, isOnline, ...props }) {
 								setEditName(true);
 							})
 						}
+						else if (res.status === 401) {
+							handleLogout();
+						}
 						else {
 							console.log("Fail to change name or birthdate");
 						}
 					})
-					.catch(() => {
+					.catch((error) => {
+						console.log(error);
 						console.log("Fail to change name or birthdate");
 					})
 			}
@@ -137,6 +141,9 @@ function NameAndBirth({ user, editable, updateUser, isOnline, ...props }) {
 						setOpenEmailEdit(false);
 						handleLogout();
 					}
+					else if (res.status === 401) {
+						handleLogout();
+					}
 					else if (res.status === 409) {
 						let errorsArr = { ...errors };
 						errorsArr['email'] = "Email already exists on another account.";
@@ -148,6 +155,7 @@ function NameAndBirth({ user, editable, updateUser, isOnline, ...props }) {
 				})
 				.catch((error) => {
 					console.log(error);
+					console.log("Fail to change Email");
 				})
 		}
 	};
@@ -259,4 +267,4 @@ function NameAndBirth({ user, editable, updateUser, isOnline, ...props }) {
 
 }
 
-export default NameAndBirth;
+export default NameBirthEmail;

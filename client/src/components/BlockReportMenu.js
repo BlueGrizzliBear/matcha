@@ -1,11 +1,13 @@
-
-
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { Tooltip, IconButton, Button, TextField, Menu, MenuItem, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from '@mui/material';
 import { MoreVert as MoreVertIcon, Block as BlockIcon, ErrorOutline as ErrorOutlineIcon } from '@mui/icons-material';
+import { useHistory } from "react-router-dom";
 
-function BlockReportMenu({ user, updateUser }) {
+function BlockReportMenu({ user, updateUser, ...props }) {
+
+	const history = useHistory();
+
 	const [values, setValues] = useState({
 		report: '',
 	});
@@ -13,6 +15,11 @@ function BlockReportMenu({ user, updateUser }) {
 	const [openReport, setOpenReport] = React.useState(false);
 	const [anchorOptionsEl, setAnchorOptionsEl] = useState(null);
 	const openOptions = Boolean(anchorOptionsEl);
+
+	const handleLogout = () => {
+		props.logout();
+		history.push(`/`);
+	}
 
 	const handleBlock = (e) => {
 		fetch("http://" + process.env.REACT_APP_API_URL + 'user/' + user.username + (blocked ? '/unblock' : '/block'), {
@@ -33,12 +40,21 @@ function BlockReportMenu({ user, updateUser }) {
 									updateUser(data);
 								})
 							}
+							else if (res.status === 401) {
+								handleLogout();
+							}
+							else {
+								console.log("Fail to fetch user data");
+							}
 						})
 						.catch(error => {
 							console.log(error);
 							console.log("Fail to fetch user data");
 						})
 					setBlocked(!blocked);
+				}
+				else if (res.status === 401) {
+					handleLogout();
 				}
 				else {
 					console.log("Fail to block user");
@@ -54,11 +70,9 @@ function BlockReportMenu({ user, updateUser }) {
 		setValues({ ...values, [prop]: event.target.value });
 	};
 
-
 	const handleOptionsClick = (event) => {
 		setAnchorOptionsEl(event.currentTarget);
 	};
-
 
 	const handleOptionsClose = () => {
 		setAnchorOptionsEl(null);
@@ -87,6 +101,9 @@ function BlockReportMenu({ user, updateUser }) {
 			.then(res => {
 				if (res.ok) {
 					setOpenReport(false);
+				}
+				else if (res.status === 401) {
+					handleLogout();
 				}
 				else {
 					console.log("Fail to report user");

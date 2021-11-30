@@ -16,6 +16,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const parser = new DOMParser();
+
 function Biography(props) {
 
   const classes = useStyles();
@@ -30,7 +32,6 @@ function Biography(props) {
       setEditBio(false);
     }
     else {
-      console.log(value);
       fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
         method: 'POST',
         headers: {
@@ -60,8 +61,10 @@ function Biography(props) {
   }
 
   useEffect(() => {
-    if (bio)
-      setValue(bio);
+    if (bio) {
+      const decodedString = parser.parseFromString(`<!doctype html><body>${bio}`, 'text/html').body.textContent;
+      setValue(decodedString);
+    }
   }, [bio]);
 
   useEffect(() => {

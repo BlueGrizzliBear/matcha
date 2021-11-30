@@ -175,7 +175,7 @@ export default function Messages(props) {
 
     /* Events */
     const scrollToBottom = () => {
-        if (messagesEndRef)
+        if (messagesEndRef && messagesEndRef.current)
             messagesEndRef.current.scrollIntoViewIfNeeded(true);
     }
 

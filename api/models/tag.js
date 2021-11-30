@@ -21,7 +21,7 @@ class Tag {
 				error("Invalid user_id format");
 				return;
 			}
-			if (i == 'tag' && !(typeof set[i] === 'string') && !validators.isAlphanum(set[i])) {
+			if (i == 'tag' && (!(typeof set[i] === 'string') || !validators.isAlphanum(set[i]))) {
 				error("Invalid tag format");
 				return;
 			}

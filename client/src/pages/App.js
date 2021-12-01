@@ -4,7 +4,6 @@ import { Switch, Route, Redirect } from "react-router-dom";
 
 import UserHomepage from './UserHomepage';
 import ResetPassword from './ResetPassword';
-import Chat from './Chat';
 import Profile from './Profile';
 
 import PublicHomepage from './PublicHomepage';
@@ -184,9 +183,8 @@ class App extends Component {
             this.state.isAuth ?
               <>
                 <Switch>
-                  <ProtectedRoute exact path='/' component={UserHomepage} toRedirect="/profile" condition={!this.state.isProfileComplete} />
+                  <ProtectedRoute exact path='/' component={UserHomepage} logout={this.logout} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   {/* <ProtectedRoute exact path='/notifications' component={Notifications} toRedirect="/profile" condition={!this.state.isProfileComplete} /> */}
-                  <ProtectedRoute exact path='/chat' component={Chat} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute exact path='/profile' component={Profile} logout={this.logout} websocket={this.state.websocket} footerref={this.footerRef} setValue={this.setValue} />
                   <ProtectedRoute path='/reset_password/:token' component={ResetPassword} toRedirect="/profile" condition={!this.state.isProfileComplete} />
                   <ProtectedRoute path='/profile/:username' component={Profile} logout={this.logout} websocket={this.state.websocket} footerref={this.footerRef} toRedirect="/profile" condition={!this.state.isProfileComplete} />

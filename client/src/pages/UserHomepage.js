@@ -412,13 +412,15 @@ function EnhancedSearchBar(props) {
 	);
 }
 
-function UserHomepage() {
+function UserHomepage(props) {
 	const history = useHistory();
 	const [order, setOrder] = React.useState('desc');
 	const [rows, setRows] = React.useState([]);
 	const [orderBy, setOrderBy] = React.useState('match');
 	const [page, setPage] = React.useState(0);
 	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+	const { logout } =
+		props;
 
 	const handleRequestSort = useCallback((event, property, orderProp) => {
 		setOrder(orderProp);
@@ -438,6 +440,11 @@ function UserHomepage() {
 		setRowsPerPage(parseInt(event.target.value, 10));
 		setPage(0);
 	};
+
+	const handleLogout = useCallback(() => {
+		logout();
+		history.push(`/`);
+	}, [history, logout]);
 
 	const fetchMatchUserList = useCallback((age = null, fame = null, location = null, tags = null) => {
 		let set = {};
@@ -471,6 +478,9 @@ function UserHomepage() {
 						setRows(rowsData);
 					})
 				}
+				else if (res.status === 401) {
+					handleLogout();
+				}
 				else {
 					console.log("Fail to get notifications");
 				}
@@ -479,7 +489,7 @@ function UserHomepage() {
 				console.log(error);
 				console.log("Fail to fetch");
 			})
-	}, [])
+	}, [handleLogout])
 
 	useEffect(() => {
 		fetchMatchUserList()

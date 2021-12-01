@@ -109,7 +109,8 @@ export default function MessagesMenu(props) {
 	};
 
 	const fetchMessages = useCallback((isCancelled) => {
-		setMenuIsLoading(true);
+		if (!isCancelled)
+			setMenuIsLoading(true);
 		// sleep(2000).then(() => {
 		fetch("http://" + process.env.REACT_APP_API_URL + "chat", {
 			method: 'GET',
@@ -126,18 +127,21 @@ export default function MessagesMenu(props) {
 								setMessages(data);
 							}
 						}
-						setMenuIsLoading(false);
+						if (!isCancelled)
+							setMenuIsLoading(false);
 					})
 				}
 				else {
 					console.log("Fail to get notifications");
-					setMenuIsLoading(false);
+					if (!isCancelled)
+						setMenuIsLoading(false);
 				}
 			})
 			.catch(error => {
 				console.log(error);
 				console.log("Fail to fetch");
-				setMenuIsLoading(false);
+				if (!isCancelled)
+					setMenuIsLoading(false);
 			})
 		// })
 	}, []);

@@ -20,8 +20,9 @@ function Profile(props) {
 		props;
 
 	useEffect(() => {
-		// document.title = 'MATCHA - Profile'
-		setIsLoading(true);
+		let isCancelled = false;
+		if (!isCancelled)
+			setIsLoading(true);
 
 		fetch("http://" + process.env.REACT_APP_API_URL + 'user/' + (props.path === '/profile' ? '' : props.computedMatch.params.username), {
 			method: 'GET',
@@ -30,27 +31,36 @@ function Profile(props) {
 			.then(res => {
 				if (res.ok && res.status === 200) {
 					return res.json().then((data) => {
-						setUser(data);
-						setIsLoading(false);
+						if (!isCancelled) {
+							setUser(data);
+							setIsLoading(false);
+						}
 					})
 				}
-				else if (res.status === 401) {
+				else if (res.status === 401 && !isCancelled) {
 					setIsLoading(false);
 					logout();
 					history.push(`/`);
 				}
 				else {
-					localStorage.removeItem("token");
-					setIsLoading(false);
-					history.push(`/`);
+					if (!isCancelled) {
+						localStorage.removeItem("token");
+						setIsLoading(false);
+						history.push(`/`);
+					}
 				}
 			})
 			.catch(error => {
 				console.log(error);
 				console.log("Fail to fetch");
-				setIsLoading(false);
-				history.push(`/`);
+				if (!isCancelled) {
+					setIsLoading(false);
+					history.push(`/`);
+				}
 			})
+		return () => {
+			isCancelled = true;
+		};
 	}, [props.path, props.computedMatch, history, props.user, logout]);
 
 	return (

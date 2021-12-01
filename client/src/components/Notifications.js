@@ -164,8 +164,9 @@ export default function Notifications(props) {
 		return number;
 	};
 
-	const fetchNotifications = useCallback(() => {
-		setIsLoading(true);
+	const fetchNotifications = useCallback((isCancelled) => {
+		if (!isCancelled)
+			setIsLoading(true);
 		// sleep(2000).then(() => {
 		fetch("http://" + process.env.REACT_APP_API_URL + "notification", {
 			method: 'GET',
@@ -174,34 +175,43 @@ export default function Notifications(props) {
 			.then(res => {
 				if (res.ok && res.status === 200) {
 					return res.json().then((data) => {
-						if (data.length)
-							setNotifications(data);
-						setIsLoading(false);
+						if (data.length) {
+							if (!isCancelled)
+								setNotifications(data);
+						}
+						if (!isCancelled)
+							setIsLoading(false);
 					})
 				}
 				else {
 					console.log("Fail to get notifications");
-					setIsLoading(false);
+					if (!isCancelled)
+						setIsLoading(false);
 				}
 			})
 			.catch(error => {
 				console.log(error);
 				console.log("Fail to fetch");
-				setIsLoading(false);
+				if (!isCancelled)
+					setIsLoading(false);
 			})
 		// })
 	}, [])
 
 	useEffect(() => {
+		let isCancelled = false;
 		if (props.websocket != null) {
 			props.websocket.addEventListener('message', function (msg) {
 				msg = JSON.parse(msg.data);
 				if (msg && msg.type === 'Notification') {
-					fetchNotifications();
+					fetchNotifications(isCancelled);
 				}
 			});
 		}
-		fetchNotifications();
+		fetchNotifications(isCancelled);
+		return () => {
+			isCancelled = true;
+		};
 	}, [props.websocket, fetchNotifications]);
 
 	return (

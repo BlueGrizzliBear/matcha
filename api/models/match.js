@@ -1,7 +1,7 @@
 const connection = require('../config/db');
 var validators = require('./validate');
 var fetch = require('cross-fetch');
-fdewdew
+
 function populate_fake_user_gps(users) {
 	users.forEach(function (user) {
 		fetch('http://api.positionstack.com/v1/forward?access_key=' + process.env.POSITIONSTACK_API_KEY + '&query=' + encodeURI(user.city) + ',' + encodeURI(user.country) + '&limit=1&output=json', {

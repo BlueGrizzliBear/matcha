@@ -47,7 +47,8 @@ function ImageGallery(props) {
 	const [imageArr, setImageArr] = useState(itemData);
 	const [isLoading, setIsLoading] = useState(itemData.map(() => true));
 	const inputFile = useRef(itemData.map(() => createRef()));
-
+	const { setErrorSnack } =
+		props;
 	const fetchImage = useCallback(
 		(path, index, withoutHeader) => {
 			fetch(path, {
@@ -71,11 +72,12 @@ function ImageGallery(props) {
 					});
 				})
 				.catch(error => {
-					console.log(error);
-					console.log("Fail to GET image from server");
+					setErrorSnack("Profile image: Can't communicate with server")
+					// console.log(error);
+					// console.log("Fail to GET image from server");
 				})
 		},
-		[],
+		[setErrorSnack],
 	);
 
 	useEffect(() => {
@@ -126,8 +128,9 @@ function ImageGallery(props) {
 					fetchImage("http://" + process.env.REACT_APP_API_URL + 'upload/' + res.image, index, props.user.fake);
 				})
 				.catch(error => {
-					console.log(error);
-					console.log("Fail to POST image to server");
+					setErrorSnack("Profile image: Can't communicate with server")
+					// console.log(error);
+					// console.log("Fail to POST image to server");
 				})
 		}
 	};
@@ -144,8 +147,9 @@ function ImageGallery(props) {
 				setImageArr(tempImgArr);
 			})
 			.catch(error => {
-				console.log(error);
-				console.log("Fail to POST image to server");
+				setErrorSnack("Profile image: Can't communicate with server")
+				// console.log(error);
+				// console.log("Fail to POST image to server");
 			})
 	};
 

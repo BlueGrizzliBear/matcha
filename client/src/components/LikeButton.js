@@ -28,12 +28,14 @@ function LikeButton({ match = 'match', isLiked = 'primary', standard = 'secondar
           handleLogout();
         }
         else {
-          console.log("Error in liking the profile");
+          props.setErrorSnack("Profile like: Please try again later")
+          // console.log("Error in liking the profile");
         }
       })
       .catch(error => {
-        console.log(error);
-        console.log("Fail to fetch");
+        props.setErrorSnack("Profile like: Can't communicate with server")
+        // console.log(error);
+        // console.log("Fail to fetch");
       })
   }
 

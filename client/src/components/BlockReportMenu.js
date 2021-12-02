@@ -44,12 +44,14 @@ function BlockReportMenu({ user, updateUser, ...props }) {
 								handleLogout();
 							}
 							else {
-								console.log("Fail to fetch user data");
+								props.setErrorSnack("Profile block: Please try again later")
+								// console.log("Fail to fetch user data");
 							}
 						})
 						.catch(error => {
-							console.log(error);
-							console.log("Fail to fetch user data");
+							props.setErrorSnack("Profile block: Can't communicate with server")
+							// console.log(error);
+							// 	console.log("Fail to fetch user data");
 						})
 					setBlocked(!blocked);
 				}
@@ -57,12 +59,14 @@ function BlockReportMenu({ user, updateUser, ...props }) {
 					handleLogout();
 				}
 				else {
-					console.log("Fail to block user");
+					props.setErrorSnack("Profile block: Please try again later")
+					// console.log("Fail to block user");
 				}
 			})
 			.catch((error) => {
-				console.log(error);
-				console.log("Fail to block user");
+				props.setErrorSnack("Profile block: Can't communicate with server")
+				// 		console.log(error);
+				// console.log("Fail to block user");
 			})
 	}
 
@@ -106,11 +110,13 @@ function BlockReportMenu({ user, updateUser, ...props }) {
 					handleLogout();
 				}
 				else {
-					console.log("Fail to report user");
+					props.setErrorSnack("Profile report: Please try again later")
+					// console.log("Fail to report user");
 				}
 			})
 			.catch((error) => {
-				console.log(error);
+				props.setErrorSnack("Profile report: Can't communicate with server")
+				// console.log(error);
 			})
 	};
 

@@ -10,7 +10,7 @@ function Interests(props) {
 
   const [chipData, setChipData] = React.useState([]);
   const [chipAdderDisplay, setChipAdderDisplay] = React.useState(false)
-  const { user, logout } =
+  const { user, logout, setErrorSnack } =
     props;
   let textInput = useRef(null);
 
@@ -39,11 +39,13 @@ function Interests(props) {
           handleLogout();
         }
         else
-          console.log("Fail to delete tag");
+          setErrorSnack('Profile interests: Wrong querry sent to the server')
+        // console.log("Fail to delete tag");
       })
       .catch((error) => {
-        console.log(error);
-        console.log("Fail to delete tag");
+        setErrorSnack("Profile interests: Can't communicate with server")
+        // console.log(error);
+        // console.log("Fail to delete tag");
       })
   };
 
@@ -77,11 +79,13 @@ function Interests(props) {
           handleLogout();
         }
         else
-          console.log("Fail to add tag");
+          setErrorSnack('Profile interests: Wrong querry sent to the server')
+        // console.log("Fail to add tag");
       })
       .catch((error) => {
-        console.log(error);
-        console.log("Fail to add tag");
+        setErrorSnack("Profile interests: Can't communicate with server")
+        // console.log(error);
+        // console.log("Fail to add tag");
       })
   };
 
@@ -112,14 +116,16 @@ function Interests(props) {
             handleLogout();
           }
           else
-            console.log("Fail to register user to server");
+            setErrorSnack('Profile interests: Wrong querry sent to the server')
+          // console.log("Fail to register user to server");
         })
         .catch((error) => {
-          console.log(error);
-          console.log("Fail to register user to server");
+          setErrorSnack("Profile interests: Can't communicate with server")
+          // console.log(error);
+          // console.log("Fail to register user to server");
         })
     }
-  }, [user, handleLogout]);
+  }, [user, handleLogout, setErrorSnack]);
 
   useEffect(() => {
     if (chipAdderDisplay) {

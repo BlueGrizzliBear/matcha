@@ -131,13 +131,14 @@ export default function Notifications(props) {
 					props.handleLogout();
 				}
 				else {
-					console.log("Fail to put status read on notifications");
+					// console.log("Fail to put status read on notifications");
+					setNotifications([{ message_id: 1, sender: 'server', message: 'Error: Try again later' }]);
 					setIsLoading(false);
 				}
 			})
 			.catch(error => {
-				console.log(error);
-				console.log("Fail to fetch");
+				// console.log(error);
+				setNotifications([{ message_id: 1, sender: 'server', message: "Error: can't reach server" }]);
 				setIsLoading(false);
 			})
 		// })
@@ -184,14 +185,22 @@ export default function Notifications(props) {
 					})
 				}
 				else {
-					console.log("Fail to get notifications");
+					// console.log("Fail to get notifications");
 					if (!isCancelled)
+						setNotifications([{ message_id: 1, sender: 'server', message: 'Error: Try again later' }]);
+					if (!isCancelled) {
 						setIsLoading(false);
+
+						// setErrorSnack('Notifications: Wrong querry sent to the server')
+					}
 				}
+
 			})
 			.catch(error => {
-				console.log(error);
-				console.log("Fail to fetch");
+				// console.log(error);
+				if (!isCancelled)
+					setNotifications([{ message_id: 1, sender: 'server', message: "Error: can't reach server" }]);
+				// console.log("Fail to fetch");
 				if (!isCancelled)
 					setIsLoading(false);
 			})

@@ -30,12 +30,12 @@ export function ChipsAdder(props) {
 						setOptions(fetchData)
 					})
 				}
-				else {
-					console.log("Fail to get notifications");
-				}
+				// else {
+				// 	console.log("Fail to get chip list");
+				// }
 			})
 			.catch(error => {
-				console.log(error);
+				// console.log(error);
 				console.log("Fail to fetch");
 			})
 	}, []);
@@ -104,12 +104,12 @@ export function ChipsAdderWithAddOption(props) {
 						setOptions(fetchData)
 					})
 				}
-				else {
-					console.log("Fail to get notifications");
-				}
+				// else {
+				// 	console.log("Fail to get chips list");
+				// }
 			})
 			.catch(error => {
-				console.log(error);
+				// console.log(error);
 				console.log("Fail to fetch");
 			})
 	}, []);

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useState } from 'react';
-import { Button, Box } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Snackbar, Button, Box } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 import InputForm, { PasswordInputForm } from '../components/InputForm';
@@ -13,6 +13,8 @@ function Register(props) {
 
 	const [errors, setErrors] = useState({});
 	const [showPassword, setPasswordState] = useState(false);
+	const [errorSnack, setErrorSnack] = React.useState(null);
+	const [openSnack, setOpenSnack] = React.useState(false);
 	const [values, setValues] = useState({
 		email: '',
 		lastname: '',
@@ -20,6 +22,17 @@ function Register(props) {
 		username: '',
 		password: '',
 	});
+
+	const handleOpenSnack = () => {
+		setOpenSnack(true);
+	};
+
+	const handleCloseSnack = (event, reason) => {
+		if (reason === 'clickaway') {
+			return;
+		}
+		setOpenSnack(false);
+	};
 
 	const regexMatch = function (value, regex) {
 		if (typeof value === 'string' && value.match(regex))
@@ -90,7 +103,6 @@ function Register(props) {
 			})
 				.then(res => {
 					if (res.ok) {
-						console.log("User successfully registered");
 						// console.log("code: " + res.status + ", status: " + res.statusText);
 						// props.setValue('isSent');
 						props.setValue('isSent', true);
@@ -103,15 +115,16 @@ function Register(props) {
 						errorsArr['email'] = "Username or email already exists.";
 						errorsArr['username'] = "Username or email already exists";
 						setErrors(errorsArr);
+						setErrorSnack('Username or email already exists')
 					}
 					else {
-						console.log("An error occured: please retry later.");
+						setErrorSnack('Register: Wrong querry sent to the server')
 						history.push(`/register`);
 
 					}
 				})
-				.catch(() => {
-					console.log("Fail to register user to server");
+				.catch((error) => {
+					setErrorSnack("Register: Can't communicate with server")
 				})
 		}
 	}
@@ -129,38 +142,53 @@ function Register(props) {
 		event.preventDefault();
 	};
 
+	useEffect(() => {
+		if (errorSnack)
+			handleOpenSnack();
+	}, [errorSnack])
+
 	return (
-		<Box className="FormBox">
-			<Box component="form" noValidate={true} autoComplete="off" onSubmit={handleRegister}>
-				<InputForm name="email" error={'email' in errors} helperText={'email' in errors && errors['email']} label="Email" value={values.email} onChange={handleChange('email')} autoFocus={true} />
-				<InputForm name="lastname" error={'lastname' in errors} helperText={'lastname' in errors && errors['lastname']} label="Lastname" value={values.lastname} onChange={handleChange('lastname')} />
-				<InputForm name="firstname" error={'firstname' in errors} helperText={'firstname' in errors && errors['firstname']} label="Firstname" value={values.firstname} onChange={handleChange('firstname')} />
-				<InputForm name="username" error={'username' in errors} helperText={'username' in errors && errors['username']} label="Username" value={values.username} onChange={handleChange('username')} />
-				<PasswordInputForm
-					error={'password' in errors}
-					helpertext={errors['password']}
-					filledInputProps={{
-						name: "password",
-						label: "Password",
-						value: values.password,
-						type: showPassword ? 'text' : 'password',
-						onChange: handleChange('password')
-					}}
-					iconButtonProps={{
-						onClick: handleClickShowPassword,
-						onMouseDown: handleMouseDownPassword,
-					}}
-					// visibility={values.showPassword ? <Visibility /> : <VisibilityOff />}
-					visibility={showPassword ? <Visibility /> : <VisibilityOff />}
-				/>
-				<Button variant="contained"
-					type="submit"
-					style={{ margin: "16px 0px 4px 0px" }}
-				>
-					Register
-				</Button>
+		<>
+			<Snackbar
+				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+				open={openSnack}
+				onClose={handleCloseSnack}
+				message={errorSnack}
+				autoHideDuration={6000}
+				key={'top-center'}
+			/>
+			<Box className="FormBox">
+				<Box component="form" noValidate={true} autoComplete="off" onSubmit={handleRegister}>
+					<InputForm name="email" error={'email' in errors} helperText={'email' in errors && errors['email']} label="Email" value={values.email} onChange={handleChange('email')} autoFocus={true} />
+					<InputForm name="lastname" error={'lastname' in errors} helperText={'lastname' in errors && errors['lastname']} label="Lastname" value={values.lastname} onChange={handleChange('lastname')} />
+					<InputForm name="firstname" error={'firstname' in errors} helperText={'firstname' in errors && errors['firstname']} label="Firstname" value={values.firstname} onChange={handleChange('firstname')} />
+					<InputForm name="username" error={'username' in errors} helperText={'username' in errors && errors['username']} label="Username" value={values.username} onChange={handleChange('username')} />
+					<PasswordInputForm
+						error={'password' in errors}
+						helpertext={errors['password']}
+						filledInputProps={{
+							name: "password",
+							label: "Password",
+							value: values.password,
+							type: showPassword ? 'text' : 'password',
+							onChange: handleChange('password')
+						}}
+						iconButtonProps={{
+							onClick: handleClickShowPassword,
+							onMouseDown: handleMouseDownPassword,
+						}}
+						// visibility={values.showPassword ? <Visibility /> : <VisibilityOff />}
+						visibility={showPassword ? <Visibility /> : <VisibilityOff />}
+					/>
+					<Button variant="contained"
+						type="submit"
+						style={{ margin: "16px 0px 4px 0px" }}
+					>
+						Register
+					</Button>
+				</Box>
 			</Box>
-		</Box>
+		</>
 	);
 
 }

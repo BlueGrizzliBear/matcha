@@ -57,12 +57,14 @@ function Gender(props) {
           history.push(`/`);
         }
         else {
-          console.log("Fail to change user gender");
+          props.setErrorSnack('Profile gender: Wrong querry sent to the server')
+          // console.log("Fail to change user gender");
         }
       })
       .catch((error) => {
-        console.log(error);
-        console.log("Fail to change user gender");
+        props.setErrorSnack("Profile gender: Can't communicate with server")
+        // console.log(error);
+        // console.log("Fail to change user gender");
       })
   };
 

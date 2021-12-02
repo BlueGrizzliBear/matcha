@@ -2,6 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 
 import { useHistory } from "react-router-dom";
+import { Snackbar } from '@mui/material';
 
 import Figures from '../components/Figures'
 import ImageGallery from '../components/ImageGallery'
@@ -16,8 +17,21 @@ function Profile(props) {
 	const history = useHistory();
 	const [user, setUser] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [errorSnack, setErrorSnack] = React.useState(null);
+	const [openSnack, setOpenSnack] = React.useState(false);
 	const { logout } =
 		props;
+
+	const handleOpenSnack = () => {
+		setOpenSnack(true);
+	};
+
+	const handleCloseSnack = (event, reason) => {
+		if (reason === 'clickaway') {
+			return;
+		}
+		setOpenSnack(false);
+	};
 
 	useEffect(() => {
 		let isCancelled = false;
@@ -43,39 +57,46 @@ function Profile(props) {
 					history.push(`/`);
 				}
 				else {
-					if (!isCancelled) {
-						localStorage.removeItem("token");
-						setIsLoading(false);
-						history.push(`/`);
-					}
+					setIsLoading(false);
+					setErrorSnack('Profile: Wrong querry sent to the server')
 				}
 			})
 			.catch(error => {
-				console.log(error);
-				console.log("Fail to fetch");
-				if (!isCancelled) {
-					setIsLoading(false);
-					history.push(`/`);
-				}
+				// console.log(error);
+				setIsLoading(false);
+				setErrorSnack("Profile: Can't communicate with server")
 			})
 		return () => {
 			isCancelled = true;
 		};
 	}, [props.path, props.computedMatch, history, props.user, logout]);
 
+	useEffect(() => {
+		if (errorSnack)
+			handleOpenSnack();
+	}, [errorSnack])
+
 	return (
 		<>
+			<Snackbar
+				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+				open={openSnack}
+				onClose={handleCloseSnack}
+				message={errorSnack}
+				autoHideDuration={6000}
+				key={'top-center'}
+			/>
 			{
 				isLoading === true ?
 					<Loading />
 					:
 					<>
-						<Figures {...props} user={user} updateUser={setUser} editable={user.isAuth} likeable={!user.isAuth} />
-						<ImageGallery {...props} user={user} editable={user.isAuth} />
-						<Interests {...props} user={user} />
-						<Biography {...props} bio={user.bio} editable={user.isAuth} />
-						<Gender {...props} gender={user.gender} editable={user.isAuth} />
-						<SexualPreferences {...props} preference={user.preference} editable={user.isAuth} />
+						<Figures {...props} setErrorSnack={setErrorSnack} user={user} updateUser={setUser} editable={user.isAuth} likeable={!user.isAuth} />
+						<ImageGallery {...props} setErrorSnack={setErrorSnack} user={user} editable={user.isAuth} />
+						<Interests {...props} setErrorSnack={setErrorSnack} user={user} />
+						<Biography {...props} setErrorSnack={setErrorSnack} bio={user.bio} editable={user.isAuth} />
+						<Gender {...props} setErrorSnack={setErrorSnack} gender={user.gender} editable={user.isAuth} />
+						<SexualPreferences {...props} setErrorSnack={setErrorSnack} preference={user.preference} editable={user.isAuth} />
 					</>
 			}
 		</>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { styled } from '@mui/material/styles';
-import { Link, Box, TablePagination, MenuItem, Typography, Paper, List, ListItemButton, ListItemAvatar, Avatar, TextField, Slider, Button, Chip, Popover, Menu } from '@mui/material';
+import { Snackbar, Link, Box, TablePagination, MenuItem, Typography, Paper, List, ListItemButton, ListItemAvatar, Avatar, TextField, Slider, Button, Chip, Popover, Menu } from '@mui/material';
 import { useHistory } from "react-router-dom";
 import calculateAge from '../utility/utilities'
 import { ChipsArray, ChipsAdder } from '../components/Chips'
@@ -419,6 +419,8 @@ function UserHomepage(props) {
 	const [orderBy, setOrderBy] = React.useState('match');
 	const [page, setPage] = React.useState(0);
 	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+	const [errorSnack, setErrorSnack] = React.useState(null);
+	const [openSnack, setOpenSnack] = React.useState(false);
 	const { logout } =
 		props;
 
@@ -426,6 +428,17 @@ function UserHomepage(props) {
 		setOrder(orderProp);
 		setOrderBy(property);
 	}, []);
+
+	const handleOpenSnack = () => {
+		setOpenSnack(true);
+	};
+
+	const handleCloseSnack = (event, reason) => {
+		if (reason === 'clickaway') {
+			return;
+		}
+		setOpenSnack(false);
+	};
 
 	const handleClick = (event, link) => {
 		event.preventDefault();
@@ -482,12 +495,12 @@ function UserHomepage(props) {
 					handleLogout();
 				}
 				else {
-					console.log("Fail to get notifications");
+					setErrorSnack('Homepage: Fail to get user match list from server')
 				}
 			})
 			.catch(error => {
-				console.log(error);
-				console.log("Fail to fetch");
+				// console.log(error);
+				setErrorSnack("Homepage: Can't communicate with server")
 			})
 	}, [handleLogout])
 
@@ -495,41 +508,55 @@ function UserHomepage(props) {
 		fetchMatchUserList()
 	}, [fetchMatchUserList])
 
+	useEffect(() => {
+		if (errorSnack)
+			handleOpenSnack();
+	}, [errorSnack])
+
 	// Avoid a layout jump when reaching the last page with empty rows.
 	// const emptyRows =
 	// 	page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
 	return (
-		<Box sx={{ margin: 2 }}>
-			<EnhancedSearchBar
-				onRequestSort={handleRequestSort}
-				fetchMatchUserList={fetchMatchUserList}
+		<>
+			<Snackbar
+				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+				open={openSnack}
+				onClose={handleCloseSnack}
+				message={errorSnack}
+				autoHideDuration={6000}
+				key={'top-center'}
 			/>
-			<Paper sx={{ width: '100%', mb: 2 }}>
-				<List>
-					{stableSort(rows, getComparator(order, orderBy))
-						.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-						.map((row, index) => {
+			<Box sx={{ margin: 2 }}>
+				<EnhancedSearchBar
+					onRequestSort={handleRequestSort}
+					fetchMatchUserList={fetchMatchUserList}
+				/>
+				<Paper sx={{ width: '100%', mb: 2 }}>
+					<List>
+						{stableSort(rows, getComparator(order, orderBy))
+							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+							.map((row, index) => {
 
-							return (
-								<ListItemButton key={'list-item-button' + index} onClick={(event) => handleClick(event, row.username)}>
-									<ListItemAvatar>
-										<Avatar sx={{ width: 100, height: 100 }} alt={row.firstname + ' ' + row.lastname} src={row.img0_path} />
-									</ListItemAvatar>
-									<ListItem>
-										<Box>
-											<Typography>{row.firstname + ' ' + row.lastname + ', ' + calculateAge(row.birth_date)}</Typography>
-											<Typography>{row.gender + ' interested in ' + row.preference}</Typography>
-											<Typography>{'Lives in ' + row.city + ', ' + row.country}</Typography>
-											<Typography>{parser.parseFromString(`<!doctype html><body>${row.bio}`, 'text/html').body.textContent}</Typography>
-											<Typography>{row.tags && ('Interests: ' + row.tags)}</Typography>
-											<Typography>{'Fame: ' + row.fame}</Typography>
-										</Box>
-									</ListItem>
-								</ListItemButton>
-							);
-						})}
-					{/* {emptyRows > 0 && (
+								return (
+									<ListItemButton key={'list-item-button' + index} onClick={(event) => handleClick(event, row.username)}>
+										<ListItemAvatar>
+											<Avatar sx={{ width: 100, height: 100 }} alt={row.firstname + ' ' + row.lastname} src={row.img0_path} />
+										</ListItemAvatar>
+										<ListItem>
+											<Box>
+												<Typography>{row.firstname + ' ' + row.lastname + ', ' + calculateAge(row.birth_date)}</Typography>
+												<Typography>{row.gender + ' interested in ' + row.preference}</Typography>
+												<Typography>{'Lives in ' + row.city + ', ' + row.country}</Typography>
+												<Typography>{parser.parseFromString(`<!doctype html><body>${row.bio}`, 'text/html').body.textContent}</Typography>
+												<Typography>{row.tags && ('Interests: ' + row.tags)}</Typography>
+												<Typography>{'Fame: ' + row.fame}</Typography>
+											</Box>
+										</ListItem>
+									</ListItemButton>
+								);
+							})}
+						{/* {emptyRows > 0 && (
 						<TableRow
 							style={{
 								height: (dense ? 33 : 53) * emptyRows,
@@ -538,23 +565,24 @@ function UserHomepage(props) {
 							<TableCell colSpan={6} />
 						</TableRow>
 					)} */}
-					{/* {!emptyRows && (
+						{/* {!emptyRows && (
 						<ListItem disablePadding>
 							<p>No results</p>
 						</ListItem>
 					)} */}
-				</List>
-				<TablePagination
-					rowsPerPageOptions={[5, 10, 25]}
-					component="div"
-					count={rows.length}
-					rowsPerPage={rowsPerPage}
-					page={page}
-					onPageChange={handleChangePage}
-					onRowsPerPageChange={handleChangeRowsPerPage}
-				/>
-			</Paper>
-		</Box>
+					</List>
+					<TablePagination
+						rowsPerPageOptions={[5, 10, 25]}
+						component="div"
+						count={rows.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						onPageChange={handleChangePage}
+						onRowsPerPageChange={handleChangeRowsPerPage}
+					/>
+				</Paper>
+			</Box>
+		</>
 	);
 }
 

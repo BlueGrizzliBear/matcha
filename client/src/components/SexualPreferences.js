@@ -66,12 +66,14 @@ function SexualPreferences(props) {
           history.push(`/`);
         }
         else {
-          console.log("Fail to change sexual preference");
+          props.setErrorSnack('Profile preference: Wrong querry sent to the server')
+          // console.log("Fail to change sexual preference");
         }
       })
       .catch((error) => {
-        console.log(error);
-        console.log("Fail to change sexual preference");
+        props.setErrorSnack("Profile preference: Can't communicate with server")
+        // console.log(error);
+        // console.log("Fail to change sexual preference");
       })
   };
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useState } from 'react';
-import { Button, Box } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Snackbar, Button, Box } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 import { PasswordInputForm } from '../components/InputForm';
@@ -13,9 +13,22 @@ function Register(props) {
 
 	const [errors, setErrors] = useState({});
 	const [showPassword, setPasswordState] = useState(false);
+	const [errorSnack, setErrorSnack] = React.useState(null);
+	const [openSnack, setOpenSnack] = React.useState(false);
 	const [values, setValues] = useState({
 		password: '',
 	});
+
+	const handleOpenSnack = () => {
+		setOpenSnack(true);
+	};
+
+	const handleCloseSnack = (event, reason) => {
+		if (reason === 'clickaway') {
+			return;
+		}
+		setOpenSnack(false);
+	};
 
 	const regexMatch = function (value, regex) {
 		if (typeof value === 'string' && value.match(regex))
@@ -62,7 +75,7 @@ function Register(props) {
 			})
 				.then(res => {
 					if (res.ok) {
-						console.log("User successfully reset password");
+						// console.log("User successfully reset password");
 						// console.log("code: " + res.status + ", status: " + res.statusText);
 						// props.setValue('isSent');
 						history.push(`/login`);
@@ -70,12 +83,12 @@ function Register(props) {
 						// props.register("/login", test);
 					}
 					else {
-						console.log("An error occured: please retry later.");
+						setErrorSnack("Reset password: Wrong querry sent to the server")
 						history.push(`/login`);
 					}
 				})
 				.catch(() => {
-					console.log("Fail to register user to server");
+					setErrorSnack("Reset password: Can't communicate with server")
 				})
 		}
 	}
@@ -93,33 +106,48 @@ function Register(props) {
 		event.preventDefault();
 	};
 
+	useEffect(() => {
+		if (errorSnack)
+			handleOpenSnack();
+	}, [errorSnack])
+
 	return (
-		<Box className="FormBox">
-			<Box component="form" noValidate={true} autoComplete="off" onSubmit={handleRegister}>
-				<PasswordInputForm
-					error={'password' in errors}
-					helpertext={errors['password']}
-					filledInputProps={{
-						name: "password",
-						label: "New Password",
-						value: values.password,
-						type: showPassword ? 'text' : 'password',
-						onChange: handleChange('password')
-					}}
-					iconButtonProps={{
-						onClick: handleClickShowPassword,
-						onMouseDown: handleMouseDownPassword,
-					}}
-					visibility={showPassword ? <Visibility /> : <VisibilityOff />}
-				/>
-				<Button variant="contained"
-					type="submit"
-					style={{ margin: "16px 0px 4px 0px" }}
-				>
-					Reset Password
-				</Button>
+		<>
+			<Snackbar
+				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+				open={openSnack}
+				onClose={handleCloseSnack}
+				message={errorSnack}
+				autoHideDuration={6000}
+				key={'top-center'}
+			/>
+			<Box className="FormBox">
+				<Box component="form" noValidate={true} autoComplete="off" onSubmit={handleRegister}>
+					<PasswordInputForm
+						error={'password' in errors}
+						helpertext={errors['password']}
+						filledInputProps={{
+							name: "password",
+							label: "New Password",
+							value: values.password,
+							type: showPassword ? 'text' : 'password',
+							onChange: handleChange('password')
+						}}
+						iconButtonProps={{
+							onClick: handleClickShowPassword,
+							onMouseDown: handleMouseDownPassword,
+						}}
+						visibility={showPassword ? <Visibility /> : <VisibilityOff />}
+					/>
+					<Button variant="contained"
+						type="submit"
+						style={{ margin: "16px 0px 4px 0px" }}
+					>
+						Reset Password
+					</Button>
+				</Box>
 			</Box>
-		</Box>
+		</>
 	);
 
 }

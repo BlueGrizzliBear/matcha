@@ -132,14 +132,19 @@ export default function MessagesMenu(props) {
 					})
 				}
 				else {
-					console.log("Fail to get notifications");
+					// console.log("Fail to get messages");
+					if (!isCancelled)
+						setMessages([{ sender_user_id: 1, message: "Error: try again later" }]);
+
 					if (!isCancelled)
 						setMenuIsLoading(false);
 				}
 			})
 			.catch(error => {
-				console.log(error);
-				console.log("Fail to fetch");
+				// console.log(error);
+				// console.log("Fail to fetch");
+				if (!isCancelled)
+					setMessages([{ sender_user_id: 1, message: "Error: try again later" }]);
 				if (!isCancelled)
 					setMenuIsLoading(false);
 			})

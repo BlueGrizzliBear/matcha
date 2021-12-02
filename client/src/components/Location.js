@@ -41,7 +41,8 @@ function Location({ user, editable, updateUser, ...props }) {
 		country: 'Location',
 	});
 	let textInput = useRef(null);
-
+	const { setErrorSnack } =
+		props;
 	const handleLogout = () => {
 		props.logout();
 		history.push(`/`);
@@ -102,17 +103,20 @@ function Location({ user, editable, updateUser, ...props }) {
 								handleLogout();
 							}
 							else {
-								console.log("Fail to update user location to server");
+								setErrorSnack('Profile location update: Wrong querry sent to the server')
+								// console.log("Fail to update user location to server");
 							}
 						})
 						.catch((error) => {
-							console.log(error);
-							console.log("Fail to update user location to server");
+							// console.log(error);
+							// console.log("Fail to update user location to server");
+							setErrorSnack("Profile location update: Can't communicate with server")
 						})
 				});
 			}
 			else {
-				console.log("Geolocation is Not Available on navigator");
+				setErrorSnack("Geolocation is Not Available on navigator")
+				// console.log("Geolocation is Not Available on navigator");
 			}
 		}
 		else {
@@ -139,12 +143,14 @@ function Location({ user, editable, updateUser, ...props }) {
 						handleLogout();
 					}
 					else {
-						console.log("Fail to update user location to server");
+						setErrorSnack('Profile location update: Wrong querry sent to the server')
+						// console.log("Fail to update user location to server");
 					}
 				})
 				.catch((error) => {
-					console.log(error);
-					console.log("Fail to update user location to server");
+					setErrorSnack("Profile location update: Can't communicate with server")
+					// console.log(error);
+					// console.log("Fail to update user location to server");
 				})
 		}
 	}
@@ -198,12 +204,14 @@ function Location({ user, editable, updateUser, ...props }) {
 							handleLogout();
 						}
 						else {
-							console.log("Fail to add location");
+							setErrorSnack('Profile location update: Wrong querry sent to the server')
+							// console.log("Fail to add location");
 						}
 					})
 					.catch((error) => {
-						console.log(error);
-						console.log("Fail to add location");
+						setErrorSnack("Profile location update: Can't communicate with server")
+						// console.log(error);
+						// console.log("Fail to add location");
 					})
 			}
 		}
@@ -223,13 +231,14 @@ function Location({ user, editable, updateUser, ...props }) {
 				}
 			})
 			.catch((error) => {
-				console.log(error);
-				console.log("Fail to get client ip adress");
+				setErrorSnack('Profile location update: API to get user IP is not working')
+				// console.log(error);
+				// console.log("Fail to get client ip adress");
 			})
 		return () => {
 			isCancelled = true;
 		};
-	}, [])
+	}, [setErrorSnack])
 
 	return (
 		<>

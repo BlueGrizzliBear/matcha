@@ -112,12 +112,14 @@ function NameBirthEmail({ user, editable, updateUser, isOnline, ...props }) {
 							handleLogout();
 						}
 						else {
-							console.log("Fail to change name or birthdate");
+							props.setErrorSnack('Profile name/birth update: Wrong querry sent to the server')
+							// console.log("Fail to change name or birthdate");
 						}
 					})
 					.catch((error) => {
-						console.log(error);
-						console.log("Fail to change name or birthdate");
+						// console.log(error);
+						props.setErrorSnack("Profile name/birth update: Can't communicate with server")
+						// console.log("Fail to change name or birthdate");
 					})
 			}
 		}
@@ -150,12 +152,14 @@ function NameBirthEmail({ user, editable, updateUser, isOnline, ...props }) {
 						setErrors(errorsArr);
 					}
 					else {
-						console.log("Fail to change Email");
+						props.setErrorSnack('Profile email update: Wrong querry sent to the server')
+						// console.log("Fail to change Email");
 					}
 				})
 				.catch((error) => {
-					console.log(error);
-					console.log("Fail to change Email");
+					props.setErrorSnack("Profile email update: Can't communicate with server")
+					// console.log(error);
+					// console.log("Fail to change Email");
 				})
 		}
 	};

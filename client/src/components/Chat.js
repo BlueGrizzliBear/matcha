@@ -35,12 +35,16 @@ function ListItemSendMessage(props) {
                         props.fetchconversation(props.receiverid);
                     }
                     else {
-                        console.log("Fail to send message");
+                        textFieldRef.value = ''
+                        props.fetchconversation(props.receiverid);
+                        // console.log("Fail to send message");
                     }
                 })
                 .catch(error => {
-                    console.log(error);
-                    console.log("Fail to fetch");
+                    textFieldRef.value = ''
+                    props.fetchconversation(props.receiverid);
+                    // console.log(error);
+                    // console.log("Fail to fetch");
                 })
         }
     }
@@ -200,13 +204,17 @@ export default function Messages(props) {
                     })
                 }
                 else {
-                    console.log("Fail to get notifications");
+                    setConversation([{ message: 'Error: try again later' }]);
+                    setReceiverName('server');
+                    // console.log("Fail to get chat conversations");
                     loadName ? setIsPopperLoading(false) : setIsChatLoading(false);
                 }
             })
             .catch(error => {
-                console.log(error);
-                console.log("Fail to fetch");
+                setConversation([{ message: "Error: can't reach server" }]);
+                setReceiverName('server');
+                // console.log(error);
+                // console.log("Fail to fetch");
                 loadName ? setIsPopperLoading(false) : setIsChatLoading(false);
             })
         // })

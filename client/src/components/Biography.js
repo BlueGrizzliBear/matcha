@@ -54,11 +54,13 @@ function Biography(props) {
             history.push(`/`);
           }
           else {
-            console.log("Fail to add bio");
+            props.setErrorSnack('Profile biography: Wrong querry sent to the server')
+            // console.log("Fail to add bio");
           }
         })
-        .catch(() => {
-          console.log("Fail to add bio");
+        .catch((error) => {
+          props.setErrorSnack("Profile biography: Can't communicate with server")
+          // console.log("Fail to add bio");
         })
     }
   };

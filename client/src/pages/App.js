@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import '../assets/stylesheets/Components.css';
 import { Switch, Route, Redirect } from "react-router-dom";
+import { Snackbar } from '@mui/material';
 
 import UserHomepage from './UserHomepage';
 import ResetPassword from './ResetPassword';
@@ -61,11 +62,15 @@ class App extends Component {
       user: {},
       websocket: null,
       // websocketEvent: null,
-      socketMessage: null
+      socketMessage: null,
+      errorSnack: null,
+      openSnack: false
     };
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
     this.setValue = this.setValue.bind(this);
+    this.handleOpenSnack = this.handleOpenSnack.bind(this);
+    this.handleCloseSnack = this.handleCloseSnack.bind(this);
   }
 
   // websocketEventListener(websocket) {
@@ -111,6 +116,17 @@ class App extends Component {
     });
   }
 
+  handleOpenSnack() {
+    this.setState({ openSnack: true });
+  };
+
+  handleCloseSnack(event, reason) {
+    if (reason === 'clickaway') {
+      return;
+    }
+    this.setState({ openSnack: false });
+  };
+
   fetchUser() {
     this.setState({ isLoading: true }, () => {
       fetch("http://" + process.env.REACT_APP_API_URL + 'user', {
@@ -138,20 +154,24 @@ class App extends Component {
               // });
             })
           }
-          else {
+          else if (res.status === 401) {
             localStorage.removeItem("token");
             if (this.state.websocket)
               this.state.websocket.close();
             this.setState({ isLoading: false, hasToken: null, websocket: null });
           }
+          else {
+            localStorage.removeItem("token");
+            if (this.state.websocket)
+              this.state.websocket.close();
+            this.setState({ isLoading: false, hasToken: null, websocket: null, errorSnack: "App: Wrong querry sent to server" })
+          }
         })
         .catch(error => {
-          console.log(error);
-          console.log("Fail to fetch");
           localStorage.removeItem("token");
           if (this.state.websocket)
             this.state.websocket.close();
-          this.setState({ isLoading: false, hasToken: null, websocket: null });
+          this.setState({ isLoading: false, hasToken: null, websocket: null, errorSnack: "App: Can't communicate with server" })
         })
     });
   }
@@ -169,6 +189,12 @@ class App extends Component {
     return true;
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.errorSnack !== this.state.errorSnack) {
+      this.handleOpenSnack();
+    }
+  }
+
   render() {
     return (
       <>
@@ -176,7 +202,14 @@ class App extends Component {
           <NavBar auth={this.state.isAuth} logout={this.logout} footerref={this.footerRef} websocket={this.state.websocket} />
         </header>
         <main>
-
+          <Snackbar
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            open={this.state.openSnack}
+            onClose={this.handleCloseSnack}
+            message={this.state.errorSnack}
+            autoHideDuration={6000}
+            key={'top-center'}
+          />
           {this.state.isLoading === true ?
             Loading()
             :

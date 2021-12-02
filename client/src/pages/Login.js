@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Button, Box, Link, FormHelperText } from '@mui/material';
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { Snackbar, Button, Box, Link, FormHelperText } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import InputForm, { PasswordInputForm } from '../components/InputForm';
 
@@ -15,13 +16,25 @@ function Login(props) {
 	const [error, setError] = useState(false);
 	const [sent, setSent] = useState(props.isSent);
 	const [verification, setVerification] = useState(false);
-
+	const [errorSnack, setErrorSnack] = React.useState(null);
+	const [openSnack, setOpenSnack] = React.useState(false);
 	const [values, setValues] = useState({
 		username: '',
 		password: '',
 	});
 
 	const [showPassword, setPasswordState] = useState(false);
+
+	const handleOpenSnack = () => {
+		setOpenSnack(true);
+	};
+
+	const handleCloseSnack = (event, reason) => {
+		if (reason === 'clickaway') {
+			return;
+		}
+		setOpenSnack(false);
+	};
 
 	const handleLogin = (e) => {
 		e.preventDefault();
@@ -44,19 +57,20 @@ function Login(props) {
 						})
 					}
 					else if (res.status === 403) {
-						console.log("Account not activated.");
+						setErrorSnack("Account not activated.")
 						setSent(false);
 						setError(true);
 						setVerification(true);
 					}
 					else {
-						console.log("Incorrect username or password.");
+						setErrorSnack("Incorrect username or password.")
 						setSent(false);
 						setError(true);
 					}
 				})
-				.catch(() => {
-					console.log("Fail to login to server");
+				.catch((error) => {
+					// console.log(error);
+					setErrorSnack("Login: Can't communicate with server")
 				})
 		}
 		else {
@@ -76,12 +90,13 @@ function Login(props) {
 						console.log("Link sent.");
 					}
 					else {
-						console.log("Incorrect username or password.");
+						setErrorSnack("Invalid username")
 						setError(true);
 					}
 				})
-				.catch(() => {
-					console.log("Fail to send verification link");
+				.catch((error) => {
+					setErrorSnack("Account activation: Can't communicate with server")
+					// console.log("Fail to send verification link");
 				})
 		}
 	};
@@ -96,12 +111,19 @@ function Login(props) {
 			}),
 		})
 			.then(res => {
-				setSent(true);
-				setVerification(false);
-				setError(false);
+				if (res.ok) {
+					setSent(true);
+					setVerification(false);
+					setError(false);
+				}
+				else {
+					setErrorSnack("Invalid username")
+					setError(true);
+				}
 			})
-			.catch(() => {
-				console.log("Fail to send password reset link to email");
+			.catch((error) => {
+				setErrorSnack("Account activation: Can't communicate with server")
+				// console.log("Fail to send password reset link to email");
 			})
 	};
 
@@ -117,8 +139,21 @@ function Login(props) {
 		event.preventDefault();
 	};
 
+	useEffect(() => {
+		if (errorSnack)
+			handleOpenSnack();
+	}, [errorSnack])
+
 	return (
 		<>
+			<Snackbar
+				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+				open={openSnack}
+				onClose={handleCloseSnack}
+				message={errorSnack}
+				autoHideDuration={6000}
+				key={'top-center'}
+			/>
 			<Box className="FormBox">
 				<Box component="form" noValidate={true} autoComplete="off" onSubmit={handleLogin}>
 					<InputForm disabled={verification} error={error} helperText={error && !verification && "Incorrect username or password"} label="Username" value={values.username} autoFocus={true} onChange={handleChange('username')} />
